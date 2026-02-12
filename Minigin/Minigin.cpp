@@ -11,11 +11,14 @@
 //#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include "Minigin.h"
+
+#include <thread>
+
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
-
+#include "Time.h"
 SDL_Window* g_window{};
 
 void LogSDLVersion(const std::string& message, int major, int minor, int patch)
@@ -100,7 +103,18 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame()
 {
+
+	const int ms_per_frame = 16;
+
+	Time::GetInstance().Update();
+
+	auto frame_start_time = Time::GetInstance().GetLastTime();
+
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
+
+	auto sleep_time = frame_start_time + std::chrono::milliseconds(ms_per_frame) - std::chrono::high_resolution_clock::now();
+
+	std::this_thread::sleep_for(sleep_time);
 }
