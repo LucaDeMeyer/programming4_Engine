@@ -24,3 +24,10 @@ void dae::GameObject::Render() const
 	}
 }
 
+void dae::GameObject::LateUpdate()
+{
+	std::erase_if(m_Components, [](const auto& comp) {
+		return comp->IsMarkedForDestruction();
+		});
+}
+

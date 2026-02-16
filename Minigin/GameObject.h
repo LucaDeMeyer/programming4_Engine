@@ -13,11 +13,12 @@ namespace dae
 	{
 	public:
 
-		virtual void Update();
-		virtual void Render() const;
+		void Update();
+		void Render() const;
+		void LateUpdate();
 
 		GameObject() = default;
-		virtual ~GameObject();
+		~GameObject();
 		GameObject(const GameObject& other) = delete;
 		GameObject(GameObject&& other) = delete;
 		GameObject& operator=(const GameObject& other) = delete;
@@ -51,7 +52,7 @@ namespace dae
 		{
 			for (auto& comp : m_Components)
 			{
-				if (dynamic_cast<T>(comp.get()))
+				if (dynamic_cast<T*>(comp.get()))
 				{
 					comp->MarkForDestruction();
 					return;
@@ -63,6 +64,8 @@ namespace dae
 		{
 			m_MarkedForDestruction = true;
 		}
+
+		bool IsMarkedForDestruction() { return m_MarkedForDestruction; }
 	private:
 		std::vector < std::unique_ptr<BaseComponent>> m_Components;
 		bool m_MarkedForDestruction = false;
