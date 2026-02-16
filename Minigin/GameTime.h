@@ -17,7 +17,6 @@ public:
 	Time& operator=(const Time&) = delete;
 
 	float GetDeltaTime() const { return deltaTime; }
-
 	void Update()
 	{
 		const auto current_time = std::chrono::high_resolution_clock::now();
