@@ -1,18 +1,11 @@
 #ifndef GAME_TIME_H  
 #define GAME_TIME_H
 #include <chrono>
+#include "Singleton.h"
 
-class Time  final
+class Time  final : public dae::Singleton<Time>
 {
 public:
-	static Time& GetInstance()
-	{
-		if (!instance)
-			instance = new Time();
-
-		return *instance;
-	}
-
 	Time(const Time&) = delete;
 	Time& operator=(const Time&) = delete;
 
@@ -32,12 +25,8 @@ public:
 	}
 
 private:
-
+	friend class Singleton<Time>;
 	Time() = default;
-	~Time() = default;
-
-	inline static Time* instance = nullptr;
-
 	float deltaTime = 0 ;
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 

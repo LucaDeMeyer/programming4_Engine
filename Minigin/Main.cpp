@@ -41,7 +41,7 @@ static void load()
 	to->AddComponent<dae::TextComponent>();
 	to->GetComponent<dae::TextComponent>()->SetText("Programming 4 Assignment");
 	to->GetComponent<dae::TextComponent>()->SetFont("lingua.otf", 36);
-	to->GetComponent<dae::TextComponent>()->SetColor( 255, 255, 0, 255 );
+	to->GetComponent<dae::TextComponent>()->SetColor( 255, 255, 255, 255 );
 	to->AddComponent<dae::TransformComponent>();
 	to->GetComponent<dae::TransformComponent>()->SetPosition(292, 20);
 	scene.Add(std::move(to));
