@@ -34,6 +34,18 @@ void Scene::Update()
 	}
 }
 
+void Scene::LateUpdate()
+{
+	for (auto& object : m_objects)
+	{
+		object->LateUpdate();;
+	}
+
+	std::erase_if(m_objects, [](const auto& object) {
+		return object->IsMarkedForDestruction();
+		});
+}
+
 void Scene::Render() const
 {
 	for (const auto& object : m_objects)
