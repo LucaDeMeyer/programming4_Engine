@@ -10,8 +10,8 @@ namespace dae
 	{
 	public:
 		void Add(std::unique_ptr<GameObject> object);
-		void Remove(const GameObject& object);
-		void RemoveAll();
+		void Remove(GameObject& object) const;
+		void RemoveAll() const;
 
 		void Update();
 		void LateUpdate();
