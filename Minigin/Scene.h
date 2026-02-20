@@ -10,8 +10,8 @@ namespace dae
 	{
 	public:
 		void Add(std::unique_ptr<GameObject> object);
-		void Remove(GameObject& object) const;
-		void RemoveAll() const;
+		void Remove(GameObject& object);			//not entirely sure if these should be const or not -> from a language perspective they should, since the vector itself isnt changing,
+		void RemoveAll();							//but since we are technically changing the scene => marking objects for later destruction they shouldnt be const.
 
 		void Update();
 		void LateUpdate();

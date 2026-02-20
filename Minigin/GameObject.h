@@ -1,14 +1,15 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <vector>
 
 #include "BaseComponent.h"
-#include "Transform.h"
-
 namespace dae
 {
 	class Texture2D;
 	class BaseComponent;
+
+	class TransformComponent;
 	class GameObject final
 	{
 	public:
@@ -66,8 +67,20 @@ namespace dae
 		}
 
 		bool IsMarkedForDestruction() { return m_MarkedForDestruction; }
+
+		void SetParent(GameObject* parent, bool keepWorldPos);
+		const std::vector < std::unique_ptr<GameObject>>& GetChildren() const;
 	private:
-		std::vector < std::unique_ptr<BaseComponent>> m_Components;
+
+		std::unique_ptr<dae::GameObject> removeChild(GameObject* child);
+		void AddChild(std::unique_ptr<GameObject> child);
+		bool IsChild(GameObject* obj);
+
+		GameObject* m_pParent;
+		std::vector < std::unique_ptr<GameObject>> m_Children;
+
+		std::vector< std::unique_ptr<BaseComponent>> m_Components;
+		std::unique_ptr<TransformComponent> m_transform;
 		bool m_MarkedForDestruction = false;
 	};
 }

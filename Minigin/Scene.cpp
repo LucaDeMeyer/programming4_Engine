@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "Scene.h"
+#include <cassert>
 
 using namespace dae;
 
@@ -9,12 +10,12 @@ void Scene::Add(std::unique_ptr<GameObject> object)
 	m_objects.emplace_back(std::move(object));
 }
 
-void Scene::Remove(GameObject& object) const
+void Scene::Remove(GameObject& object)
 {
 	object.MarkForDestruction();
 }
 
-void Scene::RemoveAll() const
+void Scene::RemoveAll()
 {
 	for (auto& object : m_objects)
 		object->MarkForDestruction();

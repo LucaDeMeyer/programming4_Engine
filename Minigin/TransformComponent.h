@@ -21,11 +21,24 @@ namespace dae
 		void SetPosition(float x, float y, float z = 0);
 		void SetPosition(const glm::vec3& position);
 
+		void SetLocalPosition(const glm::vec3& pos);
+
+		glm::vec3& GetLocalPosition() { return m_localPosition; }
+		glm::vec3& GetWorldPosition() { return m_worldPosition; }
+
+
 		void Update() override{}
 		void Render() const override{}
 
+		void SetPositionDirty();
+
 	private:
 		glm::vec3 m_position;
+
+		glm::vec3 m_localPosition;
+		glm::vec3 m_worldPosition;
+
+		bool m_IsDirty = false;
 	};
 }
 #endif
