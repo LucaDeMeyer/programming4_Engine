@@ -50,44 +50,38 @@ void dae::GameObject::SetParent(GameObject* parent, bool keepWorldPos)
 	if (m_pParent) m_pParent->removeChild(this);
 	m_pParent = parent;
 	if (m_pParent)
-	{
-		auto childPtr = m_pParent->removeChild(this);
-		parent->AddChild(std::move(childPtr));
-	}
+		parent->AddChild(this);
 }
 
-void dae::GameObject::AddChild(std::unique_ptr<GameObject> child)
+void dae::GameObject::AddChild(GameObject* child)
 {
+	if (!child || child == this)
+		return;
+
+	if (std::find(m_Children.begin(), m_Children.end(), child) != m_Children.end())
+		return;
+
 	child->m_pParent = this;
-	m_Children.emplace_back(std::move(child));
+	m_Children.emplace_back(child);
 }
 
-bool dae::GameObject::IsChild(GameObject* obj) // do we only need to check at first level or should we go over all descendants?
+bool dae::GameObject::IsChild(GameObject* obj) const
 {
-	return std::find_if(m_Children.begin(),m_Children.end(),[obj](const std::unique_ptr<GameObject>& child)
+	for (auto* child : m_Children)
 	{
-			return child.get() == obj;
-		}) != m_Children.end();
-}
-
-std::unique_ptr<dae::GameObject> dae::GameObject::removeChild(GameObject* child)
-{
-	auto it = std::find_if(m_Children.begin(), m_Children.end(),
-		[child](const auto& p) { return p.get() == child; });
-
-	if (it != m_Children.end()) {
-		std::unique_ptr<GameObject> releasedChild = std::move(*it);
-		m_Children.erase(it);
-
-
-		releasedChild->m_pParent = nullptr;
-		return releasedChild;
+		if (child == obj || child->IsChild(obj))
+			return true;
 	}
-	return nullptr;
+	return false;
+}
+
+void dae::GameObject::removeChild(GameObject* child)
+{
+	std::erase(m_Children, child);
 }
 
 
-const std::vector<std::unique_ptr<dae::GameObject>>& dae::GameObject::GetChildren() const
+std::vector<dae::GameObject*>& dae::GameObject::GetChildren()
 {
 	return m_Children;
 }

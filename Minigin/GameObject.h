@@ -69,15 +69,16 @@ namespace dae
 		bool IsMarkedForDestruction() { return m_MarkedForDestruction; }
 
 		void SetParent(GameObject* parent, bool keepWorldPos);
-		const std::vector < std::unique_ptr<GameObject>>& GetChildren() const;
+		std::vector<dae::GameObject*>& GetChildren();
+		GameObject* GetParent() const { return m_pParent; }
 	private:
 
-		std::unique_ptr<dae::GameObject> removeChild(GameObject* child);
-		void AddChild(std::unique_ptr<GameObject> child);
-		bool IsChild(GameObject* obj);
+		void removeChild(GameObject* child);
+		void AddChild(GameObject* child);
+		bool IsChild(GameObject* obj) const;
 
 		GameObject* m_pParent;
-		std::vector < std::unique_ptr<GameObject>> m_Children;
+		std::vector <GameObject*> m_Children;
 
 		std::vector< std::unique_ptr<BaseComponent>> m_Components;
 		std::unique_ptr<TransformComponent> m_transform;

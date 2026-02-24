@@ -17,6 +17,8 @@
 #include "Scene.h"
 
 #include <filesystem>
+
+#include "RotationComponent.h"
 namespace fs = std::filesystem;
 
 static void load()
@@ -55,6 +57,26 @@ static void load()
 	fps->AddComponent<dae::TransformComponent>();
 	fps->GetComponent<dae::TransformComponent>()->SetPosition(50, 20);
 	scene.Add(std::move(fps));
+
+	auto tank_1 = std::make_unique<dae::GameObject>();
+	tank_1->AddComponent<dae::TransformComponent>();
+	tank_1->GetComponent<dae::TransformComponent>()->SetLocalPosition({ 200, 300,1 });
+	tank_1->AddComponent<dae::TextureComponent>();
+	tank_1->GetComponent<dae::TextureComponent>()->SetTexture("Red_Tank.png");
+	scene.Add(std::move(tank_1));
+
+	auto tank_2 = std::make_unique<dae::GameObject>();
+	tank_2->AddComponent<dae::TransformComponent>();
+	tank_2->GetComponent<dae::TransformComponent>()->SetLocalPosition({ 200, 320,1 });
+	tank_2->AddComponent<dae::TextureComponent>();
+	tank_2->GetComponent<dae::TextureComponent>()->SetTexture("Blue_Tank.png");
+	tank_2->AddComponent<dae::RotationComponent>();
+	tank_2->GetComponent<dae::RotationComponent>()->SetRotationSpeed(2.f);
+
+	tank_2->SetParent(tank_1.get(), false);
+
+	scene.Add(std::move(tank_2));
+
 }
 
 int main(int, char*[]) {

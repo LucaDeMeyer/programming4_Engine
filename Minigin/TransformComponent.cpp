@@ -31,3 +31,29 @@ void dae::TransformComponent::SetPositionDirty()
 	}
 
 }
+
+void dae::TransformComponent::SetLocalRotation(float angle)
+{
+	m_localRotation = angle;
+	SetPositionDirty(); 
+}
+
+glm::vec3& dae::TransformComponent::GetWorldPosition()
+{
+	if (m_IsDirty)
+	{
+		GameObject* parent = GetParent()->GetParent();
+
+		if (parent)
+		{
+			m_worldPosition = parent->GetComponent<dae::TransformComponent>()->GetWorldPosition() + m_localPosition;
+		}
+		else
+		{
+			m_worldPosition = m_localPosition;
+		}
+		m_IsDirty = false;
+		
+	}
+	return m_worldPosition;
+}

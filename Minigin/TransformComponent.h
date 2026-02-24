@@ -23,8 +23,11 @@ namespace dae
 
 		void SetLocalPosition(const glm::vec3& pos);
 
+		void SetLocalRotation(float angle);
+
 		glm::vec3& GetLocalPosition() { return m_localPosition; }
-		glm::vec3& GetWorldPosition() { return m_worldPosition; }
+		glm::vec3& GetWorldPosition();
+		float GetLocalRotation() { return m_localRotation; }
 
 
 		void Update() override{}
@@ -37,7 +40,7 @@ namespace dae
 
 		glm::vec3 m_localPosition;
 		glm::vec3 m_worldPosition;
-
+		float m_localRotation;
 		bool m_IsDirty = false;
 	};
 }

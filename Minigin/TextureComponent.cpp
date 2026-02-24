@@ -22,7 +22,7 @@ void dae::TextureComponent::Render() const
 		auto transform = GetParent()->GetComponent<TransformComponent>();
 		if (transform)
 		{
-			const auto& pos = transform->GetPosition();
+			const auto& pos = transform->GetLocalPosition();
 
 			Renderer::GetInstance().RenderTexture(*m_Texture.get(), pos.x, pos.y);
 		}
