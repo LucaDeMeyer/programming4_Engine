@@ -65,7 +65,7 @@ static void load()
 	tank_1->AddComponent<dae::TextureComponent>();
 	tank_1->GetComponent<dae::TextureComponent>()->SetTexture("Red_Tank.png");
 	tank_1->AddComponent<dae::RotationComponent>();
-	tank_1->GetComponent<dae::RotationComponent>()->SetRotationSpeed(180.f);
+	tank_1->GetComponent<dae::RotationComponent>()->SetRotationSpeed(-180.f);
 
 
 	auto tank_2 = std::make_unique<dae::GameObject>();
