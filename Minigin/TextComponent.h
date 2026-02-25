@@ -19,11 +19,11 @@ namespace dae
 
 		void Render() const override;
 
-		void SetText(const std::string& text);
+		TextComponent* SetText(const std::string& text);
 		std::string GetText() const;
-		void SetFont(const std::string& fontPath, Uint8 fontSize);
+		TextComponent* SetFont(const std::string& fontPath, Uint8 fontSize);
 
-		void SetOffset(const glm::vec2& offset);
+		TextComponent* SetOffset(const glm::vec2& offset);
 		glm::vec2 GetOffset() const;
 
 		TextComponent(dae::GameObject* parent);
@@ -35,7 +35,7 @@ namespace dae
 
 
 		SDL_Color GetColor();
-		void SetColor(Uint8 r, Uint8 g, Uint8 b,Uint8 a);
+		TextComponent* SetColor(Uint8 r, Uint8 g, Uint8 b,Uint8 a);
 
 	private:
 		SDL_Color m_color{};

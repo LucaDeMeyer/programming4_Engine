@@ -49,34 +49,38 @@ void dae::TextComponent::Render() const
 	}
 }
 
-void dae::TextComponent::SetText(const std::string& text)
+dae::TextComponent* dae::TextComponent::SetText(const std::string& text)
 {
 	m_text = text;
 	if (m_font) m_needsUpdate = true;
+	return this;
 }
 
 std::string dae::TextComponent::GetText() const
 {
 	return m_text;
 }
-void dae::TextComponent::SetOffset(const glm::vec2& offset)
+dae::TextComponent* dae::TextComponent::SetOffset(const glm::vec2& offset)
 {
 	m_Offset = offset;
+	return this;
 }
 glm::vec2 dae::TextComponent::GetOffset() const
 {
 	return m_Offset;
 }
-void dae::TextComponent::SetFont(const std::string& fontPath, Uint8 fontSize)
+dae::TextComponent* dae::TextComponent::SetFont(const std::string& fontPath, Uint8 fontSize)
 {
 	m_font = ResourceManager::GetInstance().LoadFont(fontPath, fontSize);
 	m_needsUpdate = true;
+	return this;
 }
 
-void dae::TextComponent::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+dae::TextComponent* dae::TextComponent::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
 	m_color = SDL_Color{ r, g, b, a };
 	m_needsUpdate = true;
+	return this;
 }
 
 SDL_Color dae::TextComponent::GetColor()
