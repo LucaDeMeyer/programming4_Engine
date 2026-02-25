@@ -29,9 +29,12 @@ namespace dae
 		T* AddComponent(Args&&...args)
 		{
 			std::unique_ptr<T> comp = std::make_unique<T>(this,std::forward<Args>(args)...);
+
+			T* rawPtr = comp.get();
+
 			m_Components.push_back(std::move(comp));
 
-			return comp.get();
+			return rawPtr;
 		}
 
 		template<typename T>
