@@ -2,6 +2,7 @@
 #define TRANSFORM_COMPONENT_H
 
 #include "BaseComponent.h"
+#include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
 
 namespace dae
@@ -9,7 +10,7 @@ namespace dae
 	class TransformComponent : public dae::BaseComponent
 	{
 	public:
-		TransformComponent(GameObject* owner) : BaseComponent(owner) , m_position(){}
+		TransformComponent(GameObject* owner) : BaseComponent(owner){}
 		~TransformComponent() override = default;
 
 		TransformComponent(const TransformComponent& other) = delete;
@@ -17,9 +18,6 @@ namespace dae
 		TransformComponent& operator=(const TransformComponent& other) = delete;
 		TransformComponent& operator=(TransformComponent&& other) noexcept = delete;
 
-		const glm::vec3& GetPosition() const { return m_position; }
-		void SetPosition(float x, float y, float z = 0);
-		void SetPosition(const glm::vec3& position);
 
 		void SetLocalPosition(const glm::vec3& pos);
 
@@ -27,7 +25,8 @@ namespace dae
 
 		glm::vec3& GetLocalPosition() { return m_localPosition; }
 		glm::vec3& GetWorldPosition();
-		float GetLocalRotation() { return m_localRotation; }
+		const glm::mat4& GetWorldMatrix();
+		float& GetLocalRotation() { return m_localRotation; }
 
 
 		void Update() override{}
@@ -36,12 +35,12 @@ namespace dae
 		void SetPositionDirty();
 
 	private:
-		glm::vec3 m_position;
 
-		glm::vec3 m_localPosition;
-		glm::vec3 m_worldPosition;
-		float m_localRotation;
-		bool m_IsDirty = false;
+		glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_worldPosition{ 0.0f, 0.0f, 0.0f };
+		glm::mat4 m_worldMatrix{ 1.0f };
+		float m_localRotation{ 0.0f };                
+		bool m_IsDirty = true;
 	};
 }
 #endif

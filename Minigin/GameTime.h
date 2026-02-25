@@ -14,6 +14,8 @@ public:
 	{
 		const auto current_time = std::chrono::high_resolution_clock::now();
 
+		if (lastTime.time_since_epoch().count() == 0) lastTime = current_time;
+
 		deltaTime = std::chrono::duration<float>(current_time - lastTime).count();
 
 		lastTime = current_time;

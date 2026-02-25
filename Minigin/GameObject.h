@@ -18,7 +18,7 @@ namespace dae
 		void Render() const;
 		void LateUpdate();
 
-		GameObject() = default;
+		GameObject();
 		~GameObject();
 		GameObject(const GameObject& other) = delete;
 		GameObject(GameObject&& other) = delete;
@@ -71,13 +71,15 @@ namespace dae
 		void SetParent(GameObject* parent, bool keepWorldPos);
 		std::vector<dae::GameObject*>& GetChildren();
 		GameObject* GetParent() const { return m_pParent; }
+		TransformComponent* GetTransform() { return m_transform.get(); }
+
 	private:
 
 		void removeChild(GameObject* child);
 		void AddChild(GameObject* child);
 		bool IsChild(GameObject* obj) const;
 
-		GameObject* m_pParent;
+		GameObject* m_pParent = nullptr;
 		std::vector <GameObject*> m_Children;
 
 		std::vector< std::unique_ptr<BaseComponent>> m_Components;

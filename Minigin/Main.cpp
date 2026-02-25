@@ -33,8 +33,7 @@ static void load()
 	go = std::make_unique<dae::GameObject>();
 	go->AddComponent<dae::TextureComponent>();
 	go->GetComponent<dae::TextureComponent>()->SetTexture("logo.png");
-	go->AddComponent<dae::TransformComponent>();
-	go->GetComponent<dae::TransformComponent>()->SetPosition(358, 180);
+	go->GetTransform()->SetLocalPosition({ 358, 180,1 });
 	scene.Add(std::move(go));
 
 	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
@@ -43,9 +42,8 @@ static void load()
 	to->AddComponent<dae::TextComponent>();
 	to->GetComponent<dae::TextComponent>()->SetText("Programming 4 Assignment");
 	to->GetComponent<dae::TextComponent>()->SetFont("lingua.otf", 36);
-	to->GetComponent<dae::TextComponent>()->SetColor( 255, 255, 255, 255 );
-	to->AddComponent<dae::TransformComponent>();
-	to->GetComponent<dae::TransformComponent>()->SetPosition(292, 20);
+	to->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
+	to->GetTransform()->SetLocalPosition({ 292, 20,1 });
 	scene.Add(std::move(to));
 
 	auto fps = std::make_unique<dae::GameObject>();
@@ -54,29 +52,33 @@ static void load()
 	fps->GetComponent<dae::TextComponent>()->SetFont("lingua.otf", 15);
 	fps->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
 	fps->AddComponent<dae::FPSComponent>();
-	fps->AddComponent<dae::TransformComponent>();
-	fps->GetComponent<dae::TransformComponent>()->SetPosition(50, 20);
+	fps->GetTransform()->SetLocalPosition({ 50, 20,1 });
 	scene.Add(std::move(fps));
 
+	auto pivot = std::make_unique<dae::GameObject>();
+	pivot->GetTransform()->SetLocalPosition({ 300, 300, 1});
+	pivot->AddComponent<dae::RotationComponent>();
+	pivot->GetComponent<dae::RotationComponent>()->SetRotationSpeed(-180.f);
+
 	auto tank_1 = std::make_unique<dae::GameObject>();
-	tank_1->AddComponent<dae::TransformComponent>();
-	tank_1->GetComponent<dae::TransformComponent>()->SetLocalPosition({ 200, 300,1 });
+	tank_1->GetTransform()->SetLocalPosition({ 60, 10,1 });
 	tank_1->AddComponent<dae::TextureComponent>();
 	tank_1->GetComponent<dae::TextureComponent>()->SetTexture("Red_Tank.png");
-	scene.Add(std::move(tank_1));
+	tank_1->AddComponent<dae::RotationComponent>();
+	tank_1->GetComponent<dae::RotationComponent>()->SetRotationSpeed(-180.f);
+
 
 	auto tank_2 = std::make_unique<dae::GameObject>();
-	tank_2->AddComponent<dae::TransformComponent>();
-	tank_2->GetComponent<dae::TransformComponent>()->SetLocalPosition({ 200, 320,1 });
+	tank_2->GetTransform()->SetLocalPosition({ 60, 0,1 });
 	tank_2->AddComponent<dae::TextureComponent>();
 	tank_2->GetComponent<dae::TextureComponent>()->SetTexture("Blue_Tank.png");
-	tank_2->AddComponent<dae::RotationComponent>();
-	tank_2->GetComponent<dae::RotationComponent>()->SetRotationSpeed(2.f);
 
+	tank_1->SetParent(pivot.get(), false);
 	tank_2->SetParent(tank_1.get(), false);
 
+	scene.Add(std::move(pivot));
+	scene.Add(std::move(tank_1));
 	scene.Add(std::move(tank_2));
-
 }
 
 int main(int, char*[]) {

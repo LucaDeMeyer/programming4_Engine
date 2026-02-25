@@ -10,7 +10,7 @@
 void dae::FPSComponent::Update()
 {
     if (m_TextComp == nullptr)
-        m_TextComp = GetParent()->GetComponent<TextComponent>();
+        m_TextComp = GetOwner()->GetComponent<TextComponent>();
 
     m_frameCount++;
 

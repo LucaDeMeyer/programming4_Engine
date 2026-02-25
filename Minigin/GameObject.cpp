@@ -5,6 +5,10 @@
 #include "TextComponent.h"
 #include "TextureComponent.h"
 #include "TransformComponent.h"
+dae::GameObject::GameObject()
+{
+	m_transform = std::make_unique<TransformComponent>(this);
+}
 dae::GameObject::~GameObject() = default;
 
 void dae::GameObject::Update()
@@ -13,6 +17,7 @@ void dae::GameObject::Update()
 	{
 		comp->Update();
 	}
+
 }
 
 
@@ -43,7 +48,7 @@ void dae::GameObject::SetParent(GameObject* parent, bool keepWorldPos)
 	{
 		if (keepWorldPos)
 		{
-			m_transform->SetLocalPosition(m_transform->GetWorldPosition() - parent->GetComponent<TransformComponent>()->GetWorldPosition());
+			m_transform->SetLocalPosition(m_transform->GetWorldPosition() - parent->GetTransform()->GetWorldPosition());
 		}
 		m_transform->SetPositionDirty();
 	}

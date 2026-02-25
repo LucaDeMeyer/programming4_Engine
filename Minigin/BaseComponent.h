@@ -18,7 +18,7 @@ namespace dae
         virtual void Render() const = 0;        // not too sure about having these abstract functions in here
     											//-> not every comp needs to update or render, fine for now 
 
-        dae::GameObject* GetParent() const { return m_pOwner; }
+        dae::GameObject* GetOwner() const { return m_pOwner; }
 
         void MarkForDestruction()
         {

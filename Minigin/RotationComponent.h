@@ -17,13 +17,13 @@ namespace dae
 		RotationComponent& operator=(RotationComponent&& other) = delete;
 
 		void SetRotationSpeed(const float newSpeed) { m_RotationSpeed = newSpeed; }
-		float GetRotationSpeed() const { return m_RotationSpeed; }
+		float& GetRotationSpeed()  { return m_RotationSpeed; }
 
 		void Update() override;
 		void Render() const override{}
 
 	private:
-		float m_RotationSpeed;
+		float m_RotationSpeed = 0;
 	};
 }
 #endif
