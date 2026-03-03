@@ -33,6 +33,8 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   Minigin/TextComponent.cpp
   Minigin/FPSComponent.cpp
   Minigin/RotationComponent.cpp
+  Minigin/ThrashTheCache.h
+  Minigin/ThrashTheCacheUI.cpp
 )
 
 # enable c++20 features
@@ -119,9 +121,34 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/steam")
 find_package(Steamworks QUIET)
 
+Find_package(imgui CONFIG QUIET)
+if(NOT imgui_FOUND)
+    FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui
+        GIT_TAG v1.92.5-docking
+        GIT_PROGRESS TRUE
+    )
+    FetchContent_MakeAvailable(imgui)
+endif()
+
+add_library(imgui STATIC
+  ${imgui_SOURCE_DIR}/imgui.cpp
+  ${imgui_SOURCE_DIR}/imgui_draw.cpp
+  ${imgui_SOURCE_DIR}/imgui_tables.cpp
+  ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+  ${imgui_SOURCE_DIR}/imgui_demo.cpp
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp
+)
+target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${sdl3_SOURCE_DIR}/include)
+target_link_libraries(imgui PUBLIC SDL3::SDL3)
+target_compile_features(imgui PUBLIC cxx_std_20)
+
 target_include_directories("${TARGET_NAME}" PUBLIC
   ${CMAKE_SOURCE_DIR}/Minigin/
   ${VLD_INCLUDE_DIR}
+  ${imgui_SOURCE_DIR}
 )
 
 target_link_libraries("${TARGET_NAME}" PUBLIC
@@ -129,6 +156,7 @@ target_link_libraries("${TARGET_NAME}" PUBLIC
   SDL3_ttf::SDL3_ttf
   glm::glm
   ${VLD_LIBRARIES}
+  imgui
 )
 
 if(MSVC)
@@ -242,3 +270,7 @@ else()
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
   )
 endif()
+
+
+add_executable(Ex1 ThrashTheCache/Ex_01/main.cpp)
+add_executable(Ex2 ThrashTheCache/Ex_02/main.cpp)
