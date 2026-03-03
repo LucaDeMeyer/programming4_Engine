@@ -11,6 +11,8 @@ namespace dae {
         TestResult m_Ex1Results;
         TestResult m_Ex2Results;
         TestResult m_Ex2AltResults;
+
+        int m_NumSamples;
     };
 }
 

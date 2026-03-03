@@ -38,12 +38,11 @@ public:
     class ThrashTheCache final
     {
     public:
-        static TestResult RunExercise1()
+        static TestResult RunExercise1(int numSamples)
         {
             TestResult testResult;
             const size_t numElements = 1ULL << 26;
             std::vector<int> buffer(numElements, 1);
-            const int numSamples = 12;
 
             for (int stepsize = 1; stepsize <= 1024; stepsize *= 2) {
                 std::vector<float> timings;
@@ -61,7 +60,7 @@ public:
             }
             return testResult;
         };
-        static TestResult RunExercise2()
+        static TestResult RunExercise2(int numSamples)
         {
             TestResult testResult;
             const size_t numElements = 1ULL << 26;
@@ -69,7 +68,7 @@ public:
 
             for (int stepsize = 1; stepsize <= 1024; stepsize *= 2) {
                 std::vector<float> timings;
-                for (int n = 0; n < 12; ++n) {
+                for (int n = 0; n < numSamples; ++n) {
                     auto start = std::chrono::high_resolution_clock::now();
                     for (size_t i = 0; i < numElements; i += stepsize) {
                         buffer[i].ID *= 2;
@@ -83,7 +82,7 @@ public:
             }
             return testResult;
         }
-        static TestResult RunExercise2Alt()
+        static TestResult RunExercise2Alt(int numSamples)
         {
             TestResult testResult;
             const size_t numElements = 1ULL << 26;
@@ -95,7 +94,7 @@ public:
 
             for (int stepsize = 1; stepsize <= 1024; stepsize *= 2) {
                 std::vector<float> timings;
-                for (int n = 0; n < 12; ++n) {
+                for (int n = 0; n < numSamples; ++n) {
                     auto start = std::chrono::high_resolution_clock::now();
                     for (size_t i = 0; i < numElements; i += stepsize) {
                         buffer[i].ID *= 2;
