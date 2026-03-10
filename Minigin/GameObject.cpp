@@ -29,6 +29,15 @@ void dae::GameObject::Render() const
 	}
 }
 
+void dae::GameObject::RenderUI()
+{
+	for (const auto& comp : m_Components)
+	{
+		comp->RenderUI();
+	}
+}
+
+
 void dae::GameObject::LateUpdate()
 {
 	std::erase_if(m_Components, [](const auto& comp) {

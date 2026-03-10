@@ -14,11 +14,10 @@ else()
 endif()
 
 # list source files here
-add_executable(${TARGET_NAME} ${TARGET_PARAM}
+add_library(${TARGET_NAME} STATIC
   Minigin/Font.cpp
   Minigin/GameObject.cpp
   Minigin/InputManager.cpp
-  Minigin/Main.cpp
   Minigin/Minigin.cpp
   Minigin/Renderer.cpp
   Minigin/ResourceManager.cpp
@@ -33,8 +32,6 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   Minigin/TextComponent.cpp
   Minigin/FPSComponent.cpp
   Minigin/RotationComponent.cpp
-  Minigin/ThrashTheCache.h
-  Minigin/ThrashTheCacheUI.cpp
 )
 
 # enable c++20 features
@@ -274,3 +271,13 @@ endif()
 
 add_executable(Ex1 ThrashTheCache/Ex_01/main.cpp)
 add_executable(Ex2 ThrashTheCache/Ex_02/main.cpp)
+
+
+add_executable(ThrashTheCache ThrashTheCache/main.cpp ThrashTheCache/ThrashTheCache.h ThrashTheCache/ThrashTheCacheUI.cpp)
+target_link_libraries(ThrashTheCache PRIVATE ${TARGET_NAME} imgui)
+target_include_directories(ThrashTheCache PRIVATE ${CMAKE_SOURCE_DIR}/Minigin ${imgui_SOURCE_DIR})
+
+
+add_executable(Commands Assignment_Commands/main.cpp)
+target_link_libraries(Commands PRIVATE ${TARGET_NAME} imgui)
+target_include_directories(Commands PRIVATE ${CMAKE_SOURCE_DIR}/Minigin ${imgui_SOURCE_DIR})

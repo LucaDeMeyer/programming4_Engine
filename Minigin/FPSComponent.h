@@ -20,7 +20,7 @@ namespace dae
 
 		void Update() override;
 		void Render() const override{}
-		
+	
 	private:
 		float m_elapsedTime = 0.0f;
 		int m_frameCount = 0;

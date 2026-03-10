@@ -13,7 +13,6 @@
 void dae::Renderer::Init(SDL_Window* window)
 {
 	m_window = window;
-	m_trashUI = std::make_unique<ThrashTheCacheUI>();
 	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 
 #if defined(__EMSCRIPTEN__)
@@ -47,7 +46,7 @@ void dae::Renderer::Render() const
 	ImGui::NewFrame();
 
 	//ImGui::ShowDemoWindow();
-	m_trashUI->Render();
+	SceneManager::GetInstance().RenderUI();
 	ImGui::Render();
 
 	const auto& color = GetBackgroundColor();
@@ -59,8 +58,6 @@ void dae::Renderer::Render() const
 	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
 }
-
-
 
 void dae::Renderer::Destroy()
 {

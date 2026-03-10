@@ -17,6 +17,7 @@ namespace dae
         virtual void Update() = 0;
         virtual void Render() const = 0;        // not too sure about having these abstract functions in here
     											//-> not every comp needs to update or render, fine for now 
+        virtual void RenderUI() {}
 
         dae::GameObject* GetOwner() const { return m_pOwner; }
 

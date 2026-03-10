@@ -16,6 +16,7 @@ namespace dae
 
 		void Update();
 		void Render() const;
+		void RenderUI();
 		void LateUpdate();
 
 		GameObject();

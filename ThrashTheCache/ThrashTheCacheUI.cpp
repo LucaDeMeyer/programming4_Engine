@@ -1,7 +1,7 @@
 #include "ThrashTheCacheUI.h"
 #include <imgui.h>
 
-void dae::ThrashTheCacheUI::Render() {
+void dae::ThrashTheCacheUI::RenderUI() {
     ImGui::Begin("Cache Benchmark exercise");
 
     ImGui::InputInt("Samples", &m_NumSamples);

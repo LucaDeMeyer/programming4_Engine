@@ -23,3 +23,11 @@ dae::Scene& dae::SceneManager::CreateScene()
 	m_scenes.emplace_back(new Scene());
 	return *m_scenes.back();
 }
+
+void dae::SceneManager::RenderUI()
+{
+	for (const auto& scene : m_scenes)
+	{
+		scene->RenderUI();
+	}
+}

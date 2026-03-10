@@ -8,9 +8,9 @@ namespace dae
 	{
 	public:
 
-		RotationComponent(GameObject* parent) : BaseComponent(parent), m_RotationSpeed(){}
+		explicit RotationComponent(GameObject* parent) : BaseComponent(parent), m_RotationSpeed(){}
 
-		~RotationComponent() override{};
+		~RotationComponent() override = default;
 		RotationComponent(const RotationComponent& other) = delete;
 		RotationComponent(RotationComponent&& other) = delete;
 		RotationComponent& operator=(const RotationComponent& other) = delete;

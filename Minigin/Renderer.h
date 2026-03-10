@@ -1,8 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include "Singleton.h"
-#include "ThrashTheCacheUI.h"
-
 namespace dae
 {
 	class Texture2D;
@@ -14,7 +12,8 @@ namespace dae
 		SDL_Renderer* m_renderer{};
 		SDL_Window* m_window{};
 		SDL_Color m_clearColor{};
-		std::unique_ptr<ThrashTheCacheUI> m_trashUI;
+
+
 	public:
 		void Init(SDL_Window* window);
 		void Render() const;
