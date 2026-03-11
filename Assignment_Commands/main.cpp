@@ -1,7 +1,11 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include "ActorCommands.h"
 #include "FPSComponent.h"
+#include "InputManager.h"
+#include "MovementComponent.h"
+#include "RotationComponent.h"
 #include "TextComponent.h"
 #include "TextureComponent.h"
 #include "TransformComponent.h"
@@ -51,6 +55,72 @@ static void load()
 	fps->GetTransform()->SetLocalPosition({ 50, 20,1 });
 	scene.Add(std::move(fps));
 
+
+	auto tank_1 = std::make_unique<dae::GameObject>();
+	tank_1->GetTransform()->SetLocalPosition({ 60, 10,1 });
+	tank_1->AddComponent<dae::TextureComponent>()->SetTexture("Red_Tank.png");
+	tank_1->AddComponent<dae::MovementComponent>();
+	tank_1->GetComponent<dae::MovementComponent>()->SetMovementSpeed(50.0f);
+
+	auto moveUpCommand = std::make_unique<dae::MoveVertical>(tank_1.get(),dae::Direction::Negative);
+	auto MoveLeftCommand = std::make_unique<dae::MoveHorizontal>(tank_1.get(),dae::Direction::Negative);
+	auto moveDownCommand = std::make_unique<dae::MoveVertical>(tank_1.get(), dae::Direction::Positive);
+	auto MoveRightCommand = std::make_unique<dae::MoveHorizontal>(tank_1.get(), dae::Direction::Positive);
+
+	dae::InputManager::GetInstance().BindKeyCommand(
+		SDLK_W,
+		dae::InputState::Pressed,
+		std::move(moveUpCommand)
+	);
+
+	dae::InputManager::GetInstance().BindKeyCommand(
+		SDLK_S,
+		dae::InputState::Pressed,
+		std::move(moveDownCommand)
+	);
+
+	dae::InputManager::GetInstance().BindKeyCommand(
+		SDLK_A,
+		dae::InputState::Pressed,
+		std::move(MoveLeftCommand)
+	);
+
+	dae::InputManager::GetInstance().BindKeyCommand(
+		SDLK_D,
+		dae::InputState::Pressed,
+		std::move(MoveRightCommand)
+	);
+
+
+
+	auto tank_2 = std::make_unique<dae::GameObject>();
+	tank_2->GetTransform()->SetLocalPosition({ 60, 0,1 });
+	tank_2->AddComponent<dae::TextureComponent>()->SetTexture("Blue_Tank.png");
+	tank_2->AddComponent<dae::MovementComponent>();
+	tank_2->GetComponent<dae::MovementComponent>()->SetMovementSpeed(100.0f);
+
+
+	auto moveUpCommand2 = std::make_unique<dae::MoveVertical>(tank_2.get(), dae::Direction::Negative);
+	auto MoveLeftCommand2 = std::make_unique<dae::MoveHorizontal>(tank_2.get(), dae::Direction::Negative);
+	auto moveDownCommand2 = std::make_unique<dae::MoveVertical>(tank_2.get(), dae::Direction::Positive);
+	auto MoveRightCommand2 = std::make_unique<dae::MoveHorizontal>(tank_2.get(), dae::Direction::Positive);
+
+	dae::InputManager::GetInstance().BindControllerCommand(
+		0, dae::Controller::ControllerButton::DPadLeft,
+		dae::InputState::Pressed, std::move(MoveLeftCommand2));
+	dae::InputManager::GetInstance().BindControllerCommand(
+		0, dae::Controller::ControllerButton::DPadRight,
+		dae::InputState::Pressed, std::move(MoveRightCommand2));
+	dae::InputManager::GetInstance().BindControllerCommand(
+		0, dae::Controller::ControllerButton::DPadUp,
+		dae::InputState::Pressed, std::move(moveUpCommand2));
+	dae::InputManager::GetInstance().BindControllerCommand(
+		0, dae::Controller::ControllerButton::DPadDown,
+		dae::InputState::Pressed, std::move(moveDownCommand2));
+
+
+	scene.Add(std::move(tank_1));
+	scene.Add(std::move(tank_2));
 }
 
 int main(int, char* []) {

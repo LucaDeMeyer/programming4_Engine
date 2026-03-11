@@ -32,6 +32,10 @@ add_library(${TARGET_NAME} STATIC
   Minigin/TextComponent.cpp
   Minigin/FPSComponent.cpp
   Minigin/RotationComponent.cpp
+  Minigin/ActorCommands.cpp
+  Minigin/Controller.cpp
+  Minigin/MovementComponent.cpp
+  
 )
 
 # enable c++20 features
