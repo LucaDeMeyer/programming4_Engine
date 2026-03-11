@@ -187,12 +187,6 @@ if(EMSCRIPTEN)
   # Have emscripten generate a html page too.
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
-elseif(WIN32)
-  # Set minigin as the default startup project
-  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
-  # Set working directory to output folder
-  set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET_NAME}>")
-
   # Copy SDL dlls to output folder
   set(SDL_RUNTIME_DLLS
     SDL3::SDL3
@@ -285,3 +279,8 @@ target_include_directories(ThrashTheCache PRIVATE ${CMAKE_SOURCE_DIR}/Minigin ${
 add_executable(Commands Assignment_Commands/main.cpp)
 target_link_libraries(Commands PRIVATE ${TARGET_NAME} imgui)
 target_include_directories(Commands PRIVATE ${CMAKE_SOURCE_DIR}/Minigin ${imgui_SOURCE_DIR})
+
+if(WIN32)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Commands)
+    set_target_properties(Commands PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Commands>")
+endif()

@@ -57,7 +57,7 @@ static void load()
 
 
 	auto tank_1 = std::make_unique<dae::GameObject>();
-	tank_1->GetTransform()->SetLocalPosition({ 60, 10,1 });
+	tank_1->GetTransform()->SetLocalPosition({ 60, 100,1 });
 	tank_1->AddComponent<dae::TextureComponent>()->SetTexture("Red_Tank.png");
 	tank_1->AddComponent<dae::MovementComponent>();
 	tank_1->GetComponent<dae::MovementComponent>()->SetMovementSpeed(50.0f);
@@ -94,7 +94,7 @@ static void load()
 
 
 	auto tank_2 = std::make_unique<dae::GameObject>();
-	tank_2->GetTransform()->SetLocalPosition({ 60, 0,1 });
+	tank_2->GetTransform()->SetLocalPosition({ 60, 200,1 });
 	tank_2->AddComponent<dae::TextureComponent>()->SetTexture("Blue_Tank.png");
 	tank_2->AddComponent<dae::MovementComponent>();
 	tank_2->GetComponent<dae::MovementComponent>()->SetMovementSpeed(100.0f);

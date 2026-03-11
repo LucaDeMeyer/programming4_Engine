@@ -14,7 +14,7 @@ namespace dae
 		MovementComponent& operator=(MovementComponent&& other) = delete;
 		MovementComponent& operator=(const MovementComponent& other) = delete;
 
-		void Update() override{};
+		void Update() override{}
 		void Render() const override{}
 
 		void SetMovementSpeed(float newSpeed) { m_Speed = newSpeed; }
