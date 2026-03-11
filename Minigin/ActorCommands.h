@@ -1,5 +1,5 @@
 #ifndef ACTOR_COMMANDS_H
-#define ACTOR_COMMAND_H
+#define ACTOR_COMMANDS_H
 #include "Command.h"
 namespace dae
 {
