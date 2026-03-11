@@ -40,7 +40,7 @@ static void load()
 	auto to = std::make_unique<dae::GameObject>();
 	to->AddComponent<dae::TextComponent>()
 		->SetText("Programming 4 Assignment")
-		->SetFont("lingua.otf", 36)
+		->SetFont("Lingua.otf", 36)
 		->SetColor(255, 255, 255, 255);
 	to->GetTransform()->SetLocalPosition({ 292, 20,1 });
 	scene.Add(std::move(to));
@@ -49,7 +49,7 @@ static void load()
 	fps->AddComponent<dae::TextComponent>()
 		->SetText("FPS")
 		->SetText("FPS")
-		->SetFont("lingua.otf", 15)
+		->SetFont("Lingua.otf", 15)
 		->SetColor(255, 255, 255, 255);
 	fps->AddComponent<dae::FPSComponent>();
 	fps->GetTransform()->SetLocalPosition({ 50, 20,1 });
