@@ -91,8 +91,6 @@ static void load()
 		std::move(MoveRightCommand)
 	);
 
-
-
 	auto tank_2 = std::make_unique<dae::GameObject>();
 	tank_2->GetTransform()->SetLocalPosition({ 60, 200,1 });
 	tank_2->AddComponent<dae::TextureComponent>()->SetTexture("Blue_Tank.png");
