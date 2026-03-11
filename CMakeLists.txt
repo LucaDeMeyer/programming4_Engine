@@ -249,6 +249,8 @@ add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashThe
 
 add_minigin_app(Commands "Assignment_Commands/main.cpp")
 
+add_minigin_app(Tron "Tron/main.cpp")
+
 if(WIN32)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ACTIVE_PROJECT})
     set_target_properties(${ACTIVE_PROJECT} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${ACTIVE_PROJECT}>")
