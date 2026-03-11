@@ -168,7 +168,7 @@ else()
   target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Werror)
 endif()
 
-set(ACTIVE_PROJECT "Commands")
+set(ACTIVE_PROJECT "Tron")
 
 function(add_minigin_app APP_NAME APP_SOURCES)
     # 1. Create the executable and link the engine and ImGui
@@ -186,7 +186,7 @@ function(add_minigin_app APP_NAME APP_SOURCES)
             set_property(TARGET ${APP_NAME} PROPERTY SUFFIX ".html")
             
             set(EMSCRIPTEN_COMPILE_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g")
-            set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\"")
+            set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/${APP_NAME}/Data@/\"")
             
             set_target_properties(${APP_NAME} PROPERTIES
                 COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
@@ -211,9 +211,7 @@ function(add_minigin_app APP_NAME APP_SOURCES)
             )
         endforeach()
 
-        add_custom_command(TARGET ${APP_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data"
-        )
+       add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${APP_NAME}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data")
         
         # Steamworks (Windows)
         if(Steamworks_FOUND)
@@ -245,7 +243,7 @@ add_executable(Ex1 ThrashTheCache/Ex_01/main.cpp)
 add_executable(Ex2 ThrashTheCache/Ex_02/main.cpp)
 
 
-add_minigin_app(Tron "Tron/main.cpp")
+add_minigin_app(Tron "Tron/main.cpp;Tron/TileMapComponent.cpp")
 
 add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashTheCache.h;ThrashTheCache/ThrashTheCacheUI.cpp")
 

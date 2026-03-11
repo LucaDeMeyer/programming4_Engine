@@ -8,6 +8,7 @@
 #include "RotationComponent.h"
 #include "TextComponent.h"
 #include "TextureComponent.h"
+#include "TileMapComponent.h"
 #include "TransformComponent.h"
 
 #if _DEBUG && __has_include(<vld.h>)
@@ -27,34 +28,9 @@ static void load()
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
 	auto go = std::make_unique<dae::GameObject>();
-	go->AddComponent<dae::TextureComponent>()->SetTexture("background.png");
+	go->AddComponent<TileMapComponent>(64.0f);
+	go->GetComponent<TileMapComponent>()->LoadLevel("Data/TestLevel.csv");
 	scene.Add(std::move(go));
-
-	go = std::make_unique<dae::GameObject>();
-	go->AddComponent<dae::TextureComponent>()->SetTexture("logo.png");
-	go->GetTransform()->SetLocalPosition({ 358, 180,1 });
-	scene.Add(std::move(go));
-
-	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
-
-	auto to = std::make_unique<dae::GameObject>();
-	to->AddComponent<dae::TextComponent>()
-		->SetText("Programming 4 Assignment")
-		->SetFont("Lingua.otf", 36)
-		->SetColor(255, 255, 255, 255);
-	to->GetTransform()->SetLocalPosition({ 292, 20,1 });
-	scene.Add(std::move(to));
-
-	auto fps = std::make_unique<dae::GameObject>();
-	fps->AddComponent<dae::TextComponent>()
-		->SetText("FPS")
-		->SetText("FPS")
-		->SetFont("Lingua.otf", 15)
-		->SetColor(255, 255, 255, 255);
-	fps->AddComponent<dae::FPSComponent>();
-	fps->GetTransform()->SetLocalPosition({ 50, 20,1 });
-	scene.Add(std::move(fps));
-
 
 	auto tank_1 = std::make_unique<dae::GameObject>();
 	tank_1->GetTransform()->SetLocalPosition({ 60, 100,1 });
@@ -125,9 +101,9 @@ int main(int, char* []) {
 #if __EMSCRIPTEN__
 	fs::path data_location = "";
 #else
-	fs::path data_location = "./Data/";
+	fs::path data_location = "Data/";
 	if (!fs::exists(data_location))
-		data_location = "../Data/";
+		data_location = "./Data/";
 #endif
 	dae::Minigin engine(data_location);
 	engine.Run(load);
