@@ -1,4 +1,6 @@
 #include "Controller.h"
+
+#ifdef WIN32
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
 #include <XInput.h>
@@ -38,7 +40,18 @@ private:
     WORD m_ButtonsPressedThisFrame{};
     WORD m_ButtonsReleasedThisFrame{};
 };
-
+#else // dummy class for emscriptem since we dont have access too windows.h
+using namespace dae; 
+class Controller::ControllerImpl
+{
+public:
+    ControllerImpl(unsigned int /*controllerIndex*/) {}
+    void Update() {}
+    bool IsDownThisFrame(unsigned int /*button*/) const { return false; }
+    bool IsUpThisFrame(unsigned int /*button*/) const { return false; }
+    bool IsPressed(unsigned int /*button*/) const { return false; }
+};
+#endif
 Controller::Controller(unsigned int controllerIndex)
     : m_pImpl(std::make_unique<ControllerImpl>(controllerIndex)) {
 }
