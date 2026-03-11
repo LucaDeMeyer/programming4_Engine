@@ -49,15 +49,8 @@ using namespace dae;
 class Controller::ControllerImpl
 {
 public:
-    ControllerImpl(unsigned int controllerIndex)
+    ControllerImpl(unsigned int controllerIndex) : m_ControllerIndex(controllerIndex)
     {
-        int count = 0;
-        SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
-
-        if (gamepads && static_cast<int>(controllerIndex) < count) {
-            m_Gamepad = SDL_OpenGamepad(gamepads[controllerIndex]);
-        }
-        if (gamepads) SDL_free(gamepads);
     }
     ~ControllerImpl()
     {
@@ -67,6 +60,17 @@ public:
     }
     void Update()
     {
+
+        if (!m_Gamepad) {
+            int count = 0;
+            SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
+
+            if (gamepads && static_cast<int>(m_ControllerIndex) < count) {
+                m_Gamepad = SDL_OpenGamepad(gamepads[m_ControllerIndex]);
+            }
+            if (gamepads) SDL_free(gamepads);
+        }
+
         m_PreviousButtons = m_CurrentButtons;
         m_CurrentButtons = 0;
 
@@ -97,6 +101,7 @@ public:
 
 private:
     SDL_Gamepad* m_Gamepad = nullptr;
+    unsigned int m_ControllerIndex;
     uint16_t m_PreviousButtons = 0;
     uint16_t m_CurrentButtons = 0;
     uint16_t m_ButtonsPressedThisFrame = 0;

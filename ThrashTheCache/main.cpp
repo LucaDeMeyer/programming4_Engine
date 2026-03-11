@@ -46,7 +46,7 @@ static void load()
 	fps->AddComponent<dae::TextComponent>()
 		->SetText("FPS")
 		->SetText("FPS")
-		->SetFont("lingua.otf", 15)
+		->SetFont("Lingua.otf", 15)
 		->SetColor(255, 255, 255, 255);
 	fps->AddComponent<dae::FPSComponent>();
 	fps->GetTransform()->SetLocalPosition({ 50, 20,1 });
