@@ -167,67 +167,41 @@ if(MSVC)
 else()
   target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Werror)
 endif()
+
+set(ACTIVE_PROJECT "Commands")
+
 function(add_minigin_app APP_NAME APP_SOURCES)
-    # 1. Create the executable and link the engine and ImGui
     add_executable(${APP_NAME} ${APP_SOURCES})
     target_link_libraries(${APP_NAME} PRIVATE ${TARGET_NAME} imgui)
     target_include_directories(${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Minigin ${imgui_SOURCE_DIR})
 
-    # 2. Platform-Specific Post-Build Steps
     if(EMSCRIPTEN)
-        # Emscripten: Generate HTML, package Data folder, copy web template
-        set_property(TARGET ${APP_NAME} PROPERTY SUFFIX ".html")
-        set(EMSCRIPTEN_COMPILE_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\"")
-        
-        set_target_properties(${APP_NAME} PROPERTIES
-            COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
-            LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}"
-        )
-
-        add_custom_command(TARGET ${APP_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${APP_NAME}>/"
-        )
-
-    elseif(WIN32)
-        # Windows: Copy SDL3 dlls and Data folder to the .exe folder
-        set(SDL_RUNTIME_DLLS SDL3::SDL3 SDL3_ttf::SDL3_ttf)
-        foreach(dllTarget IN LISTS SDL_RUNTIME_DLLS)
-            add_custom_command(TARGET ${APP_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:${dllTarget}>" "$<TARGET_FILE_DIR:${APP_NAME}>"
-                VERBATIM
+        if("${APP_NAME}" STREQUAL "${ACTIVE_PROJECT}")
+            set_target_properties(${APP_NAME} PROPERTIES OUTPUT_NAME "minigin_web")
+            set_property(TARGET ${APP_NAME} PROPERTY SUFFIX ".html")
+            
+            set(EMSCRIPTEN_COMPILE_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g")
+            set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\"")
+            
+            set_target_properties(${APP_NAME} PROPERTIES
+                COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
+                LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}"
             )
-        endforeach()
 
-        add_custom_command(TARGET ${APP_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data"
-        )
-        
-        # Steamworks (Windows)
-        if(Steamworks_FOUND)
-            target_link_libraries(${APP_NAME} PRIVATE Steamworks::Steamworks)
-            target_compile_definitions(${APP_NAME} PRIVATE USE_STEAMWORKS)
-            add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND "${CMAKE_COMMAND}" -E copy "${Steamworks_RUNTIME_DLL}" "$<TARGET_FILE_DIR:${APP_NAME}>")
-            add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${APP_NAME}>/steam_appid.txt")
+            add_custom_command(TARGET ${APP_NAME} POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${APP_NAME}>/"
+            )
+        else()
+            set_target_properties(${APP_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
         endif()
 
-    elseif(APPLE)
-        # Mac: Create App Bundle, copy Frameworks and Data
-        set_target_properties(${APP_NAME} PROPERTIES MACOSX_BUNDLE TRUE INSTALL_RPATH "@executable_path/../Frameworks" BUILD_WITH_INSTALL_RPATH TRUE)
-        add_custom_command(TARGET ${APP_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${APP_NAME}>/Contents/Frameworks"
-            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>" "$<TARGET_BUNDLE_DIR:${APP_NAME}>/Contents/Frameworks/"
-            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${APP_NAME}>/Contents/Frameworks/"
-            COMMAND install_name_tool -change "@rpath/libSDL3_ttf.0.dylib" "@executable_path/../Frameworks/libSDL3_ttf.0.2.2.dylib" "$<TARGET_FILE:${APP_NAME}>"
-            COMMAND install_name_tool -change "@rpath/libSDL3.0.dylib" "@executable_path/../Frameworks/libSDL3.0.dylib" "$<TARGET_FILE:${APP_NAME}>"
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data"
-        )
-    else()
-        # Linux: Copy Data
-        add_custom_command(TARGET ${APP_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data"
-        )
+    elseif(WIN32)
+        # Windows: Copy SDL3 dlls and Data folder
+        set(SDL_RUNTIME_DLLS SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+        foreach(dllTarget IN LISTS SDL_RUNTIME_DLLS)
+            add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${dllTarget}>" "$<TARGET_FILE_DIR:${APP_NAME}>" VERBATIM)
+        endforeach()
+        add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data")
     endif()
 endfunction()
 
@@ -240,6 +214,6 @@ add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashThe
 add_minigin_app(Commands "Assignment_Commands/main.cpp")
 
 if(WIN32)
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Commands)
-    set_target_properties(Commands PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Commands>")
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ACTIVE_PROJECT})
+    set_target_properties(${ACTIVE_PROJECT} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${ACTIVE_PROJECT}>")
 endif()
