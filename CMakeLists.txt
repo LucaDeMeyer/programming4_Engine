@@ -245,11 +245,13 @@ add_executable(Ex1 ThrashTheCache/Ex_01/main.cpp)
 add_executable(Ex2 ThrashTheCache/Ex_02/main.cpp)
 
 
+add_minigin_app(Tron "Tron/main.cpp")
+
 add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashTheCache.h;ThrashTheCache/ThrashTheCacheUI.cpp")
 
 add_minigin_app(Commands "Assignment_Commands/main.cpp")
 
-add_minigin_app(Tron "Tron/main.cpp")
+
 
 if(WIN32)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ACTIVE_PROJECT})
