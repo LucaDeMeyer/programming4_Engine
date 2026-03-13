@@ -42,8 +42,7 @@ static void load()
 
 	auto LivesDisplayTank_1 = std::make_unique<dae::GameObject>();
 	LivesDisplayTank_1->AddComponent<LivesDisplay>(tank_1->GetComponent<LivesComponent>()->GetLives());
-	LivesDisplayTank_1->GetComponent<LivesDisplay>()->SetTexture("Red_Tank.png");
-
+	LivesDisplayTank_1->GetComponent<LivesDisplay>()->SetTexture("Player_Lives.png"); 
 	LivesDisplayTank_1->GetTransform()->SetLocalPosition({ 60, 10, 1 });
 	tank_1->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_1->GetComponent<LivesDisplay>());
 
@@ -53,7 +52,7 @@ static void load()
 	auto moveDownCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 0,100 });
 	auto MoveRightCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 100,0 });
 
-	auto DamageTestCommand = std::make_unique<DamageCommand>(tank_1.get(), 1);
+	auto DamageTestCommand = std::make_unique<DamageCommand>(tank_1.get(), 1); // this is for testing purposes => will be changed to an actual attack
 
 	dae::InputManager::GetInstance().BindKeyCommand(
 		SDLK_W,

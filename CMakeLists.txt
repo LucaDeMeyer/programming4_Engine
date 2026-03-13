@@ -37,6 +37,9 @@ add_library(${TARGET_NAME} STATIC
   Minigin/Controller.cpp
   Minigin/MovementComponent.cpp
   Minigin/Subject.cpp
+  Minigin/ColliderComponents.cpp
+  Minigin/CollisionManager.cpp
+  Minigin/EventQueue.cpp
   
 )
 
