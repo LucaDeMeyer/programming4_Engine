@@ -6,6 +6,7 @@
 #include "InputManager.h"
 #include "MovementComponent.h"
 #include "RotationComponent.h"
+#include "TankCommands.h"
 #include "TextComponent.h"
 #include "TextureComponent.h"
 #include "TileMapComponent.h"
@@ -27,10 +28,10 @@ static void load()
 {
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
-	auto go = std::make_unique<dae::GameObject>();
-	go->AddComponent<TileMapComponent>(64.0f);
-	go->GetComponent<TileMapComponent>()->LoadLevel("Data/TestLevel.csv");
-	scene.Add(std::move(go));
+	//auto go = std::make_unique<dae::GameObject>();
+	//go->AddComponent<TileMapComponent>(64.0f);
+	//go->GetComponent<TileMapComponent>()->LoadLevel("Data/TestLevel.csv");
+	//scene.Add(std::move(go));
 
 	auto tank_1 = std::make_unique<dae::GameObject>();
 	tank_1->GetTransform()->SetLocalPosition({ 60, 100,1 });
@@ -38,10 +39,10 @@ static void load()
 	tank_1->AddComponent<dae::MovementComponent>();
 	tank_1->GetComponent<dae::MovementComponent>()->SetMovementSpeed(50.0f);
 
-	auto moveUpCommand = std::make_unique<dae::MoveVertical>(tank_1.get(), dae::Direction::Negative);
-	auto MoveLeftCommand = std::make_unique<dae::MoveHorizontal>(tank_1.get(), dae::Direction::Negative);
-	auto moveDownCommand = std::make_unique<dae::MoveVertical>(tank_1.get(), dae::Direction::Positive);
-	auto MoveRightCommand = std::make_unique<dae::MoveHorizontal>(tank_1.get(), dae::Direction::Positive);
+	auto moveUpCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 0,-100 });
+	auto MoveLeftCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ -100,0 });
+	auto moveDownCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 0,100 });
+	auto MoveRightCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 100,0 });
 
 	dae::InputManager::GetInstance().BindKeyCommand(
 		SDLK_W,
@@ -74,10 +75,10 @@ static void load()
 	tank_2->GetComponent<dae::MovementComponent>()->SetMovementSpeed(100.0f);
 
 
-	auto moveUpCommand2 = std::make_unique<dae::MoveVertical>(tank_2.get(), dae::Direction::Negative);
-	auto MoveLeftCommand2 = std::make_unique<dae::MoveHorizontal>(tank_2.get(), dae::Direction::Negative);
-	auto moveDownCommand2 = std::make_unique<dae::MoveVertical>(tank_2.get(), dae::Direction::Positive);
-	auto MoveRightCommand2 = std::make_unique<dae::MoveHorizontal>(tank_2.get(), dae::Direction::Positive);
+	auto moveUpCommand2 = std::make_unique<MoveCommand>(tank_2.get(),glm::vec2{0,-100});
+	auto MoveLeftCommand2 = std::make_unique<MoveCommand>(tank_2.get(), glm::vec2{-100,0});
+	auto moveDownCommand2 = std::make_unique<MoveCommand>(tank_2.get(), glm::vec2{ 0,100 });
+	auto MoveRightCommand2 = std::make_unique<MoveCommand>(tank_2.get(), glm::vec2{100,0});
 
 	dae::InputManager::GetInstance().BindControllerCommand(
 		0, dae::Controller::ControllerButton::DPadLeft,

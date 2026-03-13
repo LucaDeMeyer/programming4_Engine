@@ -21,6 +21,11 @@ class TileMapComponent : public dae::BaseComponent
 public:
     TileMapComponent(dae::GameObject* owner, float tileSize);
 
+    TileMapComponent(const TileMapComponent& other) = delete;
+    TileMapComponent(TileMapComponent&& other) = delete;
+    TileMapComponent& operator=(TileMapComponent&& other) = delete;
+    TileMapComponent& operator=(const TileMapComponent& other) = delete;
+
     void LoadLevel(const std::string& csvFilePath);
     void Render() const override;
     void Update() override{}
@@ -36,5 +41,6 @@ private:
     std::shared_ptr<dae::Texture2D> m_PathHTex;
     std::shared_ptr<dae::Texture2D> m_PathCTex;
     std::shared_ptr<dae::Texture2D> m_BlackTex;
+
 };
 #endif
