@@ -4,8 +4,6 @@
 
 #include "TronEvents.h"
 #include "GameObject.h"
-
-
 void LivesComponent::DoDamage(int Damage)
 {
 	if (m_Lives - Damage <= 0)

@@ -1,6 +1,8 @@
 #include "TankCommands.h"
 #include "TransformComponent.h"
 #include "GameTime.h"
+#include "LivesComponent.h"
+
 void MoveCommand::Execute()
 {
 
@@ -14,3 +16,9 @@ void MoveCommand::Execute()
     transform->SetLocalPosition(currentPos);
 
 }
+
+void DamageCommand::Execute()
+{
+    GetGameObject()->GetComponent<LivesComponent>()->DoDamage(m_Damage);
+}
+

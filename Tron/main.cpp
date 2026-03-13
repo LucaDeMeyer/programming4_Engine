@@ -4,6 +4,8 @@
 #include "ActorCommands.h"
 #include "FPSComponent.h"
 #include "InputManager.h"
+#include "LivesComponent.h"
+#include "LivesDisplay.h"
 #include "MovementComponent.h"
 #include "RotationComponent.h"
 #include "TankCommands.h"
@@ -36,13 +38,22 @@ static void load()
 	auto tank_1 = std::make_unique<dae::GameObject>();
 	tank_1->GetTransform()->SetLocalPosition({ 60, 100,1 });
 	tank_1->AddComponent<dae::TextureComponent>()->SetTexture("Red_Tank.png");
-	tank_1->AddComponent<dae::MovementComponent>();
-	tank_1->GetComponent<dae::MovementComponent>()->SetMovementSpeed(50.0f);
+	tank_1->AddComponent<LivesComponent>(3);
+
+	auto LivesDisplayTank_1 = std::make_unique<dae::GameObject>();
+	LivesDisplayTank_1->AddComponent<LivesDisplay>(tank_1->GetComponent<LivesComponent>()->GetLives());
+	LivesDisplayTank_1->GetComponent<LivesDisplay>()->SetTexture("Red_Tank.png");
+
+	LivesDisplayTank_1->GetTransform()->SetLocalPosition({ 60, 10, 1 });
+	tank_1->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_1->GetComponent<LivesDisplay>());
+
 
 	auto moveUpCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 0,-100 });
 	auto MoveLeftCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ -100,0 });
 	auto moveDownCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 0,100 });
 	auto MoveRightCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 100,0 });
+
+	auto DamageTestCommand = std::make_unique<DamageCommand>(tank_1.get(), 1);
 
 	dae::InputManager::GetInstance().BindKeyCommand(
 		SDLK_W,
@@ -68,11 +79,14 @@ static void load()
 		std::move(MoveRightCommand)
 	);
 
+	dae::InputManager::GetInstance().BindKeyCommand(
+		SDLK_SPACE,
+		dae::InputState::Down,
+		std::move(DamageTestCommand));
+
 	auto tank_2 = std::make_unique<dae::GameObject>();
 	tank_2->GetTransform()->SetLocalPosition({ 60, 200,1 });
 	tank_2->AddComponent<dae::TextureComponent>()->SetTexture("Blue_Tank.png");
-	tank_2->AddComponent<dae::MovementComponent>();
-	tank_2->GetComponent<dae::MovementComponent>()->SetMovementSpeed(100.0f);
 
 
 	auto moveUpCommand2 = std::make_unique<MoveCommand>(tank_2.get(),glm::vec2{0,-100});
@@ -96,6 +110,7 @@ static void load()
 
 	scene.Add(std::move(tank_1));
 	scene.Add(std::move(tank_2));
+	scene.Add(std::move(LivesDisplayTank_1));
 }
 
 int main(int, char* []) {

@@ -1,12 +1,12 @@
 #ifndef THRASH_THE_CACHE_UI_H
 #define THRASH_THE_CACHE_UI_H
 #include "ThrashTheCache.h"
-#include "UIComponent.h"
+#include "ImguiComponent.h"
 namespace dae {
-    class ThrashTheCacheUI : public UIComponent {
+    class ThrashTheCacheUI : public ImguiComponent {
     public:
 
-        explicit ThrashTheCacheUI(dae::GameObject* owner) : UIComponent(owner)
+        explicit ThrashTheCacheUI(dae::GameObject* owner) : ImguiComponent(owner)
         {
         }
 

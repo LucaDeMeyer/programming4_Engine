@@ -23,7 +23,8 @@ public:
 
     void SetHealth(int newLives);
     void SetMaxHealth(int newMaxLives);
-
+    int GetLives() { return m_Lives; }
+    dae::Subject& GetLivesEvent() { return m_LivesEvent; }
 private:
     dae::Subject m_LivesEvent;
 
