@@ -15,4 +15,9 @@ struct PlayerDiedARGS : public dae::EventARGS
 	PlayerDiedARGS(int _playerID) : PlayerID(_playerID){}
 };
 
+struct ScoreGainedARGS : public dae::EventARGS
+{
+	int points;
+	explicit ScoreGainedARGS(int p) : points(p) {}
+};
 #endif

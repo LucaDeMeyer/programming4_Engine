@@ -2,13 +2,18 @@
 #include <SDL3/SDL_main.h>
 
 #include "ActorCommands.h"
+#include "ColliderComponents.h"
+#include "FactionComponent.h"
 #include "FPSComponent.h"
 #include "InputManager.h"
 #include "LivesComponent.h"
 #include "LivesDisplay.h"
 #include "MovementComponent.h"
 #include "RotationComponent.h"
+#include "ScoreDisplay.h"
 #include "TankCommands.h"
+#include "Tank_Bullet.h"
+#include "Tank_CollisionObserver.h"
 #include "TextComponent.h"
 #include "TextureComponent.h"
 #include "TileMapComponent.h"
@@ -24,35 +29,34 @@
 #include "TextObject.h"
 #include "Scene.h"
 #include <filesystem>
+#include "TronFactory.h"
+
 namespace fs = std::filesystem;
 
 static void load()
 {
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
+	dae::SceneManager::GetInstance().SetActiveScene(0);
 
-	//auto go = std::make_unique<dae::GameObject>();
-	//go->AddComponent<TileMapComponent>(64.0f);
-	//go->GetComponent<TileMapComponent>()->LoadLevel("Data/TestLevel.csv");
-	//scene.Add(std::move(go));
-
-	auto tank_1 = std::make_unique<dae::GameObject>();
-	tank_1->GetTransform()->SetLocalPosition({ 60, 100,1 });
-	tank_1->AddComponent<dae::TextureComponent>()->SetTexture("Red_Tank.png");
-	tank_1->AddComponent<LivesComponent>(3);
+	auto player = Tron::GOFactory::CreatePlayer({ 60, 100, 1 });
 
 	auto LivesDisplayTank_1 = std::make_unique<dae::GameObject>();
-	LivesDisplayTank_1->AddComponent<LivesDisplay>(tank_1->GetComponent<LivesComponent>()->GetLives());
-	LivesDisplayTank_1->GetComponent<LivesDisplay>()->SetTexture("Player_Lives.png"); 
+	LivesDisplayTank_1->AddComponent<Tron::LivesDisplay>(player.Base->GetComponent<Tron::LivesComponent>()->GetLives());
+	LivesDisplayTank_1->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png"); 
 	LivesDisplayTank_1->GetTransform()->SetLocalPosition({ 60, 10, 1 });
-	tank_1->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_1->GetComponent<LivesDisplay>());
+	player.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_1->GetComponent<Tron::LivesDisplay>());
 
+	auto ScoreDisplay = std::make_unique<dae::GameObject>();
+	ScoreDisplay->GetTransform()->SetLocalPosition({ 200, 10, 0 });
+	ScoreDisplay->AddComponent<dae::TextComponent>();
+	ScoreDisplay->AddComponent<Tron::ScoreDisplay>();
 
-	auto moveUpCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 0,-100 });
-	auto MoveLeftCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ -100,0 });
-	auto moveDownCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 0,100 });
-	auto MoveRightCommand = std::make_unique<MoveCommand>(tank_1.get(), glm::vec2{ 100,0 });
+	auto moveUpCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
+	auto MoveLeftCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
+	auto moveDownCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,100 });
+	auto MoveRightCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 100,0 });
 
-	auto DamageTestCommand = std::make_unique<DamageCommand>(tank_1.get(), 1); // this is for testing purposes => will be changed to an actual attack
+	auto DamageTestCommand = std::make_unique<Tron::FireCommand>(player.Base.get()); 
 
 	dae::InputManager::GetInstance().BindKeyCommand(
 		SDLK_W,
@@ -83,15 +87,12 @@ static void load()
 		dae::InputState::Down,
 		std::move(DamageTestCommand));
 
-	auto tank_2 = std::make_unique<dae::GameObject>();
-	tank_2->GetTransform()->SetLocalPosition({ 60, 200,1 });
-	tank_2->AddComponent<dae::TextureComponent>()->SetTexture("Blue_Tank.png");
+	auto tank_2 = Tron::GOFactory::CreatePlayer({ 60,200,1 });
 
-
-	auto moveUpCommand2 = std::make_unique<MoveCommand>(tank_2.get(),glm::vec2{0,-100});
-	auto MoveLeftCommand2 = std::make_unique<MoveCommand>(tank_2.get(), glm::vec2{-100,0});
-	auto moveDownCommand2 = std::make_unique<MoveCommand>(tank_2.get(), glm::vec2{ 0,100 });
-	auto MoveRightCommand2 = std::make_unique<MoveCommand>(tank_2.get(), glm::vec2{100,0});
+	auto moveUpCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(),glm::vec2{0,-100});
+	auto MoveLeftCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{-100,0});
+	auto moveDownCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,100 });
+	auto MoveRightCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{100,0});
 
 	dae::InputManager::GetInstance().BindControllerCommand(
 		0, dae::Controller::ControllerButton::DPadLeft,
@@ -107,9 +108,25 @@ static void load()
 		dae::InputState::Pressed, std::move(moveDownCommand2));
 
 
-	scene.Add(std::move(tank_1));
-	scene.Add(std::move(tank_2));
+	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,100,1 });
+	auto enemyTank_02 = Tron::GOFactory::CreateEnemy({ 200,100,1 });
+	auto enemyTank_03 = Tron::GOFactory::CreateEnemy({ 250,100,1 });
+	auto enemyTank_04 = Tron::GOFactory::CreateEnemy({ 100,100,1 });
+	auto enemyTank_05 = Tron::GOFactory::CreateEnemy({ 300,500,1 });
+	auto enemyTank_06 = Tron::GOFactory::CreateEnemy({ 250,300,1 });
+
+	scene.Add(std::move(player.Base));
+	scene.Add(std::move(player.Turret));
+	scene.Add(std::move(tank_2.Base));
+	scene.Add(std::move(tank_2.Turret));
 	scene.Add(std::move(LivesDisplayTank_1));
+	scene.Add(std::move(ScoreDisplay));
+	scene.Add(std::move(enemyTank_01));
+	scene.Add(std::move(enemyTank_02));
+	scene.Add(std::move(enemyTank_03));
+	scene.Add(std::move(enemyTank_04));
+	scene.Add(std::move(enemyTank_05));
+	scene.Add(std::move(enemyTank_06));
 }
 
 int main(int, char* []) {

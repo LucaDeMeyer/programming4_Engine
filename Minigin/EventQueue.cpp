@@ -14,7 +14,5 @@ void dae::EventQueue::Process()
         m_EventQueue.pop();
 
         m_Notifier.Notify(nullptr, currentEvent);
-
-      
     }
 }

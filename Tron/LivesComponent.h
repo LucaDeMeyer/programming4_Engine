@@ -3,34 +3,36 @@
 #include "BaseComponent.h"
 #include "Subject.h"
 
-class LivesComponent : public dae::BaseComponent
+namespace Tron
 {
-public:
+    class LivesComponent : public dae::BaseComponent
+    {
+    public:
 
-    LivesComponent(dae::GameObject* owner, int lives) : BaseComponent(owner) , m_Lives(lives), m_MaxLives(lives){}
+        LivesComponent(dae::GameObject* owner, int lives) : BaseComponent(owner), m_Lives(lives), m_MaxLives(lives) {}
 
-    LivesComponent(const LivesComponent& other) = delete;
-    LivesComponent(LivesComponent&& other) = delete;
-    LivesComponent& operator=(LivesComponent&& other) = delete;
-    LivesComponent& operator=(const LivesComponent& other) = delete;
+        LivesComponent(const LivesComponent& other) = delete;
+        LivesComponent(LivesComponent&& other) = delete;
+        LivesComponent& operator=(LivesComponent&& other) = delete;
+        LivesComponent& operator=(const LivesComponent& other) = delete;
 
-    void Update() override{}
-    void RenderUI() override{}
-    void Render() const override{}
+        void Update() override {}
+        void RenderUI() override {}
+        void Render() const override {}
 
 
-    void DoDamage(int Damage);
+        void DoDamage(int Damage);
 
-    void SetHealth(int newLives);
-    void SetMaxHealth(int newMaxLives);
-    int GetLives() { return m_Lives; }
-    dae::Subject& GetLivesEvent() { return m_LivesEvent; }
-private:
-    dae::Subject m_LivesEvent;
+        void SetHealth(int newLives);
+        void SetMaxHealth(int newMaxLives);
+        int GetLives() { return m_Lives; }
+        dae::Subject& GetLivesEvent() { return m_LivesEvent; }
+    private:
+        dae::Subject m_LivesEvent;
 
-    int m_Lives;
-    int m_MaxLives;
-};
-
+        int m_Lives;
+        int m_MaxLives;
+    };
+}
 
 #endif
