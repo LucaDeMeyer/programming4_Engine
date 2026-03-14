@@ -1,21 +1,18 @@
 #ifndef TRON_EVENTTS_H
 #define TRON_EVENTS_H
 #include "Observer.h"
+#include "Event.h"
 
-struct AddScore : public dae::Event
+struct LivesChangedARGS : public dae::EventARGS
 {
-	AddScore(int _score) : Score(_score){}
-	int Score;
-};
-
-struct PlayerDied : public dae::Event
-{
-	PlayerDied(int _playerID) : PlayerID(_playerID){} 
-	int PlayerID;
-};
-struct LivesChanged : public dae::Event
-{
-	LivesChanged(int lives) : currentLives(lives){}
 	int currentLives;
+	LivesChangedARGS(int _currentLives) : currentLives(_currentLives){}
 };
+
+struct PlayerDiedARGS : public dae::EventARGS
+{
+	int PlayerID;
+	PlayerDiedARGS(int _playerID) : PlayerID(_playerID){}
+};
+
 #endif

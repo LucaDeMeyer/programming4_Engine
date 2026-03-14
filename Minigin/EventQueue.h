@@ -12,7 +12,7 @@ namespace dae
 	class EventQueue : public Singleton<EventQueue>
 	{
 	public:
-		void AddEvent(std::unique_ptr<Event> newEvent);
+		void AddEvent(Event&& newEvent);
 
 		void Process();
 
@@ -23,7 +23,7 @@ namespace dae
 		EventQueue() = default;
 		~EventQueue() = default;
 
-		std::queue<std::unique_ptr<Event>> m_EventQueue;
+		std::queue<Event> m_EventQueue;
 		Subject m_Notifier;
 	};
 }

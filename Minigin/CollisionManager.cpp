@@ -5,7 +5,7 @@
 #include "ColliderComponents.h"
 #include "EventQueue.h"
 #include "Observer.h"
-
+#include "Event.h"
 void dae::CollisionManager::AddCollider(ColliderComponent* collider)
 {
 	if(std::find(m_Colliders.begin(),m_Colliders.end(),collider) == m_Colliders.end())
@@ -27,9 +27,9 @@ void dae::CollisionManager::Update()
         {
             if (m_Colliders[i]->IsOverlapping(m_Colliders[j]))
             {
-                EventQueue::GetInstance().AddEvent(
-                    std::make_unique<CollisionEvent>(m_Colliders[i], m_Colliders[j])
-                );
+                auto payload = std::make_unique<dae::CollisionARGS>(m_Colliders[i], m_Colliders[j]);
+                dae::Event hitEvent(make_sdbm_hash("CollisionEvent"), std::move(payload));
+               EventQueue::GetInstance().AddEvent(std::move(hitEvent));
             }
         }
     }
