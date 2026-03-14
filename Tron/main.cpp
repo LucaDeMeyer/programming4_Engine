@@ -93,6 +93,7 @@ static void load()
 	auto MoveLeftCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{-100,0});
 	auto moveDownCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,100 });
 	auto MoveRightCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{100,0});
+	auto fireCommand2 = std::make_unique<Tron::FireCommand>(tank_2.Base.get());
 
 	dae::InputManager::GetInstance().BindControllerCommand(
 		0, dae::Controller::ControllerButton::DPadLeft,
@@ -106,7 +107,9 @@ static void load()
 	dae::InputManager::GetInstance().BindControllerCommand(
 		0, dae::Controller::ControllerButton::DPadDown,
 		dae::InputState::Pressed, std::move(moveDownCommand2));
-
+	dae::InputManager::GetInstance().BindControllerCommand(
+		0, dae::Controller::ControllerButton::ButtonA,
+		dae::InputState::Down,std::move(fireCommand2));
 
 	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,100,1 });
 	auto enemyTank_02 = Tron::GOFactory::CreateEnemy({ 200,100,1 });
