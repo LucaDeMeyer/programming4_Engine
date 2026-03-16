@@ -1,5 +1,13 @@
 #include "Subject.h"
 
+
+dae::Subject::~Subject()
+{
+	for (auto& observer : m_Observers)
+	{
+		RemoveObserver(observer);
+	}
+}
 void dae::Subject::AddObserver(Observer* observer)
 {
 	if (std::find(m_Observers.begin(),m_Observers.end(),observer) == m_Observers.end())

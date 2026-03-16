@@ -9,7 +9,7 @@ namespace dae
 	class Subject
 	{
 		public:
-
+		~Subject();
 		void AddObserver(Observer* observer);
 		void RemoveObserver(Observer* observer);
 

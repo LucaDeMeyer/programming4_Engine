@@ -12,7 +12,9 @@ void LivesDisplay::SetTexture(const std::string& filename)
 
 void LivesDisplay::Render() const
 {
-    if (!m_Texture || m_Lives == 0) return;
+    if (!m_Texture) return;
+
+    if (m_Lives <= 0) return;
 
     auto transform = GetOwner()->GetTransform();
     if (transform)
@@ -34,5 +36,13 @@ void LivesDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
         {
             m_Lives = payload->currentLives;
         }
+    }
+
+    if (event.ID == dae::make_sdbm_hash("PlayerDiedEvent"))
+    {
+	    if (auto* payload = static_cast<PlayerDiedARGS*>(event.pArgs.get()))
+	    {
+		    // should this handle destroying?
+	    }
     }
 }

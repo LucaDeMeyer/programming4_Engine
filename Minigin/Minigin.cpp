@@ -105,7 +105,6 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame()
 {
-
 	const int ms_per_frame = 16;
 
 	Time::GetInstance().Update();

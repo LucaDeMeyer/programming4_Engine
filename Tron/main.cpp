@@ -55,8 +55,9 @@ static void load()
 	auto MoveLeftCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
 	auto moveDownCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,100 });
 	auto MoveRightCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 100,0 });
+	auto fireCommand = std::make_unique<Tron::FireCommand>(player.Base.get()); 
 
-	auto DamageTestCommand = std::make_unique<Tron::FireCommand>(player.Base.get()); 
+	auto damageCommand = std::make_unique<Tron::DamageCommand>(player.Base.get(),2);
 
 	dae::InputManager::GetInstance().BindKeyCommand(
 		SDLK_W,
@@ -85,7 +86,12 @@ static void load()
 	dae::InputManager::GetInstance().BindKeyCommand(
 		SDLK_SPACE,
 		dae::InputState::Down,
-		std::move(DamageTestCommand));
+		std::move(fireCommand));
+
+	dae::InputManager::GetInstance().BindKeyCommand(
+		SDLK_C,
+		dae::InputState::Down,
+		std::move(damageCommand));
 
 	auto tank_2 = Tron::GOFactory::CreatePlayer({ 60,200,1 });
 
@@ -120,7 +126,6 @@ static void load()
 	dae::InputManager::GetInstance().BindControllerCommand(
 		0, dae::Controller::ControllerButton::ButtonA,
 		dae::InputState::Down,std::move(fireCommand2));
-
 	dae::InputManager::GetInstance().BindControllerCommand(
 		0, dae::Controller::ControllerButton::ButtonB,
 		dae::InputState::Down, std::move(DamageTest));

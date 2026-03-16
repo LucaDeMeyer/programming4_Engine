@@ -8,6 +8,8 @@
 using namespace Tron;
 void MoveCommand::Execute()
 {
+    auto obj = GetGameObject();
+    if (!obj) return;
 
     auto transform = GetGameObject()->GetTransform();
     auto currentPos = transform->GetLocalPosition();
@@ -36,6 +38,9 @@ void MoveCommand::UpdateSpriteDirection()
 
 void DamageCommand::Execute()
 {
+    auto obj = GetGameObject();
+    if (!obj) return;
+
     GetGameObject()->GetComponent<LivesComponent>()->DoDamage(m_Damage);
 }
 

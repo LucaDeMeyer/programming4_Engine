@@ -1,12 +1,12 @@
 #include "LivesComponent.h"
 
 #include <iostream>
-#include <windows.h>
-
 #include "EventQueue.h"
 #include "FactionComponent.h"
 #include "TronEvents.h"
 #include "GameObject.h"
+#include "InputManager.h"
+
 using namespace Tron;
 void LivesComponent::DoDamage(int Damage)
 {
@@ -28,6 +28,8 @@ void LivesComponent::DoDamage(int Damage)
 				dae::EventQueue::GetInstance().AddEvent(std::move(scoreEvent));
 			}
 		}
+
+		dae::InputManager::GetInstance().RemoveCommandsForObject(GetOwner()); // this is temp => should both move to somesort of gamemanager that handles this through observer/event Queue
 		GetOwner()->MarkForDestruction();
 	}
 	else

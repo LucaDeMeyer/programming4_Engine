@@ -69,6 +69,8 @@ bool dae::InputManager::ProcessInput()
         }
     }
 
+    RemoveCommands();
+
     return true;
 }
 
@@ -83,4 +85,38 @@ void dae::InputManager::BindControllerCommand(unsigned int controllerIndex, Cont
 {
 	ControllerKey mapKey = { controllerIndex, button, state };
 	m_ConsoleCommands[mapKey] = std::move(command);
+}
+
+void dae::InputManager::RemoveCommandsForObject(GameObject* object)
+{
+
+    if (object)
+    {
+        m_ObjectsToClear.push_back(object);
+    }
+}
+
+void dae::InputManager::RemoveCommands()
+{
+    if (!m_ObjectsToClear.empty())
+    {
+        for (auto* deadObject : m_ObjectsToClear)
+        {
+            std::erase_if(m_KeyboardCommands, [deadObject](const auto& pair) {
+                if (auto* actorCmd = dynamic_cast<dae::ActorCommand*>(pair.second.get())) {
+                    return actorCmd->GetGameObject() == deadObject;
+                }
+                return false;
+                });
+
+            std::erase_if(m_ConsoleCommands, [deadObject](const auto& pair) {
+                if (auto* actorCmd = dynamic_cast<dae::ActorCommand*>(pair.second.get())) {
+                    return actorCmd->GetGameObject() == deadObject;
+                }
+                return false;
+                });
+        }
+
+        m_ObjectsToClear.clear();
+    }
 }
