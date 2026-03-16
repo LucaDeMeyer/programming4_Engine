@@ -41,7 +41,7 @@ add_library(${TARGET_NAME} STATIC
   Minigin/CollisionManager.cpp
   Minigin/EventQueue.cpp
   Minigin/SpriteComponent.cpp
-  
+  Minigin/SteamManager.cpp
 )
 
 # enable c++20 features
@@ -165,6 +165,11 @@ target_link_libraries("${TARGET_NAME}" PUBLIC
   ${VLD_LIBRARIES}
   imgui
 )
+if(Steamworks_FOUND)
+    # Give the engine the Steam library and make it PUBLIC so Tron inherits it!
+    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
+    target_compile_definitions("${TARGET_NAME}" PUBLIC USE_STEAMWORKS=1)
+endif()
 
 if(MSVC)
   # compile at warning level 4 + treat warnings as errors

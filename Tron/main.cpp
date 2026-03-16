@@ -98,7 +98,7 @@ static void load()
 
 
 	auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
-	LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(player.Base->GetComponent<Tron::LivesComponent>()->GetLives());
+	LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLives());
 	LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
 	LivesDisplayTank_2->GetTransform()->SetLocalPosition({600, 10, 1 });
 	tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>());
@@ -169,5 +169,6 @@ int main(int, char* []) {
 #endif
 	dae::Minigin engine(data_location);
 	engine.Run(load);
+
 	return 0;
 }

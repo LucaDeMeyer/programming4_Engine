@@ -21,6 +21,8 @@
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "GameTime.h"
+#include "SteamManager.h"
+
 SDL_Window* g_window{};
 
 void LogSDLVersion(const std::string& message, int major, int minor, int patch)
@@ -61,6 +63,8 @@ void PrintSDLVersion()
 
 dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 {
+	SteamManager::GetInstance().Init();
+
 	PrintSDLVersion();
 	
 	if (!SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
@@ -86,6 +90,8 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 dae::Minigin::~Minigin()
 {
+	SteamManager::GetInstance().Shutdown();
+
 	Renderer::GetInstance().Destroy();
 	SDL_DestroyWindow(g_window);
 	g_window = nullptr;
@@ -115,9 +121,11 @@ void dae::Minigin::RunOneFrame()
 
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
+	SteamManager::GetInstance().Update();
 	CollisionManager::GetInstance().Update();
 	EventQueue::GetInstance().Process();
 	Renderer::GetInstance().Render();
+
 
 	auto sleep_time = frame_start_time + std::chrono::milliseconds(ms_per_frame) - std::chrono::high_resolution_clock::now();
 
