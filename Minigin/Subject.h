@@ -17,7 +17,6 @@ namespace dae
 
 	private:
 		std::vector<Observer*> m_Observers;
-
 	};
 }
 

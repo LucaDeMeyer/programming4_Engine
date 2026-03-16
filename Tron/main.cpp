@@ -89,11 +89,21 @@ static void load()
 
 	auto tank_2 = Tron::GOFactory::CreatePlayer({ 60,200,1 });
 
+
+	auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
+	LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(player.Base->GetComponent<Tron::LivesComponent>()->GetLives());
+	LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
+	LivesDisplayTank_2->GetTransform()->SetLocalPosition({600, 10, 1 });
+	tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>());
+
+
 	auto moveUpCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(),glm::vec2{0,-100});
 	auto MoveLeftCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{-100,0});
 	auto moveDownCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,100 });
 	auto MoveRightCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{100,0});
 	auto fireCommand2 = std::make_unique<Tron::FireCommand>(tank_2.Base.get());
+
+	auto DamageTest = std::make_unique<Tron::DamageCommand>(tank_2.Base.get(), 1);
 
 	dae::InputManager::GetInstance().BindControllerCommand(
 		0, dae::Controller::ControllerButton::DPadLeft,
@@ -111,6 +121,10 @@ static void load()
 		0, dae::Controller::ControllerButton::ButtonA,
 		dae::InputState::Down,std::move(fireCommand2));
 
+	dae::InputManager::GetInstance().BindControllerCommand(
+		0, dae::Controller::ControllerButton::ButtonB,
+		dae::InputState::Down, std::move(DamageTest));
+
 	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,100,1 });
 	auto enemyTank_02 = Tron::GOFactory::CreateEnemy({ 200,100,1 });
 	auto enemyTank_03 = Tron::GOFactory::CreateEnemy({ 250,100,1 });
@@ -123,6 +137,7 @@ static void load()
 	scene.Add(std::move(tank_2.Base));
 	scene.Add(std::move(tank_2.Turret));
 	scene.Add(std::move(LivesDisplayTank_1));
+	scene.Add(std::move(LivesDisplayTank_2));
 	scene.Add(std::move(ScoreDisplay));
 	scene.Add(std::move(enemyTank_01));
 	scene.Add(std::move(enemyTank_02));

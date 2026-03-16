@@ -14,7 +14,10 @@ namespace Tron
 			dae::EventQueue::GetInstance().GetNotifier()->AddObserver(this);
 		}
 
-		~TankCollisionObserver() override = default;
+		~TankCollisionObserver() override
+		{
+			dae::EventQueue::GetInstance().GetNotifier()->RemoveObserver(this);
+		}
 
 		TankCollisionObserver(const TankCollisionObserver& other) = delete;
 		TankCollisionObserver(TankCollisionObserver&& other) = delete;

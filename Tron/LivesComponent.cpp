@@ -28,7 +28,7 @@ void LivesComponent::DoDamage(int Damage)
 				dae::EventQueue::GetInstance().AddEvent(std::move(scoreEvent));
 			}
 		}
-		GetOwner()->MarkForDestruction();// temp
+		GetOwner()->MarkForDestruction();
 	}
 	else
 	{
