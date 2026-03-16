@@ -13,6 +13,11 @@ void dae::SceneManager::Update()
 	}
 }
 
+void dae::SceneManager::ClearScenes()
+{
+	m_scenes.clear();
+}
+
 void dae::SceneManager::Render()
 {
 	if (!m_scenes.empty())

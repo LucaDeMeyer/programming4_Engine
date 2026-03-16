@@ -42,7 +42,7 @@ void LivesDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
     {
 	    if (auto* payload = static_cast<PlayerDiedARGS*>(event.pArgs.get()))
 	    {
-		    // should this handle destroying?
+            m_Lives = 0;
 	    }
     }
 }

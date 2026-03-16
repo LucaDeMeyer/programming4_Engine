@@ -98,6 +98,8 @@ void dae::Minigin::Run(const std::function<void()>& load)
 #ifndef __EMSCRIPTEN__
 	while (!m_quit)
 		RunOneFrame();
+
+	SceneManager::GetInstance().ClearScenes();
 #else
 	emscripten_set_main_loop_arg(&LoopCallback, this, 0, true);
 #endif

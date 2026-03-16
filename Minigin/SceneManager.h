@@ -14,7 +14,7 @@ namespace dae
 		Scene& CreateScene();
 		Scene& GetActiveScene();
 		void SetActiveScene(size_t index);
-
+		void ClearScenes();
 		void Update();
 		void Render();
 		void RenderUI();
