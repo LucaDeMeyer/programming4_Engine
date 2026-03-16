@@ -10,6 +10,7 @@
 #include "TextureComponent.h"
 #include "glm/vec3.hpp"
 #include "TransformComponent.h"
+#include "ScoreComponent.h"
 namespace Tron
 {
 
@@ -22,13 +23,13 @@ namespace Tron
     class GOFactory
     {
     public:
-        static std::unique_ptr<dae::GameObject> CreateBullet(glm::vec3 startPos, glm::vec2 velocity, Team team)
+        static std::unique_ptr<dae::GameObject> CreateBullet(glm::vec3 startPos, glm::vec2 velocity, Team team, dae::GameObject* shooter)
         {
             auto bullet = std::make_unique<dae::GameObject>();
             bullet->GetTransform()->SetLocalPosition(startPos);
             bullet->AddComponent<dae::TextureComponent>()->SetTexture("Tank_Bullet.png");
             bullet->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 8, 8 });
-            bullet->AddComponent<Tron::TankBullet>(velocity);
+            bullet->AddComponent<Tron::TankBullet>(shooter,velocity);
             bullet->AddComponent<Tron::FactionComponent>(team);
             return bullet;
         }
@@ -42,6 +43,7 @@ namespace Tron
             base->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0,0,32,32 });
             base->AddComponent<Tron::FactionComponent>(Team::Player1);
             base->AddComponent<Tron::TankCollisionObserver>();
+            base->AddComponent<Tron::ScoreComponent>();
 
             auto turret = std::make_unique<dae::GameObject>();
             turret->GetTransform()->SetLocalPosition({ 8, 8, 0 });

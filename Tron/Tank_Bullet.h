@@ -11,7 +11,7 @@ namespace Tron
 	class TankBullet : public dae::BaseComponent
 	{
 	public:
-		explicit TankBullet(dae::GameObject* owner, glm::vec2 velocity);
+		explicit TankBullet(dae::GameObject* owner, dae::GameObject* shooter, glm::vec2 velocity);
 		~TankBullet() override = default;
 		TankBullet(const TankBullet& other) = delete;
 		TankBullet(TankBullet&& other) noexcept = delete;
@@ -21,7 +21,10 @@ namespace Tron
 		void Update() override;
 		void Render() const override{}
 
+		dae::GameObject* GetShooter() const { return m_Shooter; }
+
 	private:
+		dae::GameObject* m_Shooter{ nullptr };
 		glm::vec2 m_Velocity;
 	};
 }

@@ -41,7 +41,7 @@ void DamageCommand::Execute()
     auto obj = GetGameObject();
     if (!obj) return;
 
-    GetGameObject()->GetComponent<LivesComponent>()->DoDamage(m_Damage);
+    GetGameObject()->GetComponent<LivesComponent>()->DoDamage(m_Damage,obj);
 }
 
 void FireCommand::Execute()
@@ -66,7 +66,7 @@ void FireCommand::Execute()
         else if (frame == 2) velocity = { bulletSpeed, 0};
         else if (frame == 3) velocity = { 0, -bulletSpeed };
     }
-    auto bullet = GOFactory::CreateBullet(pos, velocity, team);
+    auto bullet = GOFactory::CreateBullet(pos, velocity, team,obj);
 
     dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
 }

@@ -13,13 +13,12 @@ Tron::ScoreDisplay::ScoreDisplay(dae::GameObject* owner): BaseComponent(owner), 
     m_Text->SetFont("TRON.TTF", 20);
 	m_Text->SetText("Score:" + std::to_string(m_CurrentScore));
     m_Text->SetColor(255, 255, 255, 255);
-	dae::EventQueue::GetInstance().GetNotifier()->AddObserver(this);
 }
 
 
 void Tron::ScoreDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
-    if (event.ID == dae::make_sdbm_hash("ScoreGainedEvent"))
+    if (event.ID == dae::make_sdbm_hash("ScoreChangedEvent"))
     {
         if (auto* payload = static_cast<ScoreGainedARGS*>(event.pArgs.get()))
         {

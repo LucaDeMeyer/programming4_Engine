@@ -46,10 +46,11 @@ static void load()
 	LivesDisplayTank_1->GetTransform()->SetLocalPosition({ 60, 10, 1 });
 	player.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_1->GetComponent<Tron::LivesDisplay>());
 
-	auto ScoreDisplay = std::make_unique<dae::GameObject>();
-	ScoreDisplay->GetTransform()->SetLocalPosition({ 200, 10, 0 });
-	ScoreDisplay->AddComponent<dae::TextComponent>();
-	ScoreDisplay->AddComponent<Tron::ScoreDisplay>();
+	auto ScoreDisplay1 = std::make_unique<dae::GameObject>();
+	ScoreDisplay1->GetTransform()->SetLocalPosition({ 200, 10, 0 });
+	ScoreDisplay1->AddComponent<dae::TextComponent>();
+	ScoreDisplay1->AddComponent<Tron::ScoreDisplay>();
+	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay1->GetComponent<Tron::ScoreDisplay>());
 
 	auto moveUpCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
 	auto MoveLeftCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
@@ -102,6 +103,11 @@ static void load()
 	LivesDisplayTank_2->GetTransform()->SetLocalPosition({600, 10, 1 });
 	tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>());
 
+	auto ScoreDisplay2 = std::make_unique<dae::GameObject>();
+	ScoreDisplay2->GetTransform()->SetLocalPosition({ 400, 10, 0 });
+	ScoreDisplay2->AddComponent<dae::TextComponent>();
+	ScoreDisplay2->AddComponent<Tron::ScoreDisplay>();
+	tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay2->GetComponent<Tron::ScoreDisplay>());
 
 	auto moveUpCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(),glm::vec2{0,-100});
 	auto MoveLeftCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{-100,0});
@@ -143,7 +149,8 @@ static void load()
 	scene.Add(std::move(tank_2.Turret));
 	scene.Add(std::move(LivesDisplayTank_1));
 	scene.Add(std::move(LivesDisplayTank_2));
-	scene.Add(std::move(ScoreDisplay));
+	scene.Add(std::move(ScoreDisplay1));
+	scene.Add(std::move(ScoreDisplay2));
 	scene.Add(std::move(enemyTank_01));
 	scene.Add(std::move(enemyTank_02));
 	scene.Add(std::move(enemyTank_03));

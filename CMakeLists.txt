@@ -249,7 +249,7 @@ add_executable(Ex2 ThrashTheCache/Ex_02/main.cpp)
 
 
 add_minigin_app(Tron
-"Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp")
+"Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp;Tron/ScoreComponent.cpp")
 
 add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashTheCache.h;ThrashTheCache/ThrashTheCacheUI.cpp")
 

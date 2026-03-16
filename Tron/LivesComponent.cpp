@@ -6,9 +6,10 @@
 #include "TronEvents.h"
 #include "GameObject.h"
 #include "InputManager.h"
+#include "ScoreComponent.h"
 
 using namespace Tron;
-void LivesComponent::DoDamage(int Damage)
+void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 {
 	m_Lives -= Damage;
 
@@ -23,9 +24,10 @@ void LivesComponent::DoDamage(int Damage)
 		{
 			if (faction->GetTeam() == Team::Enemy)
 			{
-				auto scorePayload = std::make_unique<ScoreGainedARGS>(100); 
-				dae::Event scoreEvent(dae::make_sdbm_hash("ScoreGainedEvent"), std::move(scorePayload));
-				dae::EventQueue::GetInstance().AddEvent(std::move(scoreEvent));
+				if (auto scoreComp = shooter->GetComponent<ScoreComponent>())
+				{
+					scoreComp->AddScore(100);
+				}
 			}
 		}
 

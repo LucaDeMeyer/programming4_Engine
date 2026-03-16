@@ -21,7 +21,7 @@ namespace Tron
         void Render() const override {}
 
 
-        void DoDamage(int Damage);
+        void DoDamage(int Damage, dae::GameObject* shooter);
 
         void SetHealth(int newLives);
         void SetMaxHealth(int newMaxLives);

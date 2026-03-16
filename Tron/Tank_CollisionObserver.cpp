@@ -50,7 +50,13 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
                         if (shouldTakeDamage)
                         {
                             if (auto* lives = GetOwner()->GetComponent<LivesComponent>()) {
-                                lives->DoDamage(1);
+
+                                dae::GameObject* shooter = nullptr;
+                                if (auto* bulletComp = otherObject->GetComponent<TankBullet>())
+                                {
+                                    shooter = bulletComp->GetShooter();
+                                }
+                                lives->DoDamage(1,shooter);
                             }
                             otherObject->MarkForDestruction(); 
                         }

@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include "TransformComponent.h"
 
-Tron::TankBullet::TankBullet(dae::GameObject* owner, glm::vec2 velocity) : BaseComponent(owner), m_Velocity(velocity)
+Tron::TankBullet::TankBullet(dae::GameObject* owner, dae::GameObject* shooter,glm::vec2 velocity) : BaseComponent(owner), m_Shooter(shooter), m_Velocity(velocity)
 {
 }
  void Tron::TankBullet::Update()
