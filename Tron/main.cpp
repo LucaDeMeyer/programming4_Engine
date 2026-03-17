@@ -30,11 +30,13 @@
 #include "Scene.h"
 #include <filesystem>
 #include "TronFactory.h"
+#include "AchievmentManager.h"
 
 namespace fs = std::filesystem;
 
 static void load()
 {
+	
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 	dae::SceneManager::GetInstance().SetActiveScene(0);
 
@@ -51,6 +53,8 @@ static void load()
 	ScoreDisplay1->AddComponent<dae::TextComponent>();
 	ScoreDisplay1->AddComponent<Tron::ScoreDisplay>();
 	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay1->GetComponent<Tron::ScoreDisplay>());
+
+	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
 
 	auto moveUpCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
 	auto MoveLeftCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
