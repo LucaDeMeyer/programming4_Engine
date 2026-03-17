@@ -9,7 +9,7 @@ void Tron::AchievementManager::Init()
     if (SteamUserStats() == nullptr) return;
 
     #ifdef _DEBUG
-        SteamUserStats()->ResetAllStats(true);
+        SteamUserStats()->ResetAllStats(true); // could also add a command to do this during gameplay
         SteamUserStats()->StoreStats();
     #endif
 }

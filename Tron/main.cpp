@@ -41,7 +41,7 @@ static void load()
 	dae::SceneManager::GetInstance().SetActiveScene(0);
 	Tron::AchievementManager::GetInstance().Init();
 
-	auto player = Tron::GOFactory::CreatePlayer({ 60, 100, 1 });
+	auto player = Tron::GOFactory::CreatePlayer({ 60, 250, 1 });
 
 	auto LivesDisplayTank_1 = std::make_unique<dae::GameObject>();
 	LivesDisplayTank_1->AddComponent<Tron::LivesDisplay>(player.Base->GetComponent<Tron::LivesComponent>()->GetLives());
@@ -101,7 +101,6 @@ static void load()
 
 	auto tank_2 = Tron::GOFactory::CreatePlayer({ 60,200,1 });
 
-
 	auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
 	LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLives());
 	LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
@@ -143,12 +142,36 @@ static void load()
 		0, dae::Controller::ControllerButton::ButtonB,
 		dae::InputState::Down, std::move(DamageTest));
 
-	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,100,1 });
-	auto enemyTank_02 = Tron::GOFactory::CreateEnemy({ 200,100,1 });
-	auto enemyTank_03 = Tron::GOFactory::CreateEnemy({ 250,100,1 });
-	auto enemyTank_04 = Tron::GOFactory::CreateEnemy({ 100,100,1 });
+	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,300,1 });
+	auto enemyTank_02 = Tron::GOFactory::CreateEnemy({ 200,300,1 });
+	auto enemyTank_03 = Tron::GOFactory::CreateEnemy({ 250,300,1 });
+	auto enemyTank_04 = Tron::GOFactory::CreateEnemy({ 100,300,1 });
 	auto enemyTank_05 = Tron::GOFactory::CreateEnemy({ 300,500,1 });
-	auto enemyTank_06 = Tron::GOFactory::CreateEnemy({ 250,300,1 });
+	auto enemyTank_06 = Tron::GOFactory::CreateEnemy({ 250,530,1 });
+
+	auto controlDisplay1 = std::make_unique<dae::GameObject>();
+	controlDisplay1->GetTransform()->SetLocalPosition({ 60,100,1 });
+	controlDisplay1->AddComponent<dae::TextComponent>();
+	controlDisplay1->GetComponent<dae::TextComponent>()->SetFont("TRON.TTF", 10);
+	controlDisplay1->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
+	controlDisplay1->GetComponent<dae::TextComponent>()->SetText("Use WASD to move Red tank, space to shoot, C to deal damage to self");
+
+	auto controlDisplay2 = std::make_unique<dae::GameObject>();
+	controlDisplay2->GetTransform()->SetLocalPosition({ 60,120,1 });
+	controlDisplay2->AddComponent<dae::TextComponent>();
+	controlDisplay2->GetComponent<dae::TextComponent>()->SetFont("TRON.TTF", 10);
+	controlDisplay2->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
+	controlDisplay2->GetComponent<dae::TextComponent>()->SetText("Use D-Pad to move green? tank, A to shoot, B to deal damage to self");
+
+	auto fps = std::make_unique<dae::GameObject>();
+	fps->AddComponent<dae::TextComponent>()
+		->SetText("FPS")
+		->SetText("FPS")
+		->SetFont("Lingua.otf", 15)
+		->SetColor(255, 255, 255, 255);
+	fps->AddComponent<dae::FPSComponent>();
+	fps->GetTransform()->SetLocalPosition({ 10, 40,1 });
+	scene.Add(std::move(fps));
 
 	scene.Add(std::move(player.Base));
 	scene.Add(std::move(player.Turret));
@@ -164,6 +187,9 @@ static void load()
 	scene.Add(std::move(enemyTank_04));
 	scene.Add(std::move(enemyTank_05));
 	scene.Add(std::move(enemyTank_06));
+	scene.Add(std::move(controlDisplay1));
+	scene.Add(std::move(controlDisplay2));
+
 }
 
 int main(int, char* []) {
