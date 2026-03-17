@@ -2,13 +2,24 @@
 #include "GameObject.h"
 #include"TronEvents.h"
 #include<iostream>
+
+void Tron::AchievementManager::Init()
+{
+
+    if (SteamUserStats() == nullptr) return;
+
+    #ifdef _DEBUG
+        SteamUserStats()->ResetAllStats(true);
+        SteamUserStats()->StoreStats();
+    #endif
+}
 void Tron::AchievementManager::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
     if (event.ID == dae::make_sdbm_hash("ScoreChangedEvent"))
     {
         if (auto* payload = static_cast<ScoreGainedARGS*>(event.pArgs.get()))
         {
-            m_CurrentScore += payload->points;
+            m_CurrentScore = payload->points;
             CheckUnlockCondition();
         }
     }

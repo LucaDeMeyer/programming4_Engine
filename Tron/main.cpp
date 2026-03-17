@@ -39,6 +39,7 @@ static void load()
 	
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 	dae::SceneManager::GetInstance().SetActiveScene(0);
+	Tron::AchievementManager::GetInstance().Init();
 
 	auto player = Tron::GOFactory::CreatePlayer({ 60, 100, 1 });
 

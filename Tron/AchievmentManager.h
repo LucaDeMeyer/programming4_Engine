@@ -16,6 +16,8 @@ namespace Tron
 	{
 	public:
 
+		void Init();
+
 		void AddScore(int amount);
 
 	
