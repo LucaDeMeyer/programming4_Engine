@@ -22,7 +22,7 @@ void Tron::ScoreDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
     {
         if (auto* payload = static_cast<ScoreGainedARGS*>(event.pArgs.get()))
         {
-            m_CurrentScore += payload->points;
+            m_CurrentScore = payload->points;
             m_Text->SetText("Score: " + std::to_string(m_CurrentScore));
         }
     }

@@ -113,6 +113,8 @@ static void load()
 	ScoreDisplay2->AddComponent<Tron::ScoreDisplay>();
 	tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay2->GetComponent<Tron::ScoreDisplay>());
 
+	tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
+
 	auto moveUpCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(),glm::vec2{0,-100});
 	auto MoveLeftCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{-100,0});
 	auto moveDownCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,100 });

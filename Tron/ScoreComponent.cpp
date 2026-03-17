@@ -1,7 +1,7 @@
 #include "ScoreComponent.h"
 
 #include "TronEvents.h"
-
+#include <iostream>
 void Tron::ScoreComponent::AddScore(int score)
 {
     m_Score += score;
