@@ -6,6 +6,7 @@
 #include "SceneManager.h"
 #include "SpriteComponent.h"
 #include "TronFactory.h"
+
 using namespace Tron;
 void MoveCommand::Execute()
 {
@@ -20,9 +21,7 @@ void MoveCommand::Execute()
     currentPos.y += m_Direction.y * deltaTime;
 
     transform->SetLocalPosition(currentPos);
-
     UpdateSpriteDirection();
-
 }
 
 void MoveCommand::UpdateSpriteDirection()
@@ -41,7 +40,6 @@ void DamageCommand::Execute()
 {
     auto obj = GetGameObject();
     if (!obj) return;
-
     GetGameObject()->GetComponent<LivesComponent>()->DoDamage(m_Damage,obj);
 }
 
@@ -77,10 +75,8 @@ void PlayerFireCommand::Execute()
     auto base = GetGameObject();
     if (!base || !m_Turret) return;
 
-    auto basePos = base->GetTransform()->GetWorldPosition();
-    float centerX = basePos.x; 
-    float centerY = basePos.y;
-
+    auto center = base->GetTransform()->GetWorldPosition();
+   
     auto factionComp = base->GetComponent<FactionComponent>();
     Team team = factionComp ? factionComp->GetTeam() : Team::Player1;
 
@@ -109,9 +105,9 @@ void PlayerFireCommand::Execute()
     };
     float barrelLength = 24.0f;
     glm::vec3 spawnPos{
-        centerX + (std::cos(angleRadians) * barrelLength) - 4.0f,
-        centerY + (std::sin(angleRadians) * barrelLength) - 4.0f,
-        basePos.z
+         center.x + (std::cos(angleRadians) * barrelLength) - 4.0f,
+        center.y + (std::sin(angleRadians) * barrelLength) - 4.0f,
+        center.z
     };
 
     auto bullet = GOFactory::CreateBullet(spawnPos, velocity, team, base);

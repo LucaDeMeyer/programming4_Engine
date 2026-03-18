@@ -13,7 +13,6 @@
 #include "ScoreComponent.h"
 namespace Tron
 {
-
     struct PlayerAssembly
     {
         std::unique_ptr<dae::GameObject> Base;
@@ -23,14 +22,19 @@ namespace Tron
     class GOFactory
     {
     public:
+
         static std::unique_ptr<dae::GameObject> CreateBullet(glm::vec3 startPos, glm::vec2 velocity, Team team, dae::GameObject* shooter)
         {
             startPos.x += 12.0f;
-            startPos.y += 12.0f; // offset to have bullet spawn in center, half of tank sprite - half of bulletsprite
+            startPos.y += 12.0f; // offset to have bullet spawn in center, half of tank sprite - half of bullet sprite
 
             auto bullet = std::make_unique<dae::GameObject>();
             bullet->GetTransform()->SetLocalPosition(startPos);
-            bullet->AddComponent<dae::TextureComponent>()->SetTexture("Tank_Bullet.png");
+            if (team == Team::Player1 || team == Team::Player2)
+                bullet->AddComponent<dae::TextureComponent>()->SetTexture("Tank_Bullet.png");
+            else
+                bullet->AddComponent<dae::TextureComponent>()->SetTexture("Bullet_Enemy.png");
+
             bullet->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 8, 8 });
             bullet->AddComponent<Tron::TankBullet>(shooter,velocity);
             bullet->AddComponent<Tron::FactionComponent>(team);
@@ -68,5 +72,6 @@ namespace Tron
             return enemy;
         }
     };
+
 }
 #endif
