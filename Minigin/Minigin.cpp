@@ -21,7 +21,7 @@
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "GameTime.h"
-#include "SteamManager.h"
+#include "ServiceLocator.h"
 
 SDL_Window* g_window{};
 
@@ -63,7 +63,7 @@ void PrintSDLVersion()
 
 dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 {
-	SteamManager::GetInstance().Init();
+	ServiceLocator::GetPlatform().Init();
 
 	PrintSDLVersion();
 	
@@ -90,7 +90,7 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 dae::Minigin::~Minigin()
 {
-	SteamManager::GetInstance().Shutdown();
+	ServiceLocator::GetPlatform().Shutdown();
 
 	Renderer::GetInstance().Destroy();
 	SDL_DestroyWindow(g_window);
@@ -104,7 +104,6 @@ void dae::Minigin::Run(const std::function<void()>& load)
 #ifndef __EMSCRIPTEN__
 	while (!m_quit)
 		RunOneFrame();
-
 	SceneManager::GetInstance().ClearScenes();
 #else
 	emscripten_set_main_loop_arg(&LoopCallback, this, 0, true);
@@ -121,7 +120,7 @@ void dae::Minigin::RunOneFrame()
 
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
-	SteamManager::GetInstance().Update();
+	ServiceLocator::GetPlatform().Update();
 	CollisionManager::GetInstance().Update();
 	EventQueue::GetInstance().Process();
 	Renderer::GetInstance().Render();

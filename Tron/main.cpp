@@ -31,7 +31,8 @@
 #include <filesystem>
 #include "TronFactory.h"
 #include "AchievmentManager.h"
-
+#include "ServiceLocator.h"
+#include "TronServices.h"
 namespace fs = std::filesystem;
 
 static void load()
@@ -39,7 +40,6 @@ static void load()
 	
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 	dae::SceneManager::GetInstance().SetActiveScene(0);
-	Tron::AchievementManager::GetInstance().Init();
 
 	auto player = Tron::GOFactory::CreatePlayer({ 60, 250, 1 },"RedTank_SpriteSheet.png",Tron::Team::Player1);
 
@@ -206,6 +206,15 @@ int main(int, char* []) {
 	if (!fs::exists(data_location))
 		data_location = "./Data/";
 #endif
+#if USE_STEAMWORKS
+	dae::ServiceLocator::RegisterPlatform(
+		std::make_unique<Tron::SteamPlatformService>()
+	);
+	dae::ServiceLocator::RegisterAchievements(
+		std::make_unique<Tron::SteamAchievementService>()
+	);
+#endif
+
 	dae::Minigin engine(data_location);
 	engine.Run(load);
 
