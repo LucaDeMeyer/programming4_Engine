@@ -35,5 +35,25 @@ namespace Tron
     	~FireCommand() override = default;
         void Execute() override;
     };
+
+    class PlayerFireCommand final : public dae::ActorCommand
+    {
+    public:
+        PlayerFireCommand(dae::GameObject* obj, dae::GameObject* turret) : dae::ActorCommand(obj), m_Turret(turret) {}
+        ~PlayerFireCommand() override = default;
+        void Execute() override;
+    private:
+        dae::GameObject* m_Turret;
+    };
+
+    class AimCommand final : public dae::ActorCommand
+    {
+    public:
+        AimCommand(dae::GameObject* obj, int controllerIndex = -1) : dae::ActorCommand(obj), m_ControllerIndex(controllerIndex){}
+        ~AimCommand() override = default;
+        void Execute() override;
+    private:
+        int m_ControllerIndex;
+    };
 }
 #endif

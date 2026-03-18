@@ -32,6 +32,18 @@ public:
     bool IsUpThisFrame(unsigned int button) const { return m_ButtonsReleasedThisFrame & button; }
     bool IsPressed(unsigned int button) const { return m_CurrentState.Gamepad.wButtons & button; }
 
+    glm::vec2 GetRightThumbstick() const
+    {
+        float x = m_CurrentState.Gamepad.sThumbRX / 32767.0f;
+        float y = m_CurrentState.Gamepad.sThumbRY / 32767.0f;
+
+        // Clamp in case of exactly -32768
+        if (x < -1.0f) x = -1.0f;
+        if (y < -1.0f) y = -1.0f;
+
+        return { x, -y };
+    }
+
 private:
     unsigned int m_ControllerIndex;
     XINPUT_STATE m_PreviousState{};
@@ -98,7 +110,20 @@ public:
     bool IsDownThisFrame(unsigned int button) const { return m_ButtonsPressedThisFrame & button; }
     bool IsUpThisFrame(unsigned int button) const { return m_ButtonsReleasedThisFrame & button; }
     bool IsPressed(unsigned int button) const { return m_CurrentButtons & button; }
+    glm::vec2 GetRightThumbstick() const
 
+    {
+        // Normalize from [-32768, 32767] to [-1.0f, 1.0f]
+        float x = m_CurrentState.Gamepad.sThumbRX / 32767.0f;
+        float y = m_CurrentState.Gamepad.sThumbRY / 32767.0f;
+
+        // Clamp in case of exactly -32768
+        if (x < -1.0f) x = -1.0f;
+        if (y < -1.0f) y = -1.0f;
+
+        // INVERT Y: XInput is positive-UP, but 2D screens are positive-DOWN.
+        return { x, -y };
+    }
 private:
     SDL_Gamepad* m_Gamepad = nullptr;
     unsigned int m_ControllerIndex;
@@ -119,3 +144,4 @@ void Controller::Update() { m_pImpl->Update(); }
 bool Controller::IsDownThisFrame(ControllerButton button) const { return m_pImpl->IsDownThisFrame(static_cast<unsigned int>(button)); }
 bool Controller::IsUpThisFrame(ControllerButton button) const { return m_pImpl->IsUpThisFrame(static_cast<unsigned int>(button)); }
 bool Controller::IsPressed(ControllerButton button) const { return m_pImpl->IsPressed(static_cast<unsigned int>(button)); }
+glm::vec2 Controller::GetRightThumbstick() const { return m_pImpl->GetRightThumbstick(); }

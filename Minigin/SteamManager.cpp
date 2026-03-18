@@ -15,7 +15,6 @@ void dae::SteamManager::Init()
     {
         throw std::runtime_error("Fatal Error - Steam must be running to play this game.");
     }
-    std::cout << "Waking up Steam" << std::endl;
     m_bIsInitialized = true;
 #endif
 }

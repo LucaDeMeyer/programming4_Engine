@@ -4,6 +4,7 @@
 #include "Command.h"
 #include "Controller.h"
 #include "Singleton.h"
+#include "glm/vec2.hpp"
 
 namespace dae
 {
@@ -25,7 +26,11 @@ namespace dae
 
 		void BindControllerCommand(unsigned int controllerIndex, Controller::ControllerButton button, InputState state, std::unique_ptr<Command> command);
 		void BindKeyCommand(SDL_Keycode key, InputState state, std::unique_ptr<Command> command);
-		
+
+		void BindContinuousCommand(std::unique_ptr<Command> command);
+		glm::vec2 GetMousePosition() const;
+		glm::vec2 GetRightThumbstick(unsigned int controllerIndex) const;
+
 	private:
 
 		void RemoveCommands();
@@ -35,6 +40,8 @@ namespace dae
 
 		using ControllerKey = std::tuple<unsigned int, Controller::ControllerButton, InputState>;
 		std::map<ControllerKey, std::unique_ptr<Command>> m_ConsoleCommands;
+
+		std::vector<std::unique_ptr<Command>> m_ContinuousCommands;
 
 		std::vector<std::unique_ptr<Controller>> m_Controllers;
 

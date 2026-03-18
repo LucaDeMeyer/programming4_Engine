@@ -69,9 +69,34 @@ bool dae::InputManager::ProcessInput()
         }
     }
 
+    for (const auto& command : m_ContinuousCommands) {
+        command->Execute();
+    }
+
     RemoveCommands();
 
     return true;
+}
+
+
+void dae::InputManager::BindContinuousCommand(std::unique_ptr<Command> command)
+{
+    m_ContinuousCommands.push_back(std::move(command));
+}
+
+glm::vec2 dae::InputManager::GetMousePosition() const
+{
+    float x, y;
+    SDL_GetMouseState(&x, &y);
+    return { x, y };
+}
+
+glm::vec2 dae::InputManager::GetRightThumbstick(unsigned int controllerIndex) const
+{
+    if (controllerIndex < m_Controllers.size() && m_Controllers[controllerIndex]) {
+        return m_Controllers[controllerIndex]->GetRightThumbstick();
+    }
+    return { 0.0f, 0.0f };
 }
 
 
@@ -111,6 +136,13 @@ void dae::InputManager::RemoveCommands()
 
             std::erase_if(m_ConsoleCommands, [deadObject](const auto& pair) {
                 if (auto* actorCmd = dynamic_cast<dae::ActorCommand*>(pair.second.get())) {
+                    return actorCmd->GetGameObject() == deadObject;
+                }
+                return false;
+                });
+
+            std::erase_if(m_ContinuousCommands, [deadObject](const auto& cmd) {
+                if (auto* actorCmd = dynamic_cast<dae::ActorCommand*>(cmd.get())) {
                     return actorCmd->GetGameObject() == deadObject;
                 }
                 return false;

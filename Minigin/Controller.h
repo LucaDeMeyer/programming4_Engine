@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "glm/vec2.hpp"
+
 namespace dae
 {
     class Controller final
@@ -32,7 +34,7 @@ namespace dae
         bool IsDownThisFrame(ControllerButton button) const;
         bool IsUpThisFrame(ControllerButton button) const;
         bool IsPressed(ControllerButton button) const;
-
+        glm::vec2 GetRightThumbstick() const;
     private:
         class ControllerImpl;
         std::unique_ptr<ControllerImpl> m_pImpl;

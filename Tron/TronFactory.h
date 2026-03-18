@@ -25,6 +25,9 @@ namespace Tron
     public:
         static std::unique_ptr<dae::GameObject> CreateBullet(glm::vec3 startPos, glm::vec2 velocity, Team team, dae::GameObject* shooter)
         {
+            startPos.x += 12.0f;
+            startPos.y += 12.0f; // offset to have bullet spawn in center, half of tank sprite - half of bulletsprite
+
             auto bullet = std::make_unique<dae::GameObject>();
             bullet->GetTransform()->SetLocalPosition(startPos);
             bullet->AddComponent<dae::TextureComponent>()->SetTexture("Tank_Bullet.png");
@@ -34,20 +37,20 @@ namespace Tron
             return bullet;
         }
 
-        static PlayerAssembly CreatePlayer(glm::vec3 startPos)
+        static PlayerAssembly CreatePlayer(glm::vec3 startPos, const std::string& spriteSheet, Team team)
         {
             auto base = std::make_unique<dae::GameObject>();
             base->GetTransform()->SetLocalPosition(startPos);
-            base->AddComponent<dae::SpriteComponent>("RedTank_SpriteSheet.png", 4, 1);
+            base->AddComponent<dae::SpriteComponent>(spriteSheet, 4, 1);
             base->AddComponent<Tron::LivesComponent>(3);
             base->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0,0,32,32 });
-            base->AddComponent<Tron::FactionComponent>(Team::Player1);
+            base->AddComponent<Tron::FactionComponent>(team);
             base->AddComponent<Tron::TankCollisionObserver>();
             base->AddComponent<Tron::ScoreComponent>();
 
             auto turret = std::make_unique<dae::GameObject>();
-            turret->GetTransform()->SetLocalPosition({ 8, 8, 0 });
-            turret->AddComponent<dae::SpriteComponent>("Turret_SpriteSheet.png", 10, 4);
+            turret->GetTransform()->SetLocalPosition({ -16, -16, 0 });
+            turret->AddComponent<dae::SpriteComponent>("Turret_Sheet.png", 10, 4);
             turret->SetParent(base.get(), false);
 
             return PlayerAssembly{ std::move(base), std::move(turret) };
