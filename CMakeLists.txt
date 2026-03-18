@@ -221,9 +221,9 @@ function(add_minigin_app APP_NAME APP_SOURCES)
                 VERBATIM
             )
         endforeach()
-
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Data")
        add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${APP_NAME}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data")
-        
+        endif()
         # Steamworks (Windows)
         if(Steamworks_FOUND)
             target_link_libraries(${APP_NAME} PRIVATE Steamworks::Steamworks)
@@ -250,18 +250,8 @@ function(add_minigin_app APP_NAME APP_SOURCES)
     endif()
 endfunction()
 
-add_executable(Ex1 ThrashTheCache/Ex_01/main.cpp)
-add_executable(Ex2 ThrashTheCache/Ex_02/main.cpp)
-
-
 add_minigin_app(Tron
 "Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp;Tron/ScoreComponent.cpp;Tron/AchievmentManager.cpp;Tron/TronServices.cpp")
-
-add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashTheCache.h;ThrashTheCache/ThrashTheCacheUI.cpp")
-
-add_minigin_app(Commands "Assignment_Commands/main.cpp")
-
-
 
 if(WIN32)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ACTIVE_PROJECT})

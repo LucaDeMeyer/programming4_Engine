@@ -25,11 +25,11 @@ void Tron::SteamPlatformService::Init()
 #if USE_STEAMWORKS
     if (!SteamAPI_Init())
     {
-        std::cerr << "[Steam] Fatal Error: SteamAPI_Init() failed. Make sure Steam is running and steam_appid.txt is present!\n";
+        std::cerr << "Fatal Error: SteamAPI_Init() failed.\n";
     }
     else
     {
-        std::cout << "[Steam] Initialized successfully.\n";
+        std::cout << "Steam Initialized successfully.\n";
     }
 #endif
 }
@@ -45,6 +45,6 @@ void Tron::SteamPlatformService::Shutdown()
 {
 #if USE_STEAMWORKS
     SteamAPI_Shutdown();
-    std::cout << "[Steam] Shutdown.\n";
+    std::cout << "Steam Shutdown.\n";
 #endif
 }

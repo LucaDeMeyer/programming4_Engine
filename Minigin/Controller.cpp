@@ -111,18 +111,18 @@ public:
     bool IsUpThisFrame(unsigned int button) const { return m_ButtonsReleasedThisFrame & button; }
     bool IsPressed(unsigned int button) const { return m_CurrentButtons & button; }
     glm::vec2 GetRightThumbstick() const
-
     {
-        // Normalize from [-32768, 32767] to [-1.0f, 1.0f]
-        float x = m_CurrentState.Gamepad.sThumbRX / 32767.0f;
-        float y = m_CurrentState.Gamepad.sThumbRY / 32767.0f;
+        if (!m_Gamepad) return { 0.0f, 0.0f };
 
-        // Clamp in case of exactly -32768
+        // Normalize from [-32768, 32767] to [-1.0f, 1.0f]
+        float x = SDL_GetGamepadAxis(m_Gamepad, SDL_GAMEPAD_AXIS_RIGHTX) / 32767.0f;
+        float y = SDL_GetGamepadAxis(m_Gamepad, SDL_GAMEPAD_AXIS_RIGHTY) / 32767.0f;
+
         if (x < -1.0f) x = -1.0f;
         if (y < -1.0f) y = -1.0f;
 
-        // INVERT Y: XInput is positive-UP, but 2D screens are positive-DOWN.
-        return { x, -y };
+        // SDL is already positive-DOWN, so we do NOT invert it!
+        return { x, y };
     }
 private:
     SDL_Gamepad* m_Gamepad = nullptr;
