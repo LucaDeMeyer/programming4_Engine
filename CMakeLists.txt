@@ -36,7 +36,13 @@ add_library(${TARGET_NAME} STATIC
   Minigin/ActorCommands.cpp
   Minigin/Controller.cpp
   Minigin/MovementComponent.cpp
-  
+  Minigin/Subject.cpp
+  Minigin/ColliderComponents.cpp
+  Minigin/CollisionManager.cpp
+  Minigin/EventQueue.cpp
+  Minigin/SpriteComponent.cpp
+  Minigin/Services.h
+  Minigin/ServiceLocator.h
 )
 
 # enable c++20 features
@@ -160,6 +166,11 @@ target_link_libraries("${TARGET_NAME}" PUBLIC
   ${VLD_LIBRARIES}
   imgui
 )
+if(Steamworks_FOUND)
+    # Give the engine the Steam library and make it PUBLIC so Tron inherits it!
+    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
+    target_compile_definitions("${TARGET_NAME}" PUBLIC USE_STEAMWORKS=1)
+endif()
 
 if(MSVC)
   # compile at warning level 4 + treat warnings as errors
@@ -168,7 +179,7 @@ else()
   target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Werror)
 endif()
 
-set(ACTIVE_PROJECT "Commands")
+set(ACTIVE_PROJECT "Tron")
 
 function(add_minigin_app APP_NAME APP_SOURCES)
     # 1. Create the executable and link the engine and ImGui
@@ -186,7 +197,7 @@ function(add_minigin_app APP_NAME APP_SOURCES)
             set_property(TARGET ${APP_NAME} PROPERTY SUFFIX ".html")
             
             set(EMSCRIPTEN_COMPILE_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g")
-            set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\"")
+            set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/${APP_NAME}/Data@/\"")
             
             set_target_properties(${APP_NAME} PROPERTIES
                 COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
@@ -211,9 +222,7 @@ function(add_minigin_app APP_NAME APP_SOURCES)
             )
         endforeach()
 
-        add_custom_command(TARGET ${APP_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data"
-        )
+       add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${APP_NAME}/Data" "$<TARGET_FILE_DIR:${APP_NAME}>/Data")
         
         # Steamworks (Windows)
         if(Steamworks_FOUND)
@@ -245,7 +254,8 @@ add_executable(Ex1 ThrashTheCache/Ex_01/main.cpp)
 add_executable(Ex2 ThrashTheCache/Ex_02/main.cpp)
 
 
-add_minigin_app(Tron "Tron/main.cpp")
+add_minigin_app(Tron
+"Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp;Tron/ScoreComponent.cpp;Tron/AchievmentManager.cpp;Tron/TronServices.cpp")
 
 add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashTheCache.h;ThrashTheCache/ThrashTheCacheUI.cpp")
 

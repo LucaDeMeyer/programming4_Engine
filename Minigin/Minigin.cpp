@@ -14,11 +14,15 @@
 
 #include <thread>
 
+#include "CollisionManager.h"
+#include "EventQueue.h"
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "GameTime.h"
+#include "ServiceLocator.h"
+
 SDL_Window* g_window{};
 
 void LogSDLVersion(const std::string& message, int major, int minor, int patch)
@@ -59,6 +63,8 @@ void PrintSDLVersion()
 
 dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 {
+	ServiceLocator::GetPlatform().Init();
+
 	PrintSDLVersion();
 	
 	if (!SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
@@ -84,6 +90,8 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 dae::Minigin::~Minigin()
 {
+	ServiceLocator::GetPlatform().Shutdown();
+
 	Renderer::GetInstance().Destroy();
 	SDL_DestroyWindow(g_window);
 	g_window = nullptr;
@@ -96,6 +104,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 #ifndef __EMSCRIPTEN__
 	while (!m_quit)
 		RunOneFrame();
+	SceneManager::GetInstance().ClearScenes();
 #else
 	emscripten_set_main_loop_arg(&LoopCallback, this, 0, true);
 #endif
@@ -103,7 +112,6 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame()
 {
-
 	const int ms_per_frame = 16;
 
 	Time::GetInstance().Update();
@@ -112,7 +120,11 @@ void dae::Minigin::RunOneFrame()
 
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
+	ServiceLocator::GetPlatform().Update();
+	CollisionManager::GetInstance().Update();
+	EventQueue::GetInstance().Process();
 	Renderer::GetInstance().Render();
+
 
 	auto sleep_time = frame_start_time + std::chrono::milliseconds(ms_per_frame) - std::chrono::high_resolution_clock::now();
 
