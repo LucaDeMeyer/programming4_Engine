@@ -6,7 +6,9 @@
 #include "ResourceManager.h"
 #include "GameObject.h"
 #include "TransformComponent.h"
-#include "fstream"
+#include <fstream>
+#include <sstream>
+
 TileMapComponent::TileMapComponent(dae::GameObject* owner, float tileSize)
     : BaseComponent(owner),m_Rows(),m_Cols(), m_TileSize(tileSize)
 {
