@@ -31,8 +31,6 @@ void Tron::LevelManager::Init()
 	LoadGrid("Data/TestLevel.csv", gameScene);
 
 	dae::SceneManager::GetInstance().SetActiveScene(0);
-
-	std::cout << "Scene Count:" << dae::SceneManager::GetInstance().GetSceneCount() << '\n';
 }
 
 void Tron::LevelManager::LoadLevel(const std::string& path,LevelCategory category)
@@ -202,13 +200,13 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 		0, dae::Controller::ControllerButton::ButtonB,
 		dae::InputState::Down, std::move(DamageTest));
 
-	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,300,1 });
+/*	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,300,1 });
 	auto enemyTank_02 = Tron::GOFactory::CreateEnemy({ 200,300,1 });
 	auto enemyTank_03 = Tron::GOFactory::CreateEnemy({ 250,300,1 });
 	auto enemyTank_04 = Tron::GOFactory::CreateEnemy({ 100,300,1 });
 	auto enemyTank_05 = Tron::GOFactory::CreateEnemy({ 300,500,1 });
 	auto enemyTank_06 = Tron::GOFactory::CreateEnemy({ 250,530,1 });
-
+*/
 	auto controlDisplay1 = std::make_unique<dae::GameObject>();
 	controlDisplay1->GetTransform()->SetLocalPosition({ 60,100,1 });
 	controlDisplay1->AddComponent<dae::TextComponent>();
@@ -242,20 +240,14 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
     scene.Add(std::move(LivesDisplayTank_2));
     scene.Add(std::move(ScoreDisplay1));
     scene.Add(std::move(ScoreDisplay2));
-    //scene.Add(std::move(enemyTank_01));
-    //scene.Add(std::move(enemyTank_02));
-    //scene.Add(std::move(enemyTank_03));
-    //scene.Add(std::move(enemyTank_04));
-    //scene.Add(std::move(enemyTank_05));
-    //scene.Add(std::move(enemyTank_06));
     scene.Add(std::move(controlDisplay1));
     scene.Add(std::move(controlDisplay2));
-
-	std::cout << "Adding Objs to GameScene" << scene.GetObjects().size() << '\n';
 }
 
 void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 {
+
+	// should not be hardcoding these texture sizes and button locations, fine for now since were still testing i guess
     auto background = std::make_unique<dae::GameObject>();
     background->AddComponent<dae::TextureComponent>()->SetTexture("Tron_Menu.png");
 	background->GetComponent<dae::TextureComponent>()->SetDimensions(1024, 576);

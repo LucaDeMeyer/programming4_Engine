@@ -1,5 +1,6 @@
 #include "ColliderComponents.h"
 #include "GameObject.h"
+#include "Renderer.h"
 #include "TransformComponent.h"
 glm::vec4  dae::BoxColliderComponent::GetWorldBox() const
 {
@@ -32,4 +33,14 @@ bool dae::BoxColliderComponent::IsOverlapping(ColliderComponent* other) const
 
 
     return false; // not handleing circular collisions yet
+}
+
+void dae::BoxColliderComponent::Render() const
+{
+
+#ifdef _DEBUG
+    glm::vec4 worldBox = GetWorldBox();
+    dae::Renderer::GetInstance().RenderRect(worldBox.x, worldBox.y, worldBox.z, worldBox.w, { 0, 255, 0, 255 });
+#endif
+
 }
