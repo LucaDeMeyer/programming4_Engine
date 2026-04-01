@@ -24,6 +24,17 @@ namespace dae
 		Scene& operator=(const Scene& other) = delete;
 		Scene& operator=(Scene&& other) = delete;
 
+		std::vector<GameObject*> GetObjects() {
+			std::vector<GameObject*> rawObjects;
+			rawObjects.reserve(m_objects.size()); 
+
+			for (const auto& obj : m_objects)
+			{
+				rawObjects.push_back(obj.get());
+			}
+
+			return rawObjects;
+		}
 	private:
 		friend class SceneManager;
 		explicit Scene() = default;

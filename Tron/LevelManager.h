@@ -4,6 +4,11 @@
 #include <vector>
 #include "Singleton.h"
 
+namespace dae
+{
+	class Scene;
+}
+
 namespace Tron
 {
 
@@ -21,6 +26,7 @@ namespace Tron
 	class LevelManager : public dae::Singleton<LevelManager>
 	{
 	public:
+		void Init();
 		void LoadLevel(const std::string& path,LevelCategory category);
 
 		void NextLevel();
@@ -30,8 +36,8 @@ namespace Tron
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;
 
-		void LoadGrid(const std::string& path);
-		void LoadMenu(const std::string& path);
+		void LoadGrid(const std::string& path,dae::Scene& scene);
+		void LoadMenu(dae::Scene& scene);
 		std::string GetTextureForType(TileType type);
 		int m_Cols;
 		int m_Rows;

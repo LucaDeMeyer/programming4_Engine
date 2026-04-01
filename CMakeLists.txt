@@ -43,6 +43,7 @@ add_library(${TARGET_NAME} STATIC
   Minigin/SpriteComponent.cpp
   Minigin/Services.h
   Minigin/ServiceLocator.h
+  Minigin/ButtonComponent.h
 )
 
 # enable c++20 features

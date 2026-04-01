@@ -2,6 +2,10 @@
 #include "InputManager.h"
 #include <backends/imgui_impl_sdl3.h>
 
+#include "ButtonComponent.h"
+#include "ColliderComponents.h"
+#include "SceneManager.h"
+
 
 dae::InputManager::InputManager()
 {
@@ -22,6 +26,13 @@ bool dae::InputManager::ProcessInput()
 
         if (e.type == SDL_EVENT_QUIT) {
             return false;
+        }
+        if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        {
+            if (e.button.button == SDL_BUTTON_LEFT)
+            {
+                HandleButtonClick({ e.button.x, e.button.y });
+            }
         }
         if (e.type == SDL_EVENT_KEY_DOWN) {
             if (e.key.repeat == 0) {
@@ -150,5 +161,30 @@ void dae::InputManager::RemoveCommands()
         }
 
         m_ObjectsToClear.clear();
+    }
+}
+
+void dae::InputManager::HandleButtonClick(const glm::vec2& mousePos)
+{
+    auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+    auto gameObjects = scene.GetObjects();
+
+    for (auto& obj : gameObjects)
+    {
+        auto* button = obj->GetComponent<dae::ButtonComponent>();
+        auto* collider = obj->GetComponent<dae::BoxColliderComponent>();
+
+        if (button && collider)
+        {
+            glm::vec4 box = collider->GetWorldBox();
+
+            // Point-in-Rect check
+            if (mousePos.x >= box.x && mousePos.x <= box.x + box.z &&
+                mousePos.y >= box.y && mousePos.y <= box.y + box.w)
+            {
+                button->OnClick();
+                return; 
+            }
+        }
     }
 }

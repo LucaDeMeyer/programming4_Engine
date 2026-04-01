@@ -9,7 +9,6 @@
 #include "ColliderComponents.h"
 #include "TransformComponent.h"
 
-// give tank bullets their own observer -> also handleing their own death, this should purely be focusing on if something hit the tank
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
     if (event.ID != dae::make_sdbm_hash("CollisionEvent")) return;
@@ -31,10 +30,8 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
     if (!otherCollider) return;
     dae::GameObject* otherObject = otherCollider->GetOwner();
 
-
 	HandleBulletCollisions(otherObject);
 	HandleWallCollision(otherObject,myCollider);
-    
 }
 
 void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)

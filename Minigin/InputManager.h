@@ -34,7 +34,7 @@ namespace dae
 	private:
 
 		void RemoveCommands();
-
+		void HandleButtonClick(const glm::vec2& mousePos);
 		using CommandKey = std::pair<SDL_Keycode, InputState>;
 		std::map<CommandKey, std::unique_ptr<Command>> m_KeyboardCommands;
 
