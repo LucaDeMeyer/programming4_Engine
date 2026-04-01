@@ -1,68 +1,88 @@
 #include "Tank_CollisionObserver.h"
+
+#include <iostream>
+
 #include "FactionComponent.h"
 #include "LivesComponent.h"
 #include "Tank_Bullet.h"
 #include "GameObject.h"
 #include "ColliderComponents.h"
+#include "TransformComponent.h"
 
+// give tank bullets their own observer -> also handleing their own death, this should purely be focusing on if something hit the tank
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
-    if (event.ID == dae::make_sdbm_hash("CollisionEvent"))
+    if (event.ID != dae::make_sdbm_hash("CollisionEvent")) return;
+
+
+
+    auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs.get());
+    if (!collisionData) return;
+
+    auto* myCollider = GetOwner()->GetComponent<dae::ColliderComponent>();
+
+    if (collisionData->Collider1 != myCollider && collisionData->Collider2 != myCollider)
     {
-        if (auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs.get()))
+        return;
+    }
+
+    dae::ColliderComponent* otherCollider = (collisionData->Collider1 == myCollider) ? collisionData->Collider2 : collisionData->Collider1;
+
+    if (!otherCollider) return;
+    dae::GameObject* otherObject = otherCollider->GetOwner();
+
+
+	HandleBulletCollisions(otherObject);
+	HandleWallCollision(otherObject,myCollider);
+    
+}
+
+void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)
+{
+    if (other->GetComponent<TankBullet>())
+    {
+        auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
+        auto* bulletFaction = other->GetComponent<FactionComponent>();
+        if (myFaction && bulletFaction)
         {
-            auto* myCollider = GetOwner()->GetComponent<dae::ColliderComponent>();
-            if (!myCollider) return;
+            Team me = myFaction->GetTeam();
+            Team bulletTeam = bulletFaction->GetTeam();
 
-            dae::ColliderComponent* otherCollider = nullptr;
-
-            if (collisionData->Collider1 == myCollider) {
-                otherCollider = collisionData->Collider2;
-            }
-            else if (collisionData->Collider2 == myCollider) {
-                otherCollider = collisionData->Collider1;
-            }
-
-            if (otherCollider)
+            bool shouldTakeDamage = false;
+            if (bulletTeam == Team::Enemy)
             {
-                dae::GameObject* otherObject = otherCollider->GetOwner();
+                shouldTakeDamage = true;
+            }
+            else if (bulletTeam != me)
+            {
+                shouldTakeDamage = true;
+            }
 
-                if (otherObject->GetComponent<TankBullet>())
-                {
-                    auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
-                    auto* bulletFaction = otherObject->GetComponent<FactionComponent>();
+            if (shouldTakeDamage)
+            {
+                if (auto* lives = GetOwner()->GetComponent<LivesComponent>()) {
 
-                    if (myFaction && bulletFaction)
+                    dae::GameObject* shooter = nullptr;
+                    if (auto* bulletComp = other->GetComponent<TankBullet>())
                     {
-                        Team me = myFaction->GetTeam();
-                        Team bulletTeam = bulletFaction->GetTeam();
-
-                        bool shouldTakeDamage = false;
-                        if (bulletTeam == Team::Enemy)
-                        {
-                            shouldTakeDamage = true;
-                        }
-                        else if (bulletTeam != me)
-                        {
-                            shouldTakeDamage = true;
-                        }
-
-                        if (shouldTakeDamage)
-                        {
-                            if (auto* lives = GetOwner()->GetComponent<LivesComponent>()) {
-
-                                dae::GameObject* shooter = nullptr;
-                                if (auto* bulletComp = otherObject->GetComponent<TankBullet>())
-                                {
-                                    shooter = bulletComp->GetShooter();
-                                }
-                                lives->DoDamage(1,shooter);
-                            }
-                            otherObject->MarkForDestruction(); 
-                        }
+                        shooter = bulletComp->GetShooter();
                     }
+                    lives->DoDamage(1, shooter);
                 }
             }
         }
     }
 }
+
+void Tron::TankCollisionObserver::HandleWallCollision(dae::GameObject* other, dae::ColliderComponent* triggeredCollider)
+{
+    auto* otherFaction = other->GetComponent<FactionComponent>();
+    if (!otherFaction || otherFaction->GetTeam() != Team::Wall) return;
+
+    auto* myBodyCollider = GetOwner()->GetComponent<dae::ColliderComponent>();
+    if (triggeredCollider != myBodyCollider) return;
+
+    auto* transform = GetOwner()->GetTransform();
+    transform->SetLocalPosition(transform->GetPreviousPosition());
+}
+

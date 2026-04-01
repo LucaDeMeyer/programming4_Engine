@@ -27,9 +27,14 @@ namespace dae
 
 		dae::Texture2D* GetTexture() const;
 		void SetTexture(const std::string& filename);
+		void SetDimensions(float w, float h) { m_Width = w; m_Height = h; m_UseCustomSize = true; }
+		void SetScale(float s) { m_Scale = s; m_UseCustomSize = false; }
 		
 	private:
 		std::shared_ptr<Texture2D> m_Texture;
+		float m_Width = 0, m_Height = 0;
+		float m_Scale = 1.0f;
+		bool m_UseCustomSize = false;
 
 	};
 }

@@ -15,6 +15,7 @@ void MoveCommand::Execute()
 
     auto transform = GetGameObject()->GetTransform();
     auto currentPos = transform->GetLocalPosition();
+    transform->SetPreviousPosition(currentPos); // safe current pos for wall collisions
     float deltaTime = Time::GetInstance().GetDeltaTime();
 
     currentPos.x += m_Direction.x * deltaTime;

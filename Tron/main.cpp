@@ -6,6 +6,7 @@
 #include "FactionComponent.h"
 #include "FPSComponent.h"
 #include "InputManager.h"
+#include "LevelManager.h"
 #include "LivesComponent.h"
 #include "LivesDisplay.h"
 #include "MovementComponent.h"
@@ -179,6 +180,9 @@ static void load()
 	fps->GetTransform()->SetLocalPosition({ 10, 40,1 });
 	scene.Add(std::move(fps));
 
+	auto& levelManager = Tron::LevelManager::GetInstance();
+	levelManager.LoadLevel("Data/TestLevel.csv",Tron::LevelCategory::Game);
+
 	scene.Add(std::move(player.Base));
 	scene.Add(std::move(player.Turret));
 	scene.Add(std::move(tank_2.Base));
@@ -187,12 +191,12 @@ static void load()
 	scene.Add(std::move(LivesDisplayTank_2));
 	scene.Add(std::move(ScoreDisplay1));
 	scene.Add(std::move(ScoreDisplay2));
-	scene.Add(std::move(enemyTank_01));
-	scene.Add(std::move(enemyTank_02));
-	scene.Add(std::move(enemyTank_03));
-	scene.Add(std::move(enemyTank_04));
-	scene.Add(std::move(enemyTank_05));
-	scene.Add(std::move(enemyTank_06));
+	//scene.Add(std::move(enemyTank_01));
+	//scene.Add(std::move(enemyTank_02));
+	//scene.Add(std::move(enemyTank_03));
+	//scene.Add(std::move(enemyTank_04));
+	//scene.Add(std::move(enemyTank_05));
+	//scene.Add(std::move(enemyTank_06));
 	scene.Add(std::move(controlDisplay1));
 	scene.Add(std::move(controlDisplay2));
 

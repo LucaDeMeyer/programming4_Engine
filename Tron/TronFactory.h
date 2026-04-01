@@ -1,5 +1,6 @@
 #ifndef TRON_FACTORY_H
 #define TRON_FACTORY_H
+#include "Bullet_CollisionObserver.h"
 #include "ColliderComponents.h"
 #include "FactionComponent.h"
 #include "GameObject.h"
@@ -36,6 +37,7 @@ namespace Tron
                 bullet->AddComponent<dae::TextureComponent>()->SetTexture("Bullet_Enemy.png");
 
             bullet->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 8, 8 });
+            bullet->AddComponent<Tron::BulletObserver>();
             bullet->AddComponent<Tron::TankBullet>(shooter,velocity);
             bullet->AddComponent<Tron::FactionComponent>(team);
             return bullet;
@@ -47,7 +49,7 @@ namespace Tron
             base->GetTransform()->SetLocalPosition(startPos);
             base->AddComponent<dae::SpriteComponent>(spriteSheet, 4, 1);
             base->AddComponent<Tron::LivesComponent>(3);
-            base->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0,0,32,32 });
+            base->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0,0,25,25 });
             base->AddComponent<Tron::FactionComponent>(team);
             base->AddComponent<Tron::TankCollisionObserver>();
             base->AddComponent<Tron::ScoreComponent>();

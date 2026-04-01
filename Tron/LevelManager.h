@@ -1,0 +1,44 @@
+#ifndef LEVEL_MANAGER_H
+#define LEVEL_MANAGER_H
+#include <string>
+#include <vector>
+#include "Singleton.h"
+
+namespace Tron
+{
+
+	enum class TileType : int
+	{
+		Black = 0,
+		Wall = 1,
+		VerticalPath = 2,
+		HorizontalPath = 3,
+		Crossroad = 4
+	};
+
+
+	enum class LevelCategory { Menu, Game };
+	class LevelManager : public dae::Singleton<LevelManager>
+	{
+	public:
+		void LoadLevel(const std::string& path,LevelCategory category);
+
+		void NextLevel();
+
+		TileType GetTileAt(float worldX, float worldY) const;
+	private:
+		friend class dae::Singleton<LevelManager>;
+		LevelManager() = default;
+
+		void LoadGrid(const std::string& path);
+		void LoadMenu(const std::string& path);
+		std::string GetTextureForType(TileType type);
+		int m_Cols;
+		int m_Rows;
+		float m_TileSize{32.f};
+		std::vector<TileType> m_Grid;
+
+	};
+}
+
+#endif
