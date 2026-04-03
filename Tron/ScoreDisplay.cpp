@@ -10,7 +10,7 @@
 Tron::ScoreDisplay::ScoreDisplay(dae::GameObject* owner): BaseComponent(owner), Observer()
 {
 	m_Text = GetOwner()->GetComponent<dae::TextComponent>();
-    m_Text->SetFont("TRON.TTF", 20);
+    m_Text->SetFont("TRON.TTF", 15);
 	m_Text->SetText("Score:" + std::to_string(m_CurrentScore));
     m_Text->SetColor(255, 255, 255, 255);
 }

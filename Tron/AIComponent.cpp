@@ -6,7 +6,6 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
 #include "TankCommands.h"
 
 void Tron::AIComponent::Update()
@@ -17,7 +16,6 @@ void Tron::AIComponent::Update()
 
     if (atCenter && !m_MadeDecisionThisTile)
     {
-        // We just entered a center point: Snap and decide ONCE.
         SnapToGrid();
 
         if (IsPathBlocked(m_CurrentDirection) || ShouldChangeDirection())
@@ -25,11 +23,10 @@ void Tron::AIComponent::Update()
             ChooseNewDirection();
         }
 
-        m_MadeDecisionThisTile = true; // Lock decision making until we leave center
+        m_MadeDecisionThisTile = true; 
     }
     else if (!atCenter)
     {
-        // We have moved away from the center: Reset the lock for the next tile
         m_MadeDecisionThisTile = false;
     }
   

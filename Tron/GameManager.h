@@ -18,10 +18,12 @@ namespace Tron
 		void Init();
 
 		void SetGameMode(GameMode mode) { m_CurrentMode = mode; }
+		GameMode GetGameMode() { return m_CurrentMode; }
 		void RegisterEntiy(dae::GameObject* entity);
 		void OnNotify(dae::GameObject* pEntity, const dae::Event& event) override;
 		void Update(){}
 
+		void ClearEntities() { for (auto* enity : m_Entities) RemoveEntity(enity); }
 	private:
 		friend class dae::Singleton<GameManager>;
 		GameManager() = default;
