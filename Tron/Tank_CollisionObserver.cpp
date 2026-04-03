@@ -7,7 +7,9 @@
 #include "Tank_Bullet.h"
 #include "GameObject.h"
 #include "ColliderComponents.h"
+#include "LevelManager.h"
 #include "TransformComponent.h"
+#include "TronEvents.h"
 
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
@@ -32,6 +34,19 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
 
 	HandleBulletCollisions(otherObject);
 	HandleWallCollision(otherObject,myCollider);
+
+    auto* faction = otherObject->GetComponent<FactionComponent>();
+
+    if (faction && faction->GetTeam() == Team::Center && !otherObject->IsMarkedForDestruction())
+    {
+      
+        auto payload = std::make_unique<::Teleport>(GetOwner());
+
+        dae::EventQueue::GetInstance().AddEvent(dae::Event(
+            dae::make_sdbm_hash("Teleport"),
+            std::move(payload)
+        ));
+    }
 }
 
 void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)
@@ -83,3 +98,9 @@ void Tron::TankCollisionObserver::HandleWallCollision(dae::GameObject* other, da
     transform->SetLocalPosition(transform->GetPreviousPosition());
 }
 
+void Tron::TankCollisionObserver::Teleport()
+{
+    glm::vec3 randomPos = LevelManager::GetInstance().GetRandomPathLocation();
+    GetOwner()->GetTransform()->SetLocalPosition(randomPos);
+    GetOwner()->GetTransform()->SetPreviousPosition(randomPos);
+}

@@ -9,7 +9,8 @@ namespace Tron
         Player1,
         Player2,
         Enemy,
-        Wall
+        Wall,
+        Center
 
     };
     class FactionComponent final : public dae::BaseComponent

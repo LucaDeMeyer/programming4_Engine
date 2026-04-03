@@ -38,7 +38,9 @@ namespace fs = std::filesystem;
 
 static void load()
 {
+	auto& GameManager = Tron::GameManager::GetInstance();
 	auto& levelManager = Tron::LevelManager::GetInstance();
+	GameManager.Init();
 	levelManager.Init();
 }
 

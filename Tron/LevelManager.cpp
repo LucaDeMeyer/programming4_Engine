@@ -84,16 +84,37 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
         std::string texName = GetTextureForType(m_Grid[i]);
         tile->AddComponent<dae::TextureComponent>()->SetTexture(texName);
         tile->GetComponent<dae::TextureComponent>()->SetDimensions(m_TileSize, m_TileSize);
+		if (m_Grid[i] == TileType::P1Spawn) {
+			m_P1Spawn = { x, y, 1 };
+			continue;
+		}
+		if (m_Grid[i] == TileType::P2Spawn) {
+			m_P2Spawn = { x, y, 1 };
+			continue;
+		}
+		if (m_Grid[i] == TileType::EnemySpawn) {
+			m_EnemySpawnPoints.emplace_back(glm::vec3{x,y,1});
+			continue;
+		}
         if (m_Grid[i] == TileType::Wall) {
             tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
             tile->AddComponent<FactionComponent>(Team::Wall);
         }
+		if (m_Grid[i] == TileType::CenterTile)
+		{
+			tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
+			tile->AddComponent<FactionComponent>(Team::Center);
+			m_CenterTile = {x,y,1};
+		}
+		if (m_Grid[i] == TileType::Black || m_Grid[i] == TileType::VerticalPath || m_Grid[i] == TileType::Crossroad || m_Grid[i] == TileType::HorizontalPath) {
+			m_EmptyLocations.push_back({ x, y, 1 });
+		}
 
         scene.Add(std::move(tile));
     }
 
-
-	auto player = Tron::GOFactory::CreatePlayer({ 60, 250, 1 }, "RedTank_SpriteSheet.png", Tron::Team::Player1);
+	// we should move this into the CVS aswell so we are data driven instead of hard coding all of this
+	auto player = Tron::GOFactory::CreatePlayer(m_P1Spawn, "RedTank_SpriteSheet.png", Tron::Team::Player1);
 
 	auto LivesDisplayTank_1 = std::make_unique<dae::GameObject>();
 	LivesDisplayTank_1->AddComponent<Tron::LivesDisplay>(player.Base->GetComponent<Tron::LivesComponent>()->GetLives());
@@ -154,7 +175,7 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 
 	dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand1));
 
-	auto tank_2 = Tron::GOFactory::CreatePlayer({ 60,200,1 }, "GreenTank_SpriteSheet.png", Tron::Team::Player2);
+	auto tank_2 = Tron::GOFactory::CreatePlayer(m_P2Spawn, "GreenTank_SpriteSheet.png", Tron::Team::Player2);
 
 	auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
 	LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLives());
@@ -200,26 +221,11 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 		0, dae::Controller::ControllerButton::ButtonB,
 		dae::InputState::Down, std::move(DamageTest));
 
-/*	auto enemyTank_01 = Tron::GOFactory::CreateEnemy({ 150,300,1 });
-	auto enemyTank_02 = Tron::GOFactory::CreateEnemy({ 200,300,1 });
-	auto enemyTank_03 = Tron::GOFactory::CreateEnemy({ 250,300,1 });
-	auto enemyTank_04 = Tron::GOFactory::CreateEnemy({ 100,300,1 });
-	auto enemyTank_05 = Tron::GOFactory::CreateEnemy({ 300,500,1 });
-	auto enemyTank_06 = Tron::GOFactory::CreateEnemy({ 250,530,1 });
-*/
-	auto controlDisplay1 = std::make_unique<dae::GameObject>();
-	controlDisplay1->GetTransform()->SetLocalPosition({ 60,100,1 });
-	controlDisplay1->AddComponent<dae::TextComponent>();
-	controlDisplay1->GetComponent<dae::TextComponent>()->SetFont("Lingua.OTF", 15);
-	controlDisplay1->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
-	controlDisplay1->GetComponent<dae::TextComponent>()->SetText("Use WASD to move Red tank, space to shoot,mouse to aim, C to deal damage to self");
-
-	auto controlDisplay2 = std::make_unique<dae::GameObject>();
-	controlDisplay2->GetTransform()->SetLocalPosition({ 60,120,1 });
-	controlDisplay2->AddComponent<dae::TextComponent>();
-	controlDisplay2->GetComponent<dae::TextComponent>()->SetFont("Lingua.OTF", 15);
-	controlDisplay2->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
-	controlDisplay2->GetComponent<dae::TextComponent>()->SetText("Use D-Pad to move green tank, right shoulder to shoot, right thumbstick to aim,B to deal damage to self");
+	for (auto& point : m_EnemySpawnPoints)
+	{
+		auto enemy = Tron::GOFactory::CreateEnemy(point);
+		scene.Add(std::move(enemy));
+	}
 
 	auto fps = std::make_unique<dae::GameObject>();
 	fps->AddComponent<dae::TextComponent>()
@@ -240,8 +246,6 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
     scene.Add(std::move(LivesDisplayTank_2));
     scene.Add(std::move(ScoreDisplay1));
     scene.Add(std::move(ScoreDisplay2));
-    scene.Add(std::move(controlDisplay1));
-    scene.Add(std::move(controlDisplay2));
 }
 
 void Tron::LevelManager::LoadMenu(dae::Scene& scene)
@@ -270,11 +274,20 @@ void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 
 std::string Tron::LevelManager::GetTextureForType(TileType type) {
     switch (type) {
-    case TileType::Wall:           return "Tile_Wall.png";
-    case TileType::VerticalPath:   return "Tile_vertical.png";
-    case TileType::HorizontalPath: return "Tile_Horizontal.png";
-    case TileType::Crossroad:      return "Tile_Crossing.png";
-    case TileType::Black:          return "Tile_Black.png";
+    case TileType::Wall:			return "Tile_Wall.png";
+    case TileType::VerticalPath:	return "Tile_vertical.png";
+    case TileType::HorizontalPath:	return "Tile_Horizontal.png";
+    case TileType::Crossroad:		return "Tile_Crossing.png";
+    case TileType::Black:			return "Tile_Black.png";
+    case TileType::P1Spawn:			return "Tile_Black.png";
+    case TileType::P2Spawn:			return "Tile_Black.png";
+    case TileType::EnemySpawn:		return "Tile_Black.png";
+	case TileType::CenterTile:		return "Center_Tile.png";
     default: throw std::runtime_error("Unknown tile type, failed to load level");
     }
+}
+
+glm::vec3 Tron::LevelManager::GetRandomPathLocation() {
+	int index = rand() % m_EmptyLocations.size();
+	return m_EmptyLocations[index];
 }

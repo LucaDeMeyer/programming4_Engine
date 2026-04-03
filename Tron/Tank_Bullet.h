@@ -25,7 +25,7 @@ namespace Tron
 
 		dae::GameObject* GetShooter() const { return m_Shooter; }
 		void Bounce(const glm::vec4& wallBox, const glm::vec4& bulletBox);
-		int m_MaxnrBounces{ 3 };
+		int m_MaxnrBounces{ 5 };
 	private:
 		dae::GameObject* m_Shooter{ nullptr };
 		glm::vec2 m_Velocity;

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "Singleton.h"
-
+#include <glm/vec3.hpp>
 namespace dae
 {
 	class Scene;
@@ -18,7 +18,11 @@ namespace Tron
 		Wall = 1,
 		VerticalPath = 2,
 		HorizontalPath = 3,
-		Crossroad = 4
+		Crossroad = 4,
+		P1Spawn = 5,
+		P2Spawn = 6,
+		EnemySpawn = 7,
+		CenterTile = 8
 	};
 
 
@@ -32,6 +36,8 @@ namespace Tron
 		void NextLevel();
 
 		TileType GetTileAt(float worldX, float worldY) const;
+
+		glm::vec3 GetRandomPathLocation();
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;
@@ -42,6 +48,11 @@ namespace Tron
 		int m_Cols;
 		int m_Rows;
 		float m_TileSize{32.f};
+		glm::vec3 m_P1Spawn;
+		glm::vec3 m_P2Spawn;
+		std::vector<glm::vec3> m_EnemySpawnPoints;
+		glm::vec3 m_CenterTile;
+		std::vector<glm::vec3> m_EmptyLocations;
 		std::vector<TileType> m_Grid;
 
 	};

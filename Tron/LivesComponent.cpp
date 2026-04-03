@@ -3,6 +3,8 @@
 #include <iostream>
 #include "EventQueue.h"
 #include "FactionComponent.h"
+#include "GameActorComponent.h"
+#include "GameManager.h"
 #include "TronEvents.h"
 #include "GameObject.h"
 #include "InputManager.h"
@@ -24,15 +26,21 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 		{
 			if (faction->GetTeam() == Team::Enemy)
 			{
+
 				if (auto scoreComp = shooter->GetComponent<ScoreComponent>())
 				{
-					scoreComp->AddScore(100);
+					scoreComp->AddScore(GetOwner()->GetComponent<GameActor>()->GetActorValue());
 				}
 			}
 		}
 
-		dae::InputManager::GetInstance().RemoveCommandsForObject(GetOwner()); // this is temp => should both move to somesort of gamemanager that handles this through observer/event Queue
-		GetOwner()->MarkForDestruction();
+		auto pl = std::make_unique<ActorDied>(GetOwner());
+		dae::Event ActorDiedEvent(dae::make_sdbm_hash("ActorDied"), std::move(pl));
+
+		if (auto actor = GetOwner()->GetComponent<GameActor>())
+		{
+			actor->GetEventSubject().Notify(GetOwner(), ActorDiedEvent);
+		}
 	}
 	else
 	{
@@ -42,7 +50,7 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 	}
 }
 
-void LivesComponent::SetHealth(int newLives) // not sure if we even need this, havent seen any healing done in gameplay
+void LivesComponent::SetHealth(int newLives)
 {
 	if (m_Lives + newLives > m_MaxLives)
 		m_Lives = m_MaxLives;
