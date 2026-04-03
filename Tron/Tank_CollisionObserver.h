@@ -32,7 +32,7 @@ namespace Tron
 	private:
 		void HandleBulletCollisions(dae::GameObject* other);
 		void HandleWallCollision(dae::GameObject* other, dae::ColliderComponent* triggerdCollider);
-		void Teleport();
+	
 	};
 }
 #endif

@@ -1,5 +1,6 @@
 #ifndef TRON_FACTORY_H
 #define TRON_FACTORY_H
+#include "AIComponent.h"
 #include "Bullet_CollisionObserver.h"
 #include "ColliderComponents.h"
 #include "FactionComponent.h"
@@ -89,6 +90,11 @@ namespace Tron
             enemy->AddComponent<Tron::TankCollisionObserver>();
             enemy->AddComponent<Tron::GameActor>();
             enemy->GetComponent<GameActor>()->SetScore(100);
+            enemy->AddComponent<Tron::AIComponent>();
+
+            auto MoveCommand = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 1,0 });
+            enemy->GetComponent<Tron::AIComponent>()->SetMoveCommand(std::move(MoveCommand));
+
             Tron::GameManager::GetInstance().RegisterEntiy(enemy.get());
             return enemy;
         }

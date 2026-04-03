@@ -36,8 +36,13 @@ namespace Tron
 		void NextLevel();
 
 		TileType GetTileAt(float worldX, float worldY) const;
+		bool IsWallAt(const glm::vec3& worldPos) const;
 
 		glm::vec3 GetRandomPathLocation();
+
+		float GetOffsetX() const { return m_OffsetX; }
+
+		float GetOffsetY() const { return m_OffsetY; }
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;
@@ -48,6 +53,8 @@ namespace Tron
 		int m_Cols;
 		int m_Rows;
 		float m_TileSize{32.f};
+		float m_OffsetX;
+		float m_OffsetY;
 		glm::vec3 m_P1Spawn;
 		glm::vec3 m_P2Spawn;
 		std::vector<glm::vec3> m_EnemySpawnPoints;

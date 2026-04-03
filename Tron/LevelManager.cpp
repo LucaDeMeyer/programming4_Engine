@@ -71,12 +71,12 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
     float windowWidth = 1024.f;
     float windowHeight = 576.f;
 
-    float offsetX = (windowWidth - totalLevelWidth) / 2.0f;
-    float offsetY = (windowHeight - totalLevelHeight) / 2.0f;
+    m_OffsetX = (windowWidth - totalLevelWidth) / 2.0f;
+    m_OffsetY = (windowHeight - totalLevelHeight) / 2.0f;
 
     for (size_t i = 0; i < m_Grid.size(); ++i) {
-        float x = ((i % m_Cols) * m_TileSize) + offsetX;
-        float y = ((i / m_Cols) * m_TileSize) + offsetY;
+        float x = ((i % m_Cols) * m_TileSize) + m_OffsetX;
+        float y = ((i / m_Cols) * m_TileSize) + m_OffsetY;
 
         auto tile = std::make_unique<dae::GameObject>();
         tile->GetTransform()->SetLocalPosition(glm::vec3{ x, y ,0 });
@@ -290,4 +290,19 @@ std::string Tron::LevelManager::GetTextureForType(TileType type) {
 glm::vec3 Tron::LevelManager::GetRandomPathLocation() {
 	int index = rand() % m_EmptyLocations.size();
 	return m_EmptyLocations[index];
+}
+
+bool Tron::LevelManager::IsWallAt(const glm::vec3& worldPos) const
+{
+	float totalLevelWidth = m_Cols * m_TileSize;
+	float totalLevelHeight = m_Rows * m_TileSize;
+	float offsetX = (1024.f - totalLevelWidth) / 2.0f;
+	float offsetY = (576.f - totalLevelHeight) / 2.0f;
+	int column = static_cast<int>((worldPos.x - offsetX) / m_TileSize);
+	int row = static_cast<int>((worldPos.y - offsetY) / m_TileSize);
+
+	if (row < 0 || row >= m_Rows || column < 0 || column >= m_Cols)
+		return true; 
+
+	return m_Grid[row * m_Cols + column] == TileType::Wall;
 }

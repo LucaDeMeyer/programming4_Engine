@@ -15,8 +15,6 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
 {
     if (event.ID != dae::make_sdbm_hash("CollisionEvent")) return;
 
-
-
     auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs.get());
     if (!collisionData) return;
 
@@ -32,7 +30,10 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
     if (!otherCollider) return;
     dae::GameObject* otherObject = otherCollider->GetOwner();
 
-	HandleBulletCollisions(otherObject);
+    if (otherObject->GetComponent<TankBullet>())
+		HandleBulletCollisions(otherObject);
+
+
 	HandleWallCollision(otherObject,myCollider);
 
     auto* faction = otherObject->GetComponent<FactionComponent>();
@@ -51,39 +52,36 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
 
 void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)
 {
-    if (other->GetComponent<TankBullet>())
-    {
-        auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
-        auto* bulletFaction = other->GetComponent<FactionComponent>();
-        if (myFaction && bulletFaction)
-        {
-            Team me = myFaction->GetTeam();
-            Team bulletTeam = bulletFaction->GetTeam();
+   auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
+   auto* bulletFaction = other->GetComponent<FactionComponent>();
+   if (myFaction && bulletFaction)
+   {
+       Team me = myFaction->GetTeam();
+       Team bulletTeam = bulletFaction->GetTeam();
 
-            bool shouldTakeDamage = false;
-            if (bulletTeam == Team::Enemy)
-            {
-                shouldTakeDamage = true;
-            }
-            else if (bulletTeam != me)
-            {
-                shouldTakeDamage = true;
-            }
+       bool shouldTakeDamage = false;
+       if (bulletTeam == Team::Enemy)
+       {
+           shouldTakeDamage = true;
+       }
+       else if (bulletTeam != me)
+       {
+           shouldTakeDamage = true;
+       }
 
-            if (shouldTakeDamage)
-            {
-                if (auto* lives = GetOwner()->GetComponent<LivesComponent>()) {
+       if (shouldTakeDamage)
+       {
+           if (auto* lives = GetOwner()->GetComponent<LivesComponent>()) {
 
-                    dae::GameObject* shooter = nullptr;
-                    if (auto* bulletComp = other->GetComponent<TankBullet>())
-                    {
-                        shooter = bulletComp->GetShooter();
-                    }
-                    lives->DoDamage(1, shooter);
-                }
-            }
-        }
-    }
+               dae::GameObject* shooter = nullptr;
+               if (auto* bulletComp = other->GetComponent<TankBullet>())
+               {
+                   shooter = bulletComp->GetShooter();
+               }
+               lives->DoDamage(1, shooter);
+           }
+       }
+   }
 }
 
 void Tron::TankCollisionObserver::HandleWallCollision(dae::GameObject* other, dae::ColliderComponent* triggeredCollider)
@@ -98,9 +96,3 @@ void Tron::TankCollisionObserver::HandleWallCollision(dae::GameObject* other, da
     transform->SetLocalPosition(transform->GetPreviousPosition());
 }
 
-void Tron::TankCollisionObserver::Teleport()
-{
-    glm::vec3 randomPos = LevelManager::GetInstance().GetRandomPathLocation();
-    GetOwner()->GetTransform()->SetLocalPosition(randomPos);
-    GetOwner()->GetTransform()->SetPreviousPosition(randomPos);
-}

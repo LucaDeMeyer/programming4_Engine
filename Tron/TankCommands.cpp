@@ -25,6 +25,10 @@ void MoveCommand::Execute()
     UpdateSpriteDirection();
 }
 
+void MoveCommand::SetDirection(const glm::vec2& newDir) {
+    m_Direction = newDir;
+}
+
 void MoveCommand::UpdateSpriteDirection()
 {
     if (auto sprite = GetGameObject()->GetComponent<dae::SpriteComponent>())
