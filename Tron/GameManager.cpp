@@ -1,7 +1,5 @@
 #include "GameManager.h"
-
 #include <iostream>
-
 #include "EventQueue.h"
 #include "GameActorComponent.h"
 #include "GameObject.h"
@@ -9,6 +7,8 @@
 #include "LevelManager.h"
 #include "TronEvents.h"
 #include "TransformComponent.h"
+
+//should handle score saving/lives saving between lvls in here or again reuse GOs instead of making new ones each lvl swap
 void Tron::GameManager::Init()
 {
     dae::EventQueue::GetInstance().GetNotifier()->AddObserver(&Tron::GameManager::GetInstance());
@@ -16,9 +16,6 @@ void Tron::GameManager::Init()
 
 void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& event)
 {
-
-  
-
     if (event.ID == dae::make_sdbm_hash("ActorDied"))
     {
         auto* data = static_cast<ActorDied*>(event.pArgs.get());
@@ -47,11 +44,9 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
             auto* transform = data->obj->GetTransform();
 
             transform->SetLocalPosition(newPos);
-            transform->SetPreviousPosition(newPos); 
+            transform->SetPreviousPosition(newPos);
         }
     }
-
- 
 }
 
 void Tron::GameManager::RemoveEntity(dae::GameObject* entity)
@@ -81,47 +76,42 @@ void Tron::GameManager::RegisterEntiy(dae::GameObject* entity)
         m_Players += 1;
     if (type == ActorType::enemy)
         m_enemies += 1;
-
-    std::cout << "players: " << m_Players << '\n';
-    std::cout << "enemies: " << m_enemies << '\n';
 }
 
 void Tron::GameManager::CheckWinCondition()
 {
-    std::cout << "Checking Win Condition\n";
-
-        switch (m_CurrentMode)
+   switch (m_CurrentMode)
+    {
+    case GameMode::singlePlayer:
+        if (m_Players == 0)
+            LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
+        if (m_enemies == 0)
         {
-        case GameMode::singlePlayer:
-            if (m_Players == 0)
+            ++m_LVLNR;
+            if(m_LVLNR <=3)
                 LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
-            if (m_enemies == 0)
-            {
-                ++m_LVLNR;
-                if(m_LVLNR <=3)
-                    LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
-                else
-                    LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
-            }
-            break;
-        case GameMode::COOP:
-            if (m_Players == 0)
-                LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
-            if (m_enemies == 0)
-            {
-                ++m_LVLNR;
-                if (m_LVLNR <= 3)
-                    LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
-                else
-                    LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
-            }
-            break;
-        case GameMode::PVP:
-            if (m_Players <= 1)
+            else
                 LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
-            break;
         }
-    
+        break;
+    case GameMode::COOP:
+        if (m_Players == 0)
+            LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
+        if (m_enemies == 0)
+        {
+            ++m_LVLNR;
+            if (m_LVLNR <= 3)
+                LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
+            else
+                LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
+        }
+        break;
+    case GameMode::PVP:
+        if (m_Players <= 1)
+            LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
+        break;
+    }
+  
 }
 
 

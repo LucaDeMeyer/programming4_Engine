@@ -1,8 +1,5 @@
 #include "ScoreDisplay.h"
-
 #include <iostream>
-
-
 #include "GameObject.h"
 #include "TextComponent.h"
 #include "TronEvents.h"
@@ -14,7 +11,6 @@ Tron::ScoreDisplay::ScoreDisplay(dae::GameObject* owner): BaseComponent(owner), 
 	m_Text->SetText("Score:" + std::to_string(m_CurrentScore));
     m_Text->SetColor(255, 255, 255, 255);
 }
-
 
 void Tron::ScoreDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {

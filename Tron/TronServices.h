@@ -20,7 +20,7 @@ namespace Tron
     class LevelManagerService final : public dae::IPlatformService
     {
     public:
-        void Init() override { Tron::LevelManager::GetInstance().Init(); }
+        void Init() override { /*Tron::LevelManager::GetInstance().Init();*/ }
         void Update() override { Tron::LevelManager::GetInstance().Update(); }
         void Shutdown() override {}
     };

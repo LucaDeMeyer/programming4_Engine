@@ -53,6 +53,8 @@ namespace Tron
 		int m_enemies{};
 		int m_Players{};
 		int m_LVLNR{};
+
+
 	};
 }
 #endif	

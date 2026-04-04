@@ -24,37 +24,45 @@
 
 //TODO: since levels get fully cleared of all obj -> score gets reset, we can either keep player controlled GOs alive and just reset their position,
 //makes most sense or save score to file after each lvl cleared and set score on the "new OBJ" => way less effiecent 
+
+//TODO: stop hardcoding all OBJ locations -> should scale with window scaling
+
 void Tron::LevelManager::Init()
 {
 	auto& menuScene = dae::SceneManager::GetInstance().CreateScene();
 	LoadMenu(menuScene);
 	dae::SceneManager::GetInstance().SetActiveScene(0);
+	
+	auto& telvl = dae::SceneManager::GetInstance().CreateScene();
+	auto& lvl1 = dae::SceneManager::GetInstance().CreateScene();
+	auto& lvl2 = dae::SceneManager::GetInstance().CreateScene();
+	auto& lvl3 = dae::SceneManager::GetInstance().CreateScene();
 }
-
-void Tron::LevelManager::LoadLevel(const std::string& path,LevelCategory category)
+void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory category)
 {
+	// this crashes in release, some nullptr access => not 100% sure where its coming from, might be something in removal im not handling atm
+
+	auto& sceneManager = dae::SceneManager::GetInstance();
+	auto& inputManager = dae::InputManager::GetInstance();
+	auto& gameManager = GameManager::GetInstance();
+	auto& scene = sceneManager.GetActiveScene();
+
+	gameManager.ClearEntities();      
+	inputManager.ClearAllCommands();  
+	scene.RemoveAll();
+
+	auto idx = sceneManager.GetCurrentSceneIDX();
 
 	if (category == LevelCategory::Menu) {
-		auto& gameScene = dae::SceneManager::GetInstance().GetActiveScene();
-		GameManager::GetInstance().ClearEntities(); // unregister observers first
-		gameScene.RemoveAll();                       // then destroy objects
-		dae::InputManager::GetInstance().ClearAllCommands(); // then clear input
-		dae::SceneManager::GetInstance().SetActiveScene(0);
-		auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
-		scene.RemoveAll();
+		sceneManager.ResetSceneIDX();
 		LoadMenu(scene);
-		
 	}
 	else {
-		auto& menuScene = dae::SceneManager::GetInstance().GetActiveScene();
-		GameManager::GetInstance().ClearEntities();
-		menuScene.RemoveAll();
-		dae::InputManager::GetInstance().ClearAllCommands();
-		dae::SceneManager::GetInstance().SetActiveScene(1);
-		auto& gameScene = dae::SceneManager::GetInstance().GetActiveScene();
-		gameScene.RemoveAll();
-		LoadGrid(path, gameScene);
-		
+		++idx;
+		std::cout << "current IDX: " << idx << '\n';
+		sceneManager.SetActiveScene(idx);
+		auto& nextScene = sceneManager.GetActiveScene();
+		LoadGrid(path, nextScene);
 	}
 }
 
@@ -268,7 +276,6 @@ void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 	scene.Add(std::move(Title));
 	// should not be hardcoding these texture sizes and button locations, fine for now since were still testing i guess
   
-
 	auto SinglePlayerBtn = std::make_unique<dae::GameObject>();
 	SinglePlayerBtn->GetTransform()->SetLocalPosition({ 400, 250, 0 });
 	SinglePlayerBtn->AddComponent<dae::TextComponent>()->SetText("Single Player");

@@ -30,6 +30,8 @@ void Tron::BulletObserver::OnNotify(dae::GameObject* obj, const dae::Event& even
         else
             GetOwner()->MarkForDestruction();
     }
-    else if (otherFaction->GetTeam() != GetOwner()->GetComponent<FactionComponent>()->GetTeam())
+
+    else if (otherFaction && otherFaction->GetTeam() != GetOwner()->GetComponent<FactionComponent>()->GetTeam())
         GetOwner()->MarkForDestruction();
+
 }
