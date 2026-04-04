@@ -76,7 +76,7 @@ namespace Tron
 		std::string m_PendingPath;
 		LevelCategory m_PendingCategory = LevelCategory::Menu;
 
-
+		size_t m_CurrentLevelIndex{ 0 };
 	};
 }
 

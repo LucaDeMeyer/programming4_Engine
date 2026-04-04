@@ -28,14 +28,7 @@ namespace Tron
 
 		void ClearEntities()
 		{
-			for (auto* entity : m_Entities)
-			{
-				if (!entity) continue;
-				auto* actor = entity->GetComponent<GameActor>();
-				if (actor)
-					actor->GetEventSubject().RemoveObserver(this);
-			}
-
+		
 			m_Entities.clear();
 			m_Players = 0;
 			m_enemies = 0;

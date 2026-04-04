@@ -41,28 +41,33 @@ void Tron::LevelManager::Init()
 void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory category)
 {
 	// this crashes in release, some nullptr access => not 100% sure where its coming from, might be something in removal im not handling atm
-
+	// crashes everytime now
 	auto& sceneManager = dae::SceneManager::GetInstance();
 	auto& inputManager = dae::InputManager::GetInstance();
 	auto& gameManager = GameManager::GetInstance();
-	auto& scene = sceneManager.GetActiveScene();
 
-	gameManager.ClearEntities();      
-	inputManager.ClearAllCommands();  
-	scene.RemoveAll();
+	gameManager.ClearEntities();
+	inputManager.ClearAllCommands();
+	sceneManager.GetActiveScene().RemoveAll();
 
-	auto idx = sceneManager.GetCurrentSceneIDX();
-
-	if (category == LevelCategory::Menu) {
-		sceneManager.ResetSceneIDX();
-		LoadMenu(scene);
+	if (category == LevelCategory::Menu)
+	{
+		m_CurrentLevelIndex = 0;
+		sceneManager.SetActiveScene(0);
+		sceneManager.GetActiveScene().RemoveAll();
+		LoadMenu(sceneManager.GetActiveScene());
 	}
-	else {
-		++idx;
-		std::cout << "current IDX: " << idx << '\n';
-		sceneManager.SetActiveScene(idx);
-		auto& nextScene = sceneManager.GetActiveScene();
-		LoadGrid(path, nextScene);
+	else
+	{
+		// levels are scenes 1,2,3,4 — clamp to valid range
+		size_t nextIdx = m_CurrentLevelIndex + 1;
+		if (nextIdx >= sceneManager.GetSceneCount())
+			nextIdx = 1; // wrap back to first level
+
+		m_CurrentLevelIndex = nextIdx;
+		sceneManager.SetActiveScene(nextIdx);
+		sceneManager.GetActiveScene().RemoveAll();
+		LoadGrid(path, sceneManager.GetActiveScene());
 	}
 }
 
