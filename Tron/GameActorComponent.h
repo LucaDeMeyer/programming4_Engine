@@ -4,9 +4,16 @@
 #include "Subject.h"
 #include "TronEvents.h"
 namespace Tron {
+
+    enum class ActorType
+    {
+        player,
+        enemy,
+        bullet
+    };
     class GameActor : public dae::BaseComponent {
     public:
-        explicit GameActor(dae::GameObject* owner) : BaseComponent(owner) {}
+        explicit GameActor(dae::GameObject* owner,ActorType type) : BaseComponent(owner),m_ActorType(type) {}
 
         GameActor(const GameActor& other) = delete;
         GameActor(GameActor&& other) = delete;
@@ -29,9 +36,12 @@ namespace Tron {
             m_Event.Notify(GetOwner(), deathEvent);
         }
 
+        ActorType GetActorType() { return m_ActorType; }
     private:
         dae::Subject m_Event;
         int m_Score{};
+
+        ActorType m_ActorType;
     };
 }
 

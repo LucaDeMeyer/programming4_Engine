@@ -32,13 +32,23 @@ void Tron::LevelManager::Init()
 void Tron::LevelManager::LoadLevel(const std::string& path,LevelCategory category)
 {
 	if (category == LevelCategory::Menu) {
+		auto& gameScene = dae::SceneManager::GetInstance().GetActiveScene();
+		gameScene.RemoveAll();
+		GameManager::GetInstance().ClearEntities();
 		dae::SceneManager::GetInstance().SetActiveScene(0);
+		auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+		scene.RemoveAll();
+		LoadMenu(scene);
+		
 	}
 	else {
+		auto& menuScene = dae::SceneManager::GetInstance().GetActiveScene();
+		menuScene.RemoveAll();
+		dae::SceneManager::GetInstance().SetActiveScene(1);
 		auto& gameScene = dae::SceneManager::GetInstance().GetActiveScene();
 		gameScene.RemoveAll();
 		LoadGrid(path, gameScene);
-		dae::SceneManager::GetInstance().SetActiveScene(1);
+		
 	}
 }
 
@@ -47,6 +57,8 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
     m_Grid.clear();
     m_Rows = 0;
     m_Cols = 0;
+	m_EnemySpawnPoints.clear(); 
+	m_EmptyLocations.clear();
 
     std::ifstream file(path);
     if (!file.is_open()) return;
@@ -165,6 +177,7 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 
 	if (currentMode == GameMode::COOP || currentMode == GameMode::PVP)
 	{
+
 		auto tank_2 = Tron::GOFactory::CreatePlayer(m_P2Spawn, "GreenTank_SpriteSheet.png", Tron::Team::Player2);
 
 		auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
@@ -192,24 +205,12 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 
 
 		dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(
-			0, dae::Controller::ControllerButton::DPadLeft,
-			dae::InputState::Pressed, std::move(MoveLeftCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(
-			0, dae::Controller::ControllerButton::DPadRight,
-			dae::InputState::Pressed, std::move(MoveRightCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(
-			0, dae::Controller::ControllerButton::DPadUp,
-			dae::InputState::Pressed, std::move(moveUpCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(
-			0, dae::Controller::ControllerButton::DPadDown,
-			dae::InputState::Pressed, std::move(moveDownCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(
-			0, dae::Controller::ControllerButton::RightShoulder,
-			dae::InputState::Down, std::move(fireCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(
-			0, dae::Controller::ControllerButton::ButtonB,
-			dae::InputState::Down, std::move(DamageTest));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadUp, std::move(moveUpCommand2));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadDown, std::move(moveDownCommand2));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadLeft, std::move(MoveLeftCommand2));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadRight, std::move(MoveRightCommand2));
+		dae::InputManager::GetInstance().BindControllerCommand(0, dae::Controller::ControllerButton::RightShoulder,dae::InputState::Down, std::move(fireCommand2));
+		dae::InputManager::GetInstance().BindControllerCommand(0, dae::Controller::ControllerButton::ButtonB,dae::InputState::Down, std::move(DamageTest));
 
 		scene.Add(std::move(tank_2.Base));
 		scene.Add(std::move(tank_2.Turret));

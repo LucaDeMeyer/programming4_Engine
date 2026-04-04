@@ -43,7 +43,7 @@ namespace Tron
             bullet->AddComponent<Tron::BulletObserver>();
             bullet->AddComponent<Tron::TankBullet>(shooter,velocity);
             bullet->AddComponent<Tron::FactionComponent>(team);
-            bullet->AddComponent<Tron::GameActor>();
+            bullet->AddComponent<Tron::GameActor>(ActorType::bullet);
             Tron::GameManager::GetInstance().RegisterEntiy(bullet.get());
             return bullet;
         }
@@ -63,7 +63,8 @@ namespace Tron
             base->AddComponent<Tron::FactionComponent>(team);
             base->AddComponent<Tron::TankCollisionObserver>();
             base->AddComponent<Tron::ScoreComponent>();
-            base->AddComponent<Tron::GameActor>();
+            base->AddComponent<Tron::GameActor>(ActorType::player);
+            base->GetComponent<GameActor>()->SetScore(500);
 
             auto turret = std::make_unique<dae::GameObject>();
             turret->GetTransform()->SetLocalPosition({ -16, -16, 0 });
@@ -88,7 +89,7 @@ namespace Tron
             enemy->AddComponent<dae::BoxColliderComponent>(glm::vec4{ offset,offset,25,25 });
             enemy->AddComponent<Tron::FactionComponent>(Team::Enemy);
             enemy->AddComponent<Tron::TankCollisionObserver>();
-            enemy->AddComponent<Tron::GameActor>();
+            enemy->AddComponent<Tron::GameActor>(ActorType::enemy);
             enemy->GetComponent<GameActor>()->SetScore(100);
             enemy->AddComponent<Tron::AIComponent>();
 

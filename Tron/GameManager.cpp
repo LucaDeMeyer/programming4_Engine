@@ -1,5 +1,7 @@
 #include "GameManager.h"
 
+#include <iostream>
+
 #include "EventQueue.h"
 #include "GameActorComponent.h"
 #include "GameObject.h"
@@ -14,6 +16,9 @@ void Tron::GameManager::Init()
 
 void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& event)
 {
+
+  
+
     if (event.ID == dae::make_sdbm_hash("ActorDied"))
     {
         auto* data = static_cast<ActorDied*>(event.pArgs.get());
@@ -24,7 +29,13 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
 
             dae::Event winEvent(dae::make_sdbm_hash("WinCondition"));
             dae::EventQueue::GetInstance().AddEvent(std::move(winEvent));
+
         }
+    }
+
+    if (event.ID == dae::make_sdbm_hash("WinCondition"))
+    {
+        CheckWinCondition();
     }
 
     if (event.ID == dae::make_sdbm_hash("Teleport"))
@@ -40,14 +51,18 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
         }
     }
 
-    if (event.ID == dae::make_sdbm_hash("WinCondition"))
-    {
-        CheckWinCondition();
-    }
+ 
 }
 
 void Tron::GameManager::RemoveEntity(dae::GameObject* entity)
 {
+    ActorType type = entity->GetComponent<GameActor>()->GetActorType();
+
+    if (type == ActorType::player)
+        m_Players -= 1;
+    if (type == ActorType::enemy)
+        m_enemies -= 1;
+
 	m_Entities.erase(std::remove(m_Entities.begin(), m_Entities.end(), entity), m_Entities.end());
     dae::InputManager::GetInstance().RemoveCommandsForObject(entity);
 	entity->MarkForDestruction();
@@ -60,21 +75,43 @@ void Tron::GameManager::RegisterEntiy(dae::GameObject* entity)
 
 	m_Entities.emplace_back(entity);
     entity->GetComponent<GameActor>()->GetEventSubject().AddObserver(this);
+    ActorType type = entity->GetComponent<GameActor>()->GetActorType();
+
+    if (type == ActorType::player)
+        m_Players += 1;
+    if (type == ActorType::enemy)
+        m_enemies += 1;
+
+    std::cout << "players: " << m_Players << '\n';
+    std::cout << "enemies: " << m_enemies << '\n';
 }
 
 void Tron::GameManager::CheckWinCondition()
 {
-    if (m_Entities.empty())
-    {
+    std::cout << "Checking Win Condition\n";
+
         switch (m_CurrentMode)
         {
         case GameMode::singlePlayer:
+            if (m_Players == 0)
+                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+            if (m_enemies == 0)
+            {
+                std::cout << "loading Menu\n";
+                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+            }
         case GameMode::COOP:
+            if (m_Players == 0)
+                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+            if (m_enemies == 0)
+                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
             break;
         case GameMode::PVP:
+            if (m_Players <= 1)
+                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
             break;
         }
-    }
+    
 }
 
 

@@ -33,6 +33,10 @@ namespace dae
 
 		void RegisterMovementCommand(SDL_Keycode key, std::unique_ptr<Command> command);
 
+		void RegisterControllerMovementCommand(unsigned int controllerIndex,
+			Controller::ControllerButton button,
+			std::unique_ptr<Command> command);
+
 	private:
 
 		void RemoveCommands();
@@ -55,6 +59,16 @@ namespace dae
 		};
 		std::vector<MovementBinding> m_MovementBindings;   
 		std::vector<SDL_Keycode>     m_MovementKeyStack;
+
+		struct ControllerMovementBinding {
+			unsigned int controllerIndex;
+			Controller::ControllerButton button;
+			std::unique_ptr<Command> command;
+		};
+
+		using ControllerButtonID = std::pair<unsigned int, Controller::ControllerButton>;
+		std::vector<ControllerMovementBinding> m_ControllerMovementBindings;
+		std::vector<ControllerButtonID>        m_ControllerMovementStack;
 
 	};
 
