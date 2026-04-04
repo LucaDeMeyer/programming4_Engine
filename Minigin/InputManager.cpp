@@ -263,3 +263,15 @@ void dae::InputManager::RegisterControllerMovementCommand(
 {
     m_ControllerMovementBindings.push_back({ controllerIndex, button, std::move(command) });
 }
+
+void dae::InputManager::ClearAllCommands()
+{
+    m_KeyboardCommands.clear();
+    m_ConsoleCommands.clear();
+    m_ContinuousCommands.clear();
+    m_MovementBindings.clear();
+    m_ControllerMovementBindings.clear();
+    m_MovementKeyStack.clear();
+    m_ControllerMovementStack.clear();
+    m_ObjectsToClear.clear();
+}

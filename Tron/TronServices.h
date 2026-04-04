@@ -1,5 +1,6 @@
 #ifndef TRON_SERVICES_H
 #define TRON_SERVICES_H
+#include "LevelManager.h"
 #include "Services.h"
 
 namespace Tron
@@ -14,6 +15,14 @@ namespace Tron
         void Init() override;
         void Update() override;
         void Shutdown() override;
+    };
+
+    class LevelManagerService final : public dae::IPlatformService
+    {
+    public:
+        void Init() override { Tron::LevelManager::GetInstance().Init(); }
+        void Update() override { Tron::LevelManager::GetInstance().Update(); }
+        void Shutdown() override {}
     };
 }
 #endif

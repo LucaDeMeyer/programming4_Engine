@@ -42,6 +42,9 @@ static void load()
 	auto& levelManager = Tron::LevelManager::GetInstance();
 	GameManager.Init();
 	levelManager.Init();
+
+	dae::ServiceLocator::RegisterPlatform(std::make_unique<Tron::LevelManagerService>());
+
 }
 
 int main(int, char* []) {
@@ -60,7 +63,6 @@ int main(int, char* []) {
 		std::make_unique<Tron::SteamAchievementService>()
 	);
 #endif
-
 	dae::Minigin engine(data_location);
 	engine.Run(load);
 

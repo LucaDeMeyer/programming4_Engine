@@ -36,7 +36,6 @@ namespace Tron
 					actor->GetEventSubject().RemoveObserver(this);
 			}
 
-
 			m_Entities.clear();
 			m_Players = 0;
 			m_enemies = 0;

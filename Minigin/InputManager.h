@@ -37,10 +37,13 @@ namespace dae
 			Controller::ControllerButton button,
 			std::unique_ptr<Command> command);
 
+		void ClearAllCommands();
+
 	private:
 
 		void RemoveCommands();
 		void HandleButtonClick(const glm::vec2& mousePos);
+	
 		using CommandKey = std::pair<SDL_Keycode, InputState>;
 		std::map<CommandKey, std::unique_ptr<Command>> m_KeyboardCommands;
 

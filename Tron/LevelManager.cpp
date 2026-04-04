@@ -31,10 +31,12 @@ void Tron::LevelManager::Init()
 
 void Tron::LevelManager::LoadLevel(const std::string& path,LevelCategory category)
 {
+
 	if (category == LevelCategory::Menu) {
 		auto& gameScene = dae::SceneManager::GetInstance().GetActiveScene();
-		gameScene.RemoveAll();
-		GameManager::GetInstance().ClearEntities();
+		GameManager::GetInstance().ClearEntities(); // unregister observers first
+		gameScene.RemoveAll();                       // then destroy objects
+		dae::InputManager::GetInstance().ClearAllCommands(); // then clear input
 		dae::SceneManager::GetInstance().SetActiveScene(0);
 		auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
 		scene.RemoveAll();
@@ -43,7 +45,9 @@ void Tron::LevelManager::LoadLevel(const std::string& path,LevelCategory categor
 	}
 	else {
 		auto& menuScene = dae::SceneManager::GetInstance().GetActiveScene();
+		GameManager::GetInstance().ClearEntities();
 		menuScene.RemoveAll();
+		dae::InputManager::GetInstance().ClearAllCommands();
 		dae::SceneManager::GetInstance().SetActiveScene(1);
 		auto& gameScene = dae::SceneManager::GetInstance().GetActiveScene();
 		gameScene.RemoveAll();
@@ -178,8 +182,13 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	if (currentMode == GameMode::COOP || currentMode == GameMode::PVP)
 	{
 
+	
 		auto tank_2 = Tron::GOFactory::CreatePlayer(m_P2Spawn, "GreenTank_SpriteSheet.png", Tron::Team::Player2);
 
+		if (currentMode == GameMode::COOP)
+			tank_2.Base->GetComponent<FactionComponent>()->SetTeam(Team::Player1);
+		if (currentMode == GameMode::PVP)
+			tank_2.Base->GetComponent<FactionComponent>()->SetTeam(Team::Player2);
 		auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
 		LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLives());
 		LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
@@ -333,4 +342,20 @@ bool Tron::LevelManager::IsWallAt(const glm::vec3& worldPos) const
 		return true; 
 
 	return m_Grid[row * m_Cols + column] == TileType::Wall;
+}
+
+void Tron::LevelManager::RequestLevel(const std::string& path, LevelCategory category)
+{
+	m_PendingPath = path;
+	m_PendingCategory = category;
+	m_PendingLoad = true;
+}
+
+void Tron::LevelManager::Update()
+{
+	if (m_PendingLoad)
+	{
+		m_PendingLoad = false;
+		LoadLevel(m_PendingPath, m_PendingCategory);
+	}
 }

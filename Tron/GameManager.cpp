@@ -94,21 +94,22 @@ void Tron::GameManager::CheckWinCondition()
         {
         case GameMode::singlePlayer:
             if (m_Players == 0)
-                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
             if (m_enemies == 0)
             {
-                std::cout << "loading Menu\n";
-                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
             }
         case GameMode::COOP:
             if (m_Players == 0)
-                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
             if (m_enemies == 0)
-                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+            {
+                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
+            }
             break;
         case GameMode::PVP:
             if (m_Players <= 1)
-                LevelManager::GetInstance().LoadLevel("", LevelCategory::Menu);
+                LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
             break;
         }
     

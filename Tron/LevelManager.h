@@ -4,6 +4,9 @@
 #include <vector>
 #include "Singleton.h"
 #include <glm/vec3.hpp>
+
+#include "Services.h"
+
 namespace dae
 {
 	class Scene;
@@ -27,10 +30,12 @@ namespace Tron
 
 
 	enum class LevelCategory { Menu, Game };
-	class LevelManager : public dae::Singleton<LevelManager>
+	class LevelManager :public dae::Singleton<LevelManager>
 	{
 	public:
 		void Init();
+		void Update() ;
+
 		void LoadLevel(const std::string& path,LevelCategory category);
 
 		void NextLevel();
@@ -43,6 +48,9 @@ namespace Tron
 		float GetOffsetX() const { return m_OffsetX; }
 
 		float GetOffsetY() const { return m_OffsetY; }
+
+		void RequestLevel(const std::string& path, LevelCategory category);
+
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;
@@ -50,6 +58,8 @@ namespace Tron
 		void LoadGrid(const std::string& path,dae::Scene& scene);
 		void LoadMenu(dae::Scene& scene);
 		std::string GetTextureForType(TileType type);
+
+		
 		int m_Cols;
 		int m_Rows;
 		float m_TileSize{32.f};
@@ -61,6 +71,11 @@ namespace Tron
 		glm::vec3 m_CenterTile;
 		std::vector<glm::vec3> m_EmptyLocations;
 		std::vector<TileType> m_Grid;
+
+		bool m_PendingLoad = false;
+		std::string m_PendingPath;
+		LevelCategory m_PendingCategory = LevelCategory::Menu;
+
 
 	};
 }
