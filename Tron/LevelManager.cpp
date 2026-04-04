@@ -22,6 +22,8 @@
 #include "TextureComponent.h"
 #include "TronFactory.h"
 
+//TODO: since levels get fully cleared of all obj -> score gets reset, we can either keep player controlled GOs alive and just reset their position,
+//makes most sense or save score to file after each lvl cleared and set score on the "new OBJ" => way less effiecent 
 void Tron::LevelManager::Init()
 {
 	auto& menuScene = dae::SceneManager::GetInstance().CreateScene();

@@ -94,17 +94,26 @@ void Tron::GameManager::CheckWinCondition()
         {
         case GameMode::singlePlayer:
             if (m_Players == 0)
-                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
+                LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
             if (m_enemies == 0)
             {
-                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
+                ++m_LVLNR;
+                if(m_LVLNR <=3)
+                    LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
+                else
+                    LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
             }
+            break;
         case GameMode::COOP:
             if (m_Players == 0)
-                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
+                LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
             if (m_enemies == 0)
             {
-                LevelManager::GetInstance().RequestLevel("Data/Level2.csv", LevelCategory::Game);
+                ++m_LVLNR;
+                if (m_LVLNR <= 3)
+                    LevelManager::GetInstance().RequestLevel("Data/Level" + std::to_string(m_LVLNR) + ".csv", LevelCategory::Game);
+                else
+                    LevelManager::GetInstance().RequestLevel("", LevelCategory::Menu);
             }
             break;
         case GameMode::PVP:

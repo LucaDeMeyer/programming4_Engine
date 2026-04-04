@@ -81,7 +81,7 @@ bool Tron::AIComponent::IsPathBlocked(const glm::vec3& dir) const
 {
     const auto pos = GetOwner()->GetTransform()->GetLocalPosition();
 
-    glm::vec3 checkPos = pos + (dir * (m_TileSize * 1.1f));
+    glm::vec3 checkPos = pos + (dir * (m_TileSize ));
 
     return Tron::LevelManager::GetInstance().IsWallAt(checkPos);
 }
