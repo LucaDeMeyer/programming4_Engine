@@ -13,14 +13,21 @@ void MoveCommand::Execute()
     auto obj = GetGameObject();
     if (!obj) return;
 
-    auto transform = GetGameObject()->GetTransform();
+    auto transform = obj->GetTransform();
     auto currentPos = transform->GetLocalPosition();
-    transform->SetPreviousPosition(currentPos); // safe current pos for wall collisions
+    transform->SetPreviousPosition(currentPos);
+
     float deltaTime = Time::GetInstance().GetDeltaTime();
 
-    currentPos.x += m_Direction.x * deltaTime;
-    currentPos.y += m_Direction.y * deltaTime;
+    // Snap to dominant axis — eliminates diagonal movement
+    glm::vec2 dir = m_Direction;
+    if (std::abs(dir.x) >= std::abs(dir.y))
+        dir.y = 0;
+    else
+        dir.x = 0;
 
+    currentPos.x += dir.x * deltaTime;
+    currentPos.y += dir.y * deltaTime;
     transform->SetLocalPosition(currentPos);
     UpdateSpriteDirection();
 }

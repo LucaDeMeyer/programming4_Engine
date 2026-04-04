@@ -25,7 +25,7 @@ namespace Tron
 		void Update() override;
         void Render() const override {}
         void SetMoveCommand(std::unique_ptr<Tron::MoveCommand> pCommand) { m_pMoveCommand = std::move(pCommand); }
-
+        glm::vec3& GetCurrentDirection() { return m_CurrentDirection; }
     private:
         void ChooseNewDirection();
         bool IsAtTileCenter() const;

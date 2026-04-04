@@ -40,6 +40,15 @@ bool dae::InputManager::ProcessInput()
                 if (m_KeyboardCommands.contains(key)) {
                     m_KeyboardCommands[key]->Execute();
                 }
+                for (auto& binding : m_MovementBindings) {
+                    if (binding.key == e.key.key) {
+                        if (std::find(m_MovementKeyStack.begin(),
+                            m_MovementKeyStack.end(),
+                            e.key.key) == m_MovementKeyStack.end()) {
+                            m_MovementKeyStack.push_back(e.key.key);
+                        }
+                    }
+                }
             }
         }
         else if (e.type == SDL_EVENT_KEY_UP) {
@@ -47,11 +56,22 @@ bool dae::InputManager::ProcessInput()
             if (m_KeyboardCommands.contains(key)) {
                 m_KeyboardCommands[key]->Execute();
             }
+            std::erase(m_MovementKeyStack, e.key.key);
         }
     }
     int numKeys;
     const bool* pKeyboardState = SDL_GetKeyboardState(&numKeys);
+    if (!m_MovementKeyStack.empty()) {
+        SDL_Keycode activeKey = m_MovementKeyStack.back();
+        for (auto& binding : m_MovementBindings) {
+            if (binding.key == activeKey) {
+                binding.command->Execute();
+                break;
+            }
+        }
+    }
 
+    // Still run non-movement Pressed commands as before:
     for (const auto& [keyPair, command] : m_KeyboardCommands) {
         if (keyPair.second == InputState::Pressed) {
             SDL_Scancode scancode = SDL_GetScancodeFromKey(keyPair.first, nullptr);
@@ -126,10 +146,12 @@ void dae::InputManager::BindControllerCommand(unsigned int controllerIndex, Cont
 void dae::InputManager::RemoveCommandsForObject(GameObject* object)
 {
 
-    if (object)
-    {
-        m_ObjectsToClear.push_back(object);
-    }
+    std::erase_if(m_MovementBindings, [object](const auto& binding) {
+        if (auto* actorCmd = dynamic_cast<dae::ActorCommand*>(binding.command.get())) {
+            return actorCmd->GetGameObject() == object;
+        }
+        return false;
+        });
 }
 
 void dae::InputManager::RemoveCommands()
@@ -187,4 +209,9 @@ void dae::InputManager::HandleButtonClick(const glm::vec2& mousePos)
             }
         }
     }
+}
+
+void dae::InputManager::RegisterMovementCommand(SDL_Keycode key, std::unique_ptr<Command> command)
+{
+    m_MovementBindings.push_back({ key, std::move(command) });
 }

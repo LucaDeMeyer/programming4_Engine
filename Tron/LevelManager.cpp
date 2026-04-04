@@ -141,29 +141,10 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	auto damageCommand = std::make_unique<Tron::DamageCommand>(player.Base.get(), 2);
 	auto aimCommand1 = std::make_unique<Tron::AimCommand>(player.Turret.get(), -1);
 
-	dae::InputManager::GetInstance().BindKeyCommand(
-		SDLK_W,
-		dae::InputState::Pressed,
-		std::move(moveUpCommand)
-	);
-
-	dae::InputManager::GetInstance().BindKeyCommand(
-		SDLK_S,
-		dae::InputState::Pressed,
-		std::move(moveDownCommand)
-	);
-
-	dae::InputManager::GetInstance().BindKeyCommand(
-		SDLK_A,
-		dae::InputState::Pressed,
-		std::move(MoveLeftCommand)
-	);
-
-	dae::InputManager::GetInstance().BindKeyCommand(
-		SDLK_D,
-		dae::InputState::Pressed,
-		std::move(MoveRightCommand)
-	);
+    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_W, std::move(moveUpCommand));
+    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_S, std::move(moveDownCommand));
+    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_A, std::move(MoveLeftCommand));
+    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_D, std::move(MoveRightCommand));
 
 	dae::InputManager::GetInstance().BindKeyCommand(
 		SDLK_SPACE,

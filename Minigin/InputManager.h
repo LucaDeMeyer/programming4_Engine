@@ -31,6 +31,8 @@ namespace dae
 		glm::vec2 GetMousePosition() const;
 		glm::vec2 GetRightThumbstick(unsigned int controllerIndex) const;
 
+		void RegisterMovementCommand(SDL_Keycode key, std::unique_ptr<Command> command);
+
 	private:
 
 		void RemoveCommands();
@@ -46,6 +48,14 @@ namespace dae
 		std::vector<std::unique_ptr<Controller>> m_Controllers;
 
 		std::vector<GameObject*> m_ObjectsToClear;
+
+		struct MovementBinding {
+			SDL_Keycode key;
+			std::unique_ptr<Command> command;
+		};
+		std::vector<MovementBinding> m_MovementBindings;   
+		std::vector<SDL_Keycode>     m_MovementKeyStack;
+
 	};
 
 }
