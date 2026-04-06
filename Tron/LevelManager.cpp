@@ -22,10 +22,6 @@
 #include "TextureComponent.h"
 #include "TronFactory.h"
 
-//TODO: since levels get fully cleared of all obj -> score gets reset, we can either keep player controlled GOs alive and just reset their position,
-//makes most sense or save score to file after each lvl cleared and set score on the "new OBJ" => way less effiecent
-//could store this in game manager and add it at start of new lvl during loading -> need to make sure the score value in game manager resets when going to meu then
-
 //TODO: stop hardcoding all OBJ locations -> should scale with window scaling
 void Tron::LevelManager::Init()
 {
@@ -205,18 +201,18 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	if (currentMode == GameMode::COOP || currentMode == GameMode::PVP)
 	{
 
-		auto tank_2 = Tron::GOFactory::CreatePlayer(m_P2Spawn, "GreenTank_SpriteSheet.png", Tron::Team::Player2);
+		auto tank_2 = Tron::GOFactory::CreatePlayer(m_P2Spawn, "GreenTank_SpriteSheet.png", Tron::Team::Player1);
 		m_Pplayer2 = tank_2.Base.get();
 		if (currentMode == GameMode::PVP)
 			tank_2.Base->GetComponent<FactionComponent>()->SetTeam(Team::Enemy);
 		auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
 		LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLives());
 		LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
-		LivesDisplayTank_2->GetTransform()->SetLocalPosition({ 600, 10, 1 });
+		LivesDisplayTank_2->GetTransform()->SetLocalPosition({ 780, 10, 1 });
 		tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>());
 
 		auto ScoreDisplay2 = std::make_unique<dae::GameObject>();
-		ScoreDisplay2->GetTransform()->SetLocalPosition({ 400, 10, 0 });
+		ScoreDisplay2->GetTransform()->SetLocalPosition({ 850, 5, 0 });
 		ScoreDisplay2->AddComponent<dae::TextComponent>();
 		ScoreDisplay2->AddComponent<Tron::ScoreDisplay>();
 		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay2->GetComponent<Tron::ScoreDisplay>());
