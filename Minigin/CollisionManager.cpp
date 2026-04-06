@@ -12,12 +12,14 @@ void dae::CollisionManager::AddCollider(ColliderComponent* collider)
 	if(std::find(m_Colliders.begin(),m_Colliders.end(),collider) == m_Colliders.end())
 	{
 		m_Colliders.emplace_back(collider);
+        std::cout << "colliders added: " << m_Colliders.size() << '\n';
 	}
 }
 
 void dae::CollisionManager::RemoveCollider(ColliderComponent* collider)
 {
-	std::erase(m_Colliders, collider);
+    m_Colliders.erase(std::remove(m_Colliders.begin(), m_Colliders.end(), collider),m_Colliders.end());
+    std::cout << "colliders Left: " << m_Colliders.size() << '\n';
 }
 
 void dae::CollisionManager::Update()

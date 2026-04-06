@@ -19,11 +19,11 @@ void Scene::Remove(GameObject& object)
 
 void Scene::RemoveAll()
 {
-	for (auto& object : m_objects)
-	{
-		dae::InputManager::GetInstance().RemoveCommandsForObject(object.get());
-		object->MarkForDestruction();
-	}
+	//for (auto& object : m_objects)
+	//{
+	//	dae::InputManager::GetInstance().RemoveCommandsForObject(object.get());
+	//}
+	m_objects.clear();
 }
 
 void Scene::Update()

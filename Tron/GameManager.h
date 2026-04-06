@@ -28,7 +28,6 @@ namespace Tron
 
 		void ClearEntities()
 		{
-		
 			m_Entities.clear();
 			m_Players = 0;
 			m_enemies = 0;

@@ -23,10 +23,10 @@
 #include "TronFactory.h"
 
 //TODO: since levels get fully cleared of all obj -> score gets reset, we can either keep player controlled GOs alive and just reset their position,
-//makes most sense or save score to file after each lvl cleared and set score on the "new OBJ" => way less effiecent 
+//makes most sense or save score to file after each lvl cleared and set score on the "new OBJ" => way less effiecent
+//could store this in game manager and add it at start of new lvl during loading -> need to make sure the score value in game manager resets when going to meu then
 
 //TODO: stop hardcoding all OBJ locations -> should scale with window scaling
-
 void Tron::LevelManager::Init()
 {
 	auto& menuScene = dae::SceneManager::GetInstance().CreateScene();
@@ -40,8 +40,6 @@ void Tron::LevelManager::Init()
 }
 void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory category)
 {
-	// this crashes in release, some nullptr access => not 100% sure where its coming from, might be something in removal im not handling atm
-	// crashes everytime now
 	auto& sceneManager = dae::SceneManager::GetInstance();
 	auto& inputManager = dae::InputManager::GetInstance();
 	auto& gameManager = GameManager::GetInstance();
@@ -59,10 +57,9 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 	}
 	else
 	{
-		// levels are scenes 1,2,3,4 — clamp to valid range
 		size_t nextIdx = m_CurrentLevelIndex + 1;
 		if (nextIdx >= sceneManager.GetSceneCount())
-			nextIdx = 1; // wrap back to first level
+			nextIdx = 1; 
 
 		m_CurrentLevelIndex = nextIdx;
 		sceneManager.SetActiveScene(nextIdx);
