@@ -32,6 +32,9 @@ namespace Tron
 			m_Players = 0;
 			m_enemies = 0;
 		}
+
+		int m_P1Score{};
+		int m_p2Score{};
 	private:
 		friend class dae::Singleton<GameManager>;
 		GameManager() = default;
@@ -45,6 +48,7 @@ namespace Tron
 		int m_enemies{};
 		int m_Players{};
 		int m_LVLNR{};
+		
 
 
 	};

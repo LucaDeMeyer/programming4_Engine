@@ -45,6 +45,7 @@ static void load()
 
 	dae::ServiceLocator::RegisterPlatform(std::make_unique<Tron::LevelManagerService>());
 
+	
 }
 
 int main(int, char* []) {

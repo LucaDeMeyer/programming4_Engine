@@ -44,10 +44,17 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 	auto& inputManager = dae::InputManager::GetInstance();
 	auto& gameManager = GameManager::GetInstance();
 
+	if (m_Pplayer1 && m_Pplayer1->GetComponent<ScoreComponent>())
+		gameManager.m_P1Score = m_Pplayer1->GetComponent<ScoreComponent>()->GetScore();
+	if (m_Pplayer2 && m_Pplayer2->GetComponent<ScoreComponent>())
+		gameManager.m_p2Score = m_Pplayer2->GetComponent<ScoreComponent>()->GetScore();
+
 	gameManager.ClearEntities();
 	inputManager.ClearAllCommands();
 	sceneManager.GetActiveScene().RemoveAll();
 
+	m_Pplayer1 = nullptr;
+	m_Pplayer2 = nullptr;
 	if (category == LevelCategory::Menu)
 	{
 		m_CurrentLevelIndex = 0;
@@ -60,7 +67,6 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 		size_t nextIdx = m_CurrentLevelIndex + 1;
 		if (nextIdx >= sceneManager.GetSceneCount())
 			nextIdx = 1; 
-
 		m_CurrentLevelIndex = nextIdx;
 		sceneManager.SetActiveScene(nextIdx);
 		sceneManager.GetActiveScene().RemoveAll();
@@ -145,6 +151,7 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 
 	// we should move this into the CVS aswell so we are data driven instead of hard coding all of this
 	auto player = Tron::GOFactory::CreatePlayer(m_P1Spawn, "RedTank_SpriteSheet.png", Tron::Team::Player1);
+	m_Pplayer1 = player.Base.get();
 
 	auto LivesDisplayTank_1 = std::make_unique<dae::GameObject>();
 	LivesDisplayTank_1->AddComponent<Tron::LivesDisplay>(player.Base->GetComponent<Tron::LivesComponent>()->GetLives());
@@ -159,6 +166,10 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay1->GetComponent<Tron::ScoreDisplay>());
 
 	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
+
+	if (auto scoreComp = m_Pplayer1->GetComponent<ScoreComponent>()) {
+		scoreComp->AddScore(GameManager::GetInstance().m_P1Score);
+	}
 
 	auto moveUpCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
 	auto MoveLeftCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
@@ -194,13 +205,10 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	if (currentMode == GameMode::COOP || currentMode == GameMode::PVP)
 	{
 
-	
 		auto tank_2 = Tron::GOFactory::CreatePlayer(m_P2Spawn, "GreenTank_SpriteSheet.png", Tron::Team::Player2);
-
-		if (currentMode == GameMode::COOP)
-			tank_2.Base->GetComponent<FactionComponent>()->SetTeam(Team::Player1);
+		m_Pplayer2 = tank_2.Base.get();
 		if (currentMode == GameMode::PVP)
-			tank_2.Base->GetComponent<FactionComponent>()->SetTeam(Team::Player2);
+			tank_2.Base->GetComponent<FactionComponent>()->SetTeam(Team::Enemy);
 		auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
 		LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLives());
 		LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
@@ -214,6 +222,10 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay2->GetComponent<Tron::ScoreDisplay>());
 
 		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
+
+		if (auto scoreComp = m_Pplayer2->GetComponent<ScoreComponent>()) {
+			scoreComp->AddScore(GameManager::GetInstance().m_p2Score);
+		}
 
 		auto moveUpCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,-100 });
 		auto MoveLeftCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ -100,0 });

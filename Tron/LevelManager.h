@@ -5,6 +5,7 @@
 #include "Singleton.h"
 #include <glm/vec3.hpp>
 
+#include "GameObject.h"
 #include "Services.h"
 
 namespace dae
@@ -77,6 +78,9 @@ namespace Tron
 		LevelCategory m_PendingCategory = LevelCategory::Menu;
 
 		size_t m_CurrentLevelIndex{ 0 };
+
+		dae::GameObject* m_Pplayer1{};
+		dae::GameObject* m_Pplayer2{};
 	};
 }
 

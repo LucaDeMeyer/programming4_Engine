@@ -32,6 +32,7 @@ void Scene::Update()
 	{
 		object->Update();
 	}
+	
 }
 
 void Scene::LateUpdate()
