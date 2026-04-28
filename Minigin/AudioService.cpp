@@ -1,6 +1,7 @@
 #include "AudioService.h"
 
 #include "EventQueue.h"
+#include "Utils.h"
 
 #ifdef WIN32
 #include <iostream>
@@ -91,11 +92,17 @@ void dae::AudioService::Play(unsigned int soundHash, float volume)
 	m_Condition.notify_one();
 }
 
-void dae::AudioService::OnNotify(GameObject* obj, const Event& event)
+void dae::AudioService::OnNotify(GameObject*, const Event& event)
 {
-	
-
+	if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
+	{
+		auto* soundArgs = static_cast<SoundARGS*>(event.pArgs.get());
+		if (soundArgs) {
+			Play(soundArgs->soundHash, 1.0f);
+		}
+	}
 }
+
 void dae::AudioService::AudioThreadLoop()
 {
 	while (m_IsPlaying)
