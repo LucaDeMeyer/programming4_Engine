@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "TextComponent.h"
 #include "TronEvents.h"
+#include "Utils.h"
 
 Tron::ScoreDisplay::ScoreDisplay(dae::GameObject* owner): BaseComponent(owner), Observer()
 {
@@ -14,7 +15,7 @@ Tron::ScoreDisplay::ScoreDisplay(dae::GameObject* owner): BaseComponent(owner), 
 
 void Tron::ScoreDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
-    if (event.ID == dae::make_sdbm_hash("ScoreChangedEvent"))
+    if (event.ID == dae::Utils::make_sdbm_hash("ScoreChangedEvent"))
     {
         if (auto* payload = static_cast<ScoreGainedARGS*>(event.pArgs.get()))
         {

@@ -16,7 +16,7 @@ void Tron::GameManager::Init()
 
 void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& event)
 {
-    if (event.ID == dae::make_sdbm_hash("ActorDied"))
+    if (event.ID == dae::Utils::make_sdbm_hash("ActorDied"))
     {
         auto* data = static_cast<ActorDied*>(event.pArgs.get());
 
@@ -24,18 +24,18 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
         {
             RemoveEntity(data->obj);
 
-            dae::Event winEvent(dae::make_sdbm_hash("WinCondition"));
+            dae::Event winEvent(dae::Utils::make_sdbm_hash("WinCondition"));
             dae::EventQueue::GetInstance().AddEvent(std::move(winEvent));
 
         }
     }
 
-    if (event.ID == dae::make_sdbm_hash("WinCondition"))
+    if (event.ID == dae::Utils::make_sdbm_hash("WinCondition"))
     {
         CheckWinCondition();
     }
 
-    if (event.ID == dae::make_sdbm_hash("Teleport"))
+    if (event.ID == dae::Utils::make_sdbm_hash("Teleport"))
     {
         auto* data = static_cast<Teleport*>(event.pArgs.get());
         if (data && data->obj)

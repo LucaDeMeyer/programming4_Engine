@@ -3,10 +3,11 @@
 #include "ColliderComponents.h"
 #include "FactionComponent.h"
 #include "Tank_Bullet.h"
+#include "Utils.h"
 
 void Tron::BulletObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
-    if (event.ID != dae::make_sdbm_hash("CollisionEvent")) return;
+    if (event.ID != dae::Utils::make_sdbm_hash("CollisionEvent")) return;
 
     auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs.get());
     auto* myCollider = GetOwner()->GetComponent<dae::BoxColliderComponent>();

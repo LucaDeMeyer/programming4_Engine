@@ -26,6 +26,22 @@ namespace dae
     public:
         void UnlockAchievement(const char*) override {}
     };
+
+    class IAudioService
+    {
+    public:
+    	virtual ~IAudioService() = default;
+        virtual bool Init() = 0;
+        virtual void Play(unsigned int soundHash,float volume) = 0;
+
+    };
+
+    class NullAudioService : public IAudioService
+    {
+    public:
+        bool Init() override { return true; }
+        void Play(unsigned int ,float ) override{}
+    };
 }
 
 #endif

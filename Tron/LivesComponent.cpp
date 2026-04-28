@@ -1,15 +1,11 @@
 #include "LivesComponent.h"
-
-#include <iostream>
 #include "EventQueue.h"
 #include "FactionComponent.h"
 #include "GameActorComponent.h"
-#include "GameManager.h"
 #include "TronEvents.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "ScoreComponent.h"
-
 using namespace Tron;
 void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 {
@@ -18,7 +14,7 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 	if (m_Lives <= 0)
 	{
 		auto payload = std::make_unique<PlayerDiedARGS>(1); 
-		dae::Event deathEvent(dae::make_sdbm_hash("PlayerDiedEvent"), std::move(payload));
+		dae::Event deathEvent(dae::Utils::make_sdbm_hash("PlayerDiedEvent"), std::move(payload));
 
 		m_LivesEvent.Notify(GetOwner(), deathEvent);
 
@@ -35,7 +31,7 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 		}
 
 		auto pl = std::make_unique<ActorDied>(GetOwner());
-		dae::Event ActorDiedEvent(dae::make_sdbm_hash("ActorDied"), std::move(pl));
+		dae::Event ActorDiedEvent(dae::Utils::make_sdbm_hash("ActorDied"), std::move(pl));
 
 		if (auto actor = GetOwner()->GetComponent<GameActor>())
 		{
@@ -45,7 +41,7 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 	else
 	{
 		auto payload = std::make_unique<LivesChangedARGS>(m_Lives);
-		dae::Event livesChangedEvent(dae::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
+		dae::Event livesChangedEvent(dae::Utils::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
 		m_LivesEvent.Notify(GetOwner(), livesChangedEvent);
 	}
 }
@@ -57,7 +53,7 @@ void LivesComponent::SetHealth(int newLives)
 	else
 		m_Lives = newLives;
 	auto payload = std::make_unique<LivesChangedARGS>(m_Lives);
-	dae::Event livesChangedEvent(dae::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
+	dae::Event livesChangedEvent(dae::Utils::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
 	m_LivesEvent.Notify(GetOwner(), livesChangedEvent);
 }
 

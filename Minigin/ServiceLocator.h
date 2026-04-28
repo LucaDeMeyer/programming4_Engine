@@ -19,6 +19,12 @@ namespace dae
                 : std::make_unique<NullPlatformService>();
         }
 
+		static IAudioService& GetAudioService() { return *m_AudioService; }
+       static void RegisterAudioService(std::unique_ptr<IAudioService> service)
+       {
+           m_AudioService = service ? std::move(service)
+               : std::make_unique<NullAudioService>();
+       }
     private:
         ServiceLocator() = delete;
 
@@ -26,6 +32,8 @@ namespace dae
             = std::make_unique<NullAchievementService>();
         static inline std::unique_ptr<IPlatformService> m_Platform
             = std::make_unique<NullPlatformService>();
+        static inline std::unique_ptr<IAudioService> m_AudioService
+            = std::make_unique<NullAudioService>();
     };
 }
 #endif

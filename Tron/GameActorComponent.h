@@ -3,6 +3,8 @@
 #include "BaseComponent.h"
 #include "Subject.h"
 #include "TronEvents.h"
+#include "Utils.h"
+
 namespace Tron {
 
     enum class ActorType
@@ -31,7 +33,7 @@ namespace Tron {
 
         void InvokeDeath() {
             auto payload = std::make_unique<ActorDied>(GetOwner());
-            dae::Event deathEvent(dae::make_sdbm_hash("ActorDied"), std::move(payload));
+            dae::Event deathEvent(dae::Utils::make_sdbm_hash("ActorDied"), std::move(payload));
 
             m_Event.Notify(GetOwner(), deathEvent);
         }

@@ -44,6 +44,8 @@ add_library(${TARGET_NAME} STATIC
   Minigin/Services.h
   Minigin/ServiceLocator.h
   Minigin/ButtonComponent.h
+  Minigin/AudioService.cpp
+  Minigin/Utils.h
 )
 
 # enable c++20 features
@@ -121,6 +123,32 @@ if(NOT SDL3_ttf_FOUND)
   endif()
 endif()
 
+find_package(SDL3_Mixer 3.2.0 CONFIG QUIET)
+if(NOT SDL3_Mixer_FOUND)
+    if(WIN32)
+        FetchContent_Declare(
+            SDL3_mixer
+            URL https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.0/SDL3_mixer-devel-3.2.0-VC.zip
+            DOWNLOAD_NO_PROGRESS ON
+            DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
+        )
+        FetchContent_MakeAvailable(SDL3_mixer)
+        list(PREPEND CMAKE_PREFIX_PATH "${sdl3_mixer_SOURCE_DIR}")
+        find_package(SDL3_mixer CONFIG REQUIRED)
+        else()
+        FetchContent_Declare(
+            SDL3_mixer
+            GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+            GIT_TAG release-3.2.0
+            GIT_SHALLOW TRUE
+            GIT_PROGRESS TRUE
+        )
+        set(SDL3MIXER_VENDORED ON CACHE BOOL "" FORCE) 
+        set(SDL3MIXER_SAMPLES OFF CACHE BOOL "" FORCE)
+        
+        FetchContent_MakeAvailable(SDL3_mixer)
+    endif()
+endif()
 if (WIN32)
   # Add VLD (Visual Leak Detector) for memory leak detection on Windows
   find_package(VLD CONFIG)
@@ -163,6 +191,7 @@ target_include_directories("${TARGET_NAME}" PUBLIC
 target_link_libraries("${TARGET_NAME}" PUBLIC
   SDL3::SDL3
   SDL3_ttf::SDL3_ttf
+  SDL3_mixer::SDL3_mixer
   glm::glm
   ${VLD_LIBRARIES}
   imgui

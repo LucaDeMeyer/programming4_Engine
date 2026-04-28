@@ -10,10 +10,10 @@
 #include "LevelManager.h"
 #include "TransformComponent.h"
 #include "TronEvents.h"
-
+#include "Utils.h"
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
-    if (event.ID != dae::make_sdbm_hash("CollisionEvent")) return;
+    if (event.ID != dae::Utils::make_sdbm_hash("CollisionEvent")) return;
 
     auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs.get());
     if (!collisionData) return;
@@ -44,7 +44,7 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
         auto payload = std::make_unique<::Teleport>(GetOwner());
 
         dae::EventQueue::GetInstance().AddEvent(dae::Event(
-            dae::make_sdbm_hash("Teleport"),
+            dae::Utils::make_sdbm_hash("Teleport"),
             std::move(payload)
         ));
     }
