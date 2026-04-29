@@ -4,8 +4,11 @@
 #include "InputManager.h"
 #include "LivesComponent.h"
 #include "SceneManager.h"
+#include "ServiceLocator.h"
 #include "SpriteComponent.h"
 #include "TronFactory.h"
+#include "EventQueue.h"
+
 
 using namespace Tron;
 void MoveCommand::Execute()
@@ -13,15 +16,22 @@ void MoveCommand::Execute()
     auto obj = GetGameObject();
     if (!obj) return;
 
-    auto transform = GetGameObject()->GetTransform();
+    auto transform = obj->GetTransform();
     auto currentPos = transform->GetLocalPosition();
+    transform->SetPreviousPosition(currentPos);
+
     float deltaTime = Time::GetInstance().GetDeltaTime();
+
+
 
     currentPos.x += m_Direction.x * deltaTime;
     currentPos.y += m_Direction.y * deltaTime;
-
     transform->SetLocalPosition(currentPos);
     UpdateSpriteDirection();
+}
+
+void MoveCommand::SetDirection(const glm::vec2& newDir) {
+    m_Direction = newDir;
 }
 
 void MoveCommand::UpdateSpriteDirection()
@@ -68,6 +78,14 @@ void FireCommand::Execute()
     auto bullet = GOFactory::CreateBullet(pos, velocity, team,obj);
 
     dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
+
+    auto soundArgs = std::make_unique<dae::SoundARGS>(
+        dae::Utils::make_sdbm_hash("tank_fire"), 
+        1.0f,                                    
+        dae::AudioType::FX                       
+    );
+    dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs));
+    dae::EventQueue::GetInstance().AddEvent(std::move(audioEvent));
 }
 
 void PlayerFireCommand::Execute()
@@ -112,6 +130,14 @@ void PlayerFireCommand::Execute()
 
     auto bullet = GOFactory::CreateBullet(spawnPos, velocity, team, base);
     dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
+
+    auto soundArgs = std::make_unique<dae::SoundARGS>(
+        dae::Utils::make_sdbm_hash("tank_fire"),
+        1.0f,
+        dae::AudioType::FX
+    );
+    dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs));
+    dae::EventQueue::GetInstance().AddEvent(std::move(audioEvent));
 }
 
 void AimCommand::Execute()

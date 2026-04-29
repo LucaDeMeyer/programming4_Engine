@@ -2,6 +2,8 @@
 #include "Scene.h"
 #include <cassert>
 
+#include "InputManager.h"
+
 using namespace dae;
 
 void Scene::Add(std::unique_ptr<GameObject> object)
@@ -17,8 +19,11 @@ void Scene::Remove(GameObject& object)
 
 void Scene::RemoveAll()
 {
-	for (auto& object : m_objects)
-		object->MarkForDestruction();
+	//for (auto& object : m_objects)
+	//{
+	//	dae::InputManager::GetInstance().RemoveCommandsForObject(object.get());
+	//}
+	m_objects.clear();
 }
 
 void Scene::Update()
@@ -27,6 +32,7 @@ void Scene::Update()
 	{
 		object->Update();
 	}
+	
 }
 
 void Scene::LateUpdate()

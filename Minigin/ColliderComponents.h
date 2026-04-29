@@ -41,7 +41,7 @@ namespace dae
 		BoxColliderComponent& operator=(BoxColliderComponent&& other) = delete;
 
 		void Update() override {}
-		void Render() const override{}
+		void Render() const override;
 
 		glm::vec4 GetWorldBox() const;
 		bool IsOverlapping(ColliderComponent* other) const override;

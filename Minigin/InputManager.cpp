@@ -2,6 +2,10 @@
 #include "InputManager.h"
 #include <backends/imgui_impl_sdl3.h>
 
+#include "ButtonComponent.h"
+#include "ColliderComponents.h"
+#include "SceneManager.h"
+
 
 dae::InputManager::InputManager()
 {
@@ -23,11 +27,27 @@ bool dae::InputManager::ProcessInput()
         if (e.type == SDL_EVENT_QUIT) {
             return false;
         }
+        if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        {
+            if (e.button.button == SDL_BUTTON_LEFT)
+            {
+                HandleButtonClick({ e.button.x, e.button.y });
+            }
+        }
         if (e.type == SDL_EVENT_KEY_DOWN) {
             if (e.key.repeat == 0) {
                 CommandKey key = { e.key.key, InputState::Down };
                 if (m_KeyboardCommands.contains(key)) {
                     m_KeyboardCommands[key]->Execute();
+                }
+                for (auto& binding : m_MovementBindings) {
+                    if (binding.key == e.key.key) {
+                        if (std::find(m_MovementKeyStack.begin(),
+                            m_MovementKeyStack.end(),
+                            e.key.key) == m_MovementKeyStack.end()) {
+                            m_MovementKeyStack.push_back(e.key.key);
+                        }
+                    }
                 }
             }
         }
@@ -36,10 +56,20 @@ bool dae::InputManager::ProcessInput()
             if (m_KeyboardCommands.contains(key)) {
                 m_KeyboardCommands[key]->Execute();
             }
+            std::erase(m_MovementKeyStack, e.key.key);
         }
     }
     int numKeys;
     const bool* pKeyboardState = SDL_GetKeyboardState(&numKeys);
+    if (!m_MovementKeyStack.empty()) {
+        SDL_Keycode activeKey = m_MovementKeyStack.back();
+        for (auto& binding : m_MovementBindings) {
+            if (binding.key == activeKey) {
+                binding.command->Execute();
+                break;
+            }
+        }
+    }
 
     for (const auto& [keyPair, command] : m_KeyboardCommands) {
         if (keyPair.second == InputState::Pressed) {
@@ -65,6 +95,34 @@ bool dae::InputManager::ProcessInput()
 
             if (shouldExecute) {
                 command->Execute();
+            }
+        }
+    }
+
+    for (auto& binding : m_ControllerMovementBindings) {
+        unsigned int idx = binding.controllerIndex;
+        if (idx >= m_Controllers.size() || !m_Controllers[idx]) continue;
+
+        auto& controller = m_Controllers[idx];
+        ControllerButtonID id = { idx, binding.button };
+
+        if (controller->IsDownThisFrame(binding.button)) {
+            if (std::find(m_ControllerMovementStack.begin(),
+                m_ControllerMovementStack.end(), id)
+                == m_ControllerMovementStack.end()) {
+                m_ControllerMovementStack.push_back(id);
+            }
+        }
+        else if (controller->IsUpThisFrame(binding.button)) {
+            std::erase(m_ControllerMovementStack, id);
+        }
+    }
+    if (!m_ControllerMovementStack.empty()) {
+        auto& [activeIdx, activeButton] = m_ControllerMovementStack.back(); 
+        for (auto& binding : m_ControllerMovementBindings) {               
+            if (binding.controllerIndex == activeIdx && binding.button == activeButton) {
+                binding.command->Execute();
+                break;
             }
         }
     }
@@ -147,8 +205,73 @@ void dae::InputManager::RemoveCommands()
                 }
                 return false;
                 });
+
+            std::erase_if(m_MovementBindings, [deadObject](const auto& binding) {
+                if (auto* actorCmd = dynamic_cast<dae::ActorCommand*>(binding.command.get())) {
+                    return actorCmd->GetGameObject() == deadObject;
+                }
+                return false;
+                });
+
+            std::erase_if(m_ControllerMovementStack, [&](const ControllerButtonID& id) {
+                for (auto& binding : m_ControllerMovementBindings) {
+                    if (binding.controllerIndex == id.first && binding.button == id.second)
+                        return false;
+                }
+                return true;
+                });
         }
 
         m_ObjectsToClear.clear();
     }
+}
+
+void dae::InputManager::HandleButtonClick(const glm::vec2& mousePos)
+{
+    auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+    auto gameObjects = scene.GetObjects();
+
+    for (auto& obj : gameObjects)
+    {
+        auto* button = obj->GetComponent<dae::ButtonComponent>();
+        auto* collider = obj->GetComponent<dae::BoxColliderComponent>();
+
+        if (button && collider)
+        {
+            glm::vec4 box = collider->GetWorldBox();
+
+            // Point-in-Rect check
+            if (mousePos.x >= box.x && mousePos.x <= box.x + box.z &&
+                mousePos.y >= box.y && mousePos.y <= box.y + box.w)
+            {
+                button->OnClick();
+                return; 
+            }
+        }
+    }
+}
+
+void dae::InputManager::RegisterMovementCommand(SDL_Keycode key, std::unique_ptr<Command> command)
+{
+    m_MovementBindings.push_back({ key, std::move(command) });
+}
+
+void dae::InputManager::RegisterControllerMovementCommand(
+    unsigned int controllerIndex,
+    Controller::ControllerButton button,
+    std::unique_ptr<Command> command)
+{
+    m_ControllerMovementBindings.push_back({ controllerIndex, button, std::move(command) });
+}
+
+void dae::InputManager::ClearAllCommands()
+{
+    m_KeyboardCommands.clear();
+    m_ConsoleCommands.clear();
+    m_ContinuousCommands.clear();
+    m_MovementBindings.clear();
+    m_ControllerMovementBindings.clear();
+    m_MovementKeyStack.clear();
+    m_ControllerMovementStack.clear();
+    m_ObjectsToClear.clear();
 }

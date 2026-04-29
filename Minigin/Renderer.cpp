@@ -107,4 +107,12 @@ void dae::Renderer::RenderTexture(const Texture2D& texture, const float x, const
 	SDL_RenderTexture(GetSDLRenderer(), texture.GetSDLTexture(), &src, &dst);
 }
 
+void dae::Renderer::RenderRect(float x, float y, float w, float h, const SDL_Color& color) const
+{
+	SDL_FRect rect{ x, y, w, h };
+	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+	SDL_RenderRect(m_renderer, &rect); // Draws the outline of the box
+}
+
 SDL_Renderer* dae::Renderer::GetSDLRenderer() const { return m_renderer; }
+

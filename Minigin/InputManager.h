@@ -31,10 +31,19 @@ namespace dae
 		glm::vec2 GetMousePosition() const;
 		glm::vec2 GetRightThumbstick(unsigned int controllerIndex) const;
 
+		void RegisterMovementCommand(SDL_Keycode key, std::unique_ptr<Command> command);
+
+		void RegisterControllerMovementCommand(unsigned int controllerIndex,
+			Controller::ControllerButton button,
+			std::unique_ptr<Command> command);
+
+		void ClearAllCommands();
+
 	private:
 
 		void RemoveCommands();
-
+		void HandleButtonClick(const glm::vec2& mousePos);
+	
 		using CommandKey = std::pair<SDL_Keycode, InputState>;
 		std::map<CommandKey, std::unique_ptr<Command>> m_KeyboardCommands;
 
@@ -46,6 +55,24 @@ namespace dae
 		std::vector<std::unique_ptr<Controller>> m_Controllers;
 
 		std::vector<GameObject*> m_ObjectsToClear;
+
+		struct MovementBinding {
+			SDL_Keycode key;
+			std::unique_ptr<Command> command;
+		};
+		std::vector<MovementBinding> m_MovementBindings;   
+		std::vector<SDL_Keycode>     m_MovementKeyStack;
+
+		struct ControllerMovementBinding {
+			unsigned int controllerIndex;
+			Controller::ControllerButton button;
+			std::unique_ptr<Command> command;
+		};
+
+		using ControllerButtonID = std::pair<unsigned int, Controller::ControllerButton>;
+		std::vector<ControllerMovementBinding> m_ControllerMovementBindings;
+		std::vector<ControllerButtonID>        m_ControllerMovementStack;
+
 	};
 
 }

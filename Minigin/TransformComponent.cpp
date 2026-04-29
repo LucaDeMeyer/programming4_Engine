@@ -23,6 +23,12 @@ void dae::TransformComponent::SetPositionDirty()
 
 }
 
+void dae::TransformComponent::SetPreviousPosition(const glm::vec3& pos)
+{
+	m_PreviousPos = pos;
+}
+
+
 void dae::TransformComponent::SetLocalRotation(float angle)
 {
 	m_localRotation = angle;

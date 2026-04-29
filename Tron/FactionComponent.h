@@ -9,7 +9,9 @@ namespace Tron
         Player1,
         Player2,
         Enemy,
-        Neutral
+        Wall,
+        Center
+
     };
     class FactionComponent final : public dae::BaseComponent
     {
@@ -18,7 +20,7 @@ namespace Tron
             : BaseComponent(owner), m_Team(team) {
         }
 
-        Team GetTeam() const { return m_Team; }
+		Team GetTeam() const { return m_Team; }
         void SetTeam(Team team) { m_Team = team; }
 
         void Update() override {}

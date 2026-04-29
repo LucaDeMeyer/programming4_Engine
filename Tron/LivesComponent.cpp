@@ -1,13 +1,12 @@
 #include "LivesComponent.h"
-
-#include <iostream>
 #include "EventQueue.h"
 #include "FactionComponent.h"
+#include "GameActorComponent.h"
 #include "TronEvents.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "ScoreComponent.h"
-
+#include "Services.h"
 using namespace Tron;
 void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 {
@@ -16,7 +15,7 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 	if (m_Lives <= 0)
 	{
 		auto payload = std::make_unique<PlayerDiedARGS>(1); 
-		dae::Event deathEvent(dae::make_sdbm_hash("PlayerDiedEvent"), std::move(payload));
+		dae::Event deathEvent(dae::Utils::make_sdbm_hash("PlayerDiedEvent"), std::move(payload));
 
 		m_LivesEvent.Notify(GetOwner(), deathEvent);
 
@@ -24,32 +23,46 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 		{
 			if (faction->GetTeam() == Team::Enemy)
 			{
+
 				if (auto scoreComp = shooter->GetComponent<ScoreComponent>())
 				{
-					scoreComp->AddScore(100);
+					scoreComp->AddScore(GetOwner()->GetComponent<GameActor>()->GetActorValue());
 				}
 			}
 		}
 
-		dae::InputManager::GetInstance().RemoveCommandsForObject(GetOwner()); // this is temp => should both move to somesort of gamemanager that handles this through observer/event Queue
-		GetOwner()->MarkForDestruction();
+		auto pl = std::make_unique<ActorDied>(GetOwner());
+		dae::Event ActorDiedEvent(dae::Utils::make_sdbm_hash("ActorDied"), std::move(pl));
+
+		auto soundArgs = std::make_unique<dae::SoundARGS>(
+			dae::Utils::make_sdbm_hash("Tank_Explosion"),
+			.5f,
+			dae::AudioType::FX
+		);
+		dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs));
+		dae::EventQueue::GetInstance().AddEvent(std::move(audioEvent));
+
+		if (auto actor = GetOwner()->GetComponent<GameActor>())
+		{
+			actor->GetEventSubject().Notify(GetOwner(), ActorDiedEvent);
+		}
 	}
 	else
 	{
 		auto payload = std::make_unique<LivesChangedARGS>(m_Lives);
-		dae::Event livesChangedEvent(dae::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
+		dae::Event livesChangedEvent(dae::Utils::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
 		m_LivesEvent.Notify(GetOwner(), livesChangedEvent);
 	}
 }
 
-void LivesComponent::SetHealth(int newLives) // not sure if we even need this, havent seen any healing done in gameplay
+void LivesComponent::SetHealth(int newLives)
 {
 	if (m_Lives + newLives > m_MaxLives)
 		m_Lives = m_MaxLives;
 	else
 		m_Lives = newLives;
 	auto payload = std::make_unique<LivesChangedARGS>(m_Lives);
-	dae::Event livesChangedEvent(dae::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
+	dae::Event livesChangedEvent(dae::Utils::make_sdbm_hash("LivesChangedEvent"), std::move(payload));
 	m_LivesEvent.Notify(GetOwner(), livesChangedEvent);
 }
 

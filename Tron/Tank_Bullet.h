@@ -6,6 +6,8 @@
 #include "BaseComponent.h"
 #include "glm/vec2.hpp"
 #include "TextureComponent.h"
+#include "glm/vec4.hpp"
+
 namespace Tron
 {
 	class TankBullet : public dae::BaseComponent
@@ -22,10 +24,12 @@ namespace Tron
 		void Render() const override{}
 
 		dae::GameObject* GetShooter() const { return m_Shooter; }
-
+		void Bounce(const glm::vec4& wallBox, const glm::vec4& bulletBox);
+		int m_MaxnrBounces{ 5 };
 	private:
 		dae::GameObject* m_Shooter{ nullptr };
 		glm::vec2 m_Velocity;
+	
 	};
 }
 

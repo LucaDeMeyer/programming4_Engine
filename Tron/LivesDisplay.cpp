@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "TronEvents.h" 
+#include "Utils.h"
 using namespace Tron;
 void LivesDisplay::SetTexture(const std::string& filename)
 {
@@ -30,7 +31,7 @@ void LivesDisplay::Render() const
 
 void LivesDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
-    if (event.ID == dae::make_sdbm_hash("LivesChangedEvent"))
+    if (event.ID == dae::Utils::make_sdbm_hash("LivesChangedEvent"))
     {
         if (auto* payload = static_cast<LivesChangedARGS*>(event.pArgs.get()))
         {
@@ -38,7 +39,7 @@ void LivesDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
         }
     }
 
-    if (event.ID == dae::make_sdbm_hash("PlayerDiedEvent"))
+    if (event.ID == dae::Utils::make_sdbm_hash("PlayerDiedEvent"))
     {
 	    if (auto* payload = static_cast<PlayerDiedARGS*>(event.pArgs.get()))
 	    {

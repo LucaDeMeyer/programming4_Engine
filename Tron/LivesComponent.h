@@ -11,6 +11,7 @@ namespace Tron
 
         LivesComponent(dae::GameObject* owner, int lives) : BaseComponent(owner), m_Lives(lives), m_MaxLives(lives) {}
 
+        ~LivesComponent() = default;
         LivesComponent(const LivesComponent& other) = delete;
         LivesComponent(LivesComponent&& other) = delete;
         LivesComponent& operator=(LivesComponent&& other) = delete;

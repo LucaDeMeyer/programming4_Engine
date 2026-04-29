@@ -18,6 +18,9 @@ namespace dae
 		void Update();
 		void Render();
 		void RenderUI();
+		size_t GetSceneCount() const { return m_scenes.size(); }
+		size_t GetCurrentSceneIDX() const { return m_ActiveSceneIndex; }
+		void ResetSceneIDX() { m_ActiveSceneIndex = 0; }
 	private:
 		friend class Singleton<SceneManager>;
 		SceneManager() = default;
