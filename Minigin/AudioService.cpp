@@ -4,7 +4,6 @@
 #include "ServiceLocator.h"
 #include "Utils.h"
 
-#ifdef WIN32
 #include <iostream>
 #include <unordered_map>
 
@@ -147,7 +146,8 @@ public:
 	}
 
 };
-#endif
+
+
 
 bool dae::AudioService::Init() {return  m_pImpl->Init(); }
 void dae::AudioService::LoadSound(unsigned int soundHash, const std::string& filepath) { m_pImpl->LoadSound(soundHash, filepath); }
