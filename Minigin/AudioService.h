@@ -8,22 +8,35 @@
 
 namespace dae
 {
+
 	class AudioService : public IAudioService , public Observer
 	{
 	public:
 		AudioService();
 		~AudioService() override;
 
-		virtual bool Init() override;
-		virtual void Play(unsigned int soundHash, float volume) override;
-		virtual void LoadSound(unsigned int soundHash, const std::string& filepath) override;
+		bool Init() override;
+		void Play(unsigned int soundHash, float volume, AudioType type) override;
+		void Pause(unsigned int soundHash, AudioType type) override;
+		void Stop(unsigned int soundHash, AudioType type) override;
+		void StopAll() override;
+		void LoadSound(unsigned int soundHash, const std::string& filepath) override;
 
 		void OnNotify(GameObject* obj, const Event& event) override;
 
 	private:
+		enum class AudioCommandType {
+			Play,
+			Pause,
+			Stop,
+			StopAll
+		};
+
 		struct AudioCommand {
 			unsigned int soundHash;
 			float volume;
+			AudioType type;
+			AudioCommandType commandType;
 		};
 
 		class AudioServiceImpl;
@@ -45,7 +58,10 @@ namespace dae
 		~LoggingAudioService()override = default;
 
 		bool Init() override;
-		void Play(unsigned int soundHash, float volume) override;
+		void Play(unsigned int soundHash, float volume, AudioType type) override;
+		void Pause(unsigned int soundHash, AudioType type) override;
+		void Stop(unsigned int soundHash, AudioType type) override;
+		void StopAll() override;
 		void LoadSound(unsigned int soundHash, const std::string& filepath) override;
 
 		void OnNotify(GameObject* obj, const Event& event) override;

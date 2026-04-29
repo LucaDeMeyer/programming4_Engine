@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "InputManager.h"
 #include "ScoreComponent.h"
+#include "Services.h"
 using namespace Tron;
 void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 {
@@ -32,6 +33,14 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 
 		auto pl = std::make_unique<ActorDied>(GetOwner());
 		dae::Event ActorDiedEvent(dae::Utils::make_sdbm_hash("ActorDied"), std::move(pl));
+
+		auto soundArgs = std::make_unique<dae::SoundARGS>(
+			dae::Utils::make_sdbm_hash("Tank_Explosion"),
+			.5f,
+			dae::AudioType::FX
+		);
+		dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs));
+		dae::EventQueue::GetInstance().AddEvent(std::move(audioEvent));
 
 		if (auto actor = GetOwner()->GetComponent<GameActor>())
 		{

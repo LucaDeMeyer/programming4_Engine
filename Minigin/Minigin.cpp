@@ -94,7 +94,7 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 	ServiceLocator::RegisterAudioService(std::move(loggedAudio));
 	#else
 	auto audioService = std::make_unique<dae::AudioService>();
-	EventQueue::GetInstance().GetNotifier()->AddObserver(audioService)
+	EventQueue::GetInstance().GetNotifier()->AddObserver(audioService.get());
 	ServiceLocator::RegisterAudioService(std::move(audioService));
 	#endif
 
@@ -108,6 +108,8 @@ dae::Minigin::~Minigin()
 	Renderer::GetInstance().Destroy();
 	SDL_DestroyWindow(g_window);
 	g_window = nullptr;
+
+	ServiceLocator::RegisterAudioService(std::make_unique<NullAudioService>());
 	SDL_Quit();
 }
 

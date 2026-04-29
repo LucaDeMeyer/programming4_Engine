@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "ColliderComponents.h"
 #include "FactionComponent.h"
+#include "Services.h"
 #include "Tank_Bullet.h"
 #include "Utils.h"
 
@@ -29,7 +30,16 @@ void Tron::BulletObserver::OnNotify(dae::GameObject* obj, const dae::Event& even
           
         }
         else
+        {
+            auto soundArgs = std::make_unique<dae::SoundARGS>(
+                dae::Utils::make_sdbm_hash("Bullet_Explosion"),
+                .5f,
+                dae::AudioType::FX
+            );
+            dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs));
+            dae::EventQueue::GetInstance().AddEvent(std::move(audioEvent));
             GetOwner()->MarkForDestruction();
+        }
     }
 
     else if (otherFaction && otherFaction->GetTeam() != GetOwner()->GetComponent<FactionComponent>()->GetTeam())

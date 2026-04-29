@@ -42,7 +42,8 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 	auto& gameManager = GameManager::GetInstance();
 	auto& audioService = dae::ServiceLocator::GetAudioService();
 
-
+	audioService.StopAll();
+	
 
 	if (m_Pplayer1 && m_Pplayer1->GetComponent<ScoreComponent>())
 		gameManager.m_P1Score = m_Pplayer1->GetComponent<ScoreComponent>()->GetScore();
@@ -270,13 +271,20 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	fps->AddComponent<dae::FPSComponent>();
 	fps->GetTransform()->SetLocalPosition({ 10, 40,1 });
 	scene.Add(std::move(fps));
+
+	auto& audioService = dae::ServiceLocator::GetAudioService();
+	audioService.LoadSound(dae::Utils::make_sdbm_hash("tank_fire"), "Data/Tank_Fire.wav");
+	audioService.LoadSound(dae::Utils::make_sdbm_hash("Bullet_Explosion"), "Data/Bullet_Explosion.wav");
+	audioService.LoadSound(dae::Utils::make_sdbm_hash("Tank_Explosion"), "Data/Tank_Explosion.wav");
+	audioService.LoadSound(dae::Utils::make_sdbm_hash("Level_Theme"), "Data/Level_Temp_Music.wav");
+	audioService.Play(dae::Utils::make_sdbm_hash("Level_Theme"), 1.0f, dae::AudioType::Ambient);
 }
 
 void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 {
 	auto& audioService = dae::ServiceLocator::GetAudioService();
 	audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
-	audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f);
+	audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f,dae::AudioType::Ambient);
 
 	auto fps = std::make_unique<dae::GameObject>();
 	fps->AddComponent<dae::TextComponent>()

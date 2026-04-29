@@ -32,11 +32,13 @@ struct Event {
 		}
 	};
 
+	enum class AudioType;
 	struct SoundARGS : public EventARGS
 	{
 		unsigned int soundHash; 
 		float volume;
-		SoundARGS(unsigned int _soundHash,float _volume) : soundHash(_soundHash), volume(_volume){}
+		AudioType type;
+		SoundARGS(unsigned int _soundHash,float _volume,AudioType _type) : soundHash(_soundHash), volume(_volume), type(_type){}
 
 
 	};
