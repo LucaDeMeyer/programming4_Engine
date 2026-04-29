@@ -283,11 +283,6 @@ endfunction()
 add_minigin_app(Tron
 "Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp;Tron/ScoreComponent.cpp;Tron/AchievmentManager.cpp;Tron/TronServices.cpp;Tron/LevelManager.cpp;Tron/Bullet_CollisionObserver.cpp;Tron/GameManager.cpp;Tron/AIComponent.cpp")
 
-add_minigin_app(ThrashTheCache "ThrashTheCache/main.cpp;ThrashTheCache/ThrashTheCache.h;ThrashTheCache/ThrashTheCacheUI.cpp")
-
-add_minigin_app(Commands "Assignment_Commands/main.cpp")
-
-
 
 if(WIN32)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ACTIVE_PROJECT})
