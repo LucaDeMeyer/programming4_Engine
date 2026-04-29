@@ -1,5 +1,6 @@
 #ifndef SERVICES_H
 #define SERVICES_H
+#include <string>
 namespace dae
 {
     class IPlatformService {
@@ -33,6 +34,7 @@ namespace dae
     	virtual ~IAudioService() = default;
         virtual bool Init() = 0;
         virtual void Play(unsigned int soundHash,float volume) = 0;
+        virtual void LoadSound(unsigned int soundHash, const std::string& filepath) = 0;
 
     };
 
@@ -41,6 +43,7 @@ namespace dae
     public:
         bool Init() override { return true; }
         void Play(unsigned int ,float ) override{}
+        void LoadSound(unsigned int , const std::string& ) override{};
     };
 }
 

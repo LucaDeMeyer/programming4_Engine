@@ -16,6 +16,7 @@
 #include "InputManager.h"
 #include "LivesDisplay.h"
 #include "ScoreDisplay.h"
+#include "ServiceLocator.h"
 #include "SpriteComponent.h"
 #include "TankCommands.h"
 #include "TextComponent.h"
@@ -39,6 +40,9 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 	auto& sceneManager = dae::SceneManager::GetInstance();
 	auto& inputManager = dae::InputManager::GetInstance();
 	auto& gameManager = GameManager::GetInstance();
+	auto& audioService = dae::ServiceLocator::GetAudioService();
+
+
 
 	if (m_Pplayer1 && m_Pplayer1->GetComponent<ScoreComponent>())
 		gameManager.m_P1Score = m_Pplayer1->GetComponent<ScoreComponent>()->GetScore();
@@ -57,6 +61,9 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 		sceneManager.SetActiveScene(0);
 		sceneManager.GetActiveScene().RemoveAll();
 		LoadMenu(sceneManager.GetActiveScene());
+
+	
+
 	}
 	else
 	{
@@ -267,7 +274,9 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 
 void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 {
-
+	auto& audioService = dae::ServiceLocator::GetAudioService();
+	audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
+	audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f);
 
 	auto fps = std::make_unique<dae::GameObject>();
 	fps->AddComponent<dae::TextComponent>()

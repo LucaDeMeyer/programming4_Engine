@@ -243,7 +243,7 @@ function(add_minigin_app APP_NAME APP_SOURCES)
         endif()
     elseif(WIN32)
         # Windows: Copy SDL3 dlls and Data folder to the .exe folder
-        set(SDL_RUNTIME_DLLS SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+        set(SDL_RUNTIME_DLLS SDL3::SDL3 SDL3_ttf::SDL3_ttf SDL3_mixer::SDL3_mixer)
         foreach(dllTarget IN LISTS SDL_RUNTIME_DLLS)
             add_custom_command(TARGET ${APP_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different

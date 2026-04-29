@@ -9,7 +9,7 @@ namespace dae
 	{
 	public:
 		virtual ~Observer() = default;
-		// dont think we are actually using the obj anywhere atm
+		// dont think we are actually using the obj anywhere atm best to remove it?
 		virtual void OnNotify(GameObject* obj,const Event& event ) = 0;
 	};
 }

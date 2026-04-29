@@ -8,20 +8,15 @@
 
 namespace dae
 {
-	enum class AudioType
-	{
-		
-	};
-	
 	class AudioService : public IAudioService , public Observer
 	{
 	public:
 		AudioService();
 		~AudioService() override;
 
-		bool Init() override;
-		void Play(unsigned int soundHash, float volume) override;
-		void LoadSound(unsigned int soundHash, const std::string& filepath);
+		virtual bool Init() override;
+		virtual void Play(unsigned int soundHash, float volume) override;
+		virtual void LoadSound(unsigned int soundHash, const std::string& filepath) override;
 
 		void OnNotify(GameObject* obj, const Event& event) override;
 
@@ -41,6 +36,22 @@ namespace dae
 		std::queue<AudioCommand> m_CommandQueue;
 
 		void AudioThreadLoop();
+	};
+
+	class LoggingAudioService final :public IAudioService, public Observer
+	{
+	public:
+		LoggingAudioService(std::unique_ptr<IAudioService> wrappedService);
+		~LoggingAudioService()override = default;
+
+		bool Init() override;
+		void Play(unsigned int soundHash, float volume) override;
+		void LoadSound(unsigned int soundHash, const std::string& filepath) override;
+
+		void OnNotify(GameObject* obj, const Event& event) override;
+
+	private:
+		std::unique_ptr<IAudioService> m_AudioService;
 	};
 }
 #endif

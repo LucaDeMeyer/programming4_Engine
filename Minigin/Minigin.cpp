@@ -14,6 +14,7 @@
 
 #include <thread>
 
+#include "AudioService.h"
 #include "CollisionManager.h"
 #include "EventQueue.h"
 #include "InputManager.h"
@@ -86,6 +87,18 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 	Renderer::GetInstance().Init(g_window);
 	ResourceManager::GetInstance().Init(dataPath);
+
+	#ifdef _DEBUG
+	auto realAudio = std::make_unique<dae::AudioService>();
+	auto loggedAudio = std::make_unique<dae::LoggingAudioService>(std::move(realAudio));
+	ServiceLocator::RegisterAudioService(std::move(loggedAudio));
+	#else
+	auto audioService = std::make_unique<dae::AudioService>();
+	EventQueue::GetInstance().GetNotifier()->AddObserver(audioService)
+	ServiceLocator::RegisterAudioService(std::move(audioService));
+	#endif
+
+	dae::ServiceLocator::GetAudioService().Init();
 }
 
 dae::Minigin::~Minigin()

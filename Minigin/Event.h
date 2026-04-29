@@ -35,8 +35,8 @@ struct Event {
 	struct SoundARGS : public EventARGS
 	{
 		unsigned int soundHash; 
-
-		SoundARGS(unsigned int _soundHash) : soundHash(_soundHash){}
+		float volume;
+		SoundARGS(unsigned int _soundHash,float _volume) : soundHash(_soundHash), volume(_volume){}
 
 
 	};

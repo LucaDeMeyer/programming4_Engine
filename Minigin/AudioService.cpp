@@ -1,6 +1,7 @@
 #include "AudioService.h"
 
 #include "EventQueue.h"
+#include "ServiceLocator.h"
 #include "Utils.h"
 
 #ifdef WIN32
@@ -77,7 +78,7 @@ public:
 
 		if (m_EffectTrack) MIX_DestroyTrack(m_EffectTrack);
 		if (m_Mixer) MIX_DestroyMixer(m_Mixer);
-		MIX_Quit();
+		MIX_Quit(); // this is causing crashes 
 	}
 
 };
@@ -98,7 +99,7 @@ void dae::AudioService::OnNotify(GameObject*, const Event& event)
 	{
 		auto* soundArgs = static_cast<SoundARGS*>(event.pArgs.get());
 		if (soundArgs) {
-			Play(soundArgs->soundHash, 1.0f);
+			Play(soundArgs->soundHash, soundArgs->volume);
 		}
 	}
 }
@@ -129,7 +130,7 @@ dae::AudioService::AudioService()
 {
 	m_IsPlaying = true;
 
-	EventQueue::GetInstance().GetNotifier()->AddObserver(this);
+	//EventQueue::GetInstance().GetNotifier()->AddObserver(this);
 	m_AudioThread = std::jthread(&AudioService::AudioThreadLoop, this);
 }
 
@@ -137,4 +138,39 @@ dae::AudioService::~AudioService()
 {
 	m_IsPlaying = false;
 	m_Condition.notify_one();
+}
+
+dae::LoggingAudioService::LoggingAudioService(std::unique_ptr<IAudioService> wrappedService)
+{
+	m_AudioService = std::move(wrappedService);
+	EventQueue::GetInstance().GetNotifier()->AddObserver(this);
+}
+
+bool dae::LoggingAudioService::Init()
+{
+	std::cout << "Initializing Audio Service\n";
+	return m_AudioService->Init();
+}
+
+void dae::LoggingAudioService::LoadSound(unsigned int soundHash, const std::string& filepath)
+{
+	std::cout << "Loading Sound: " << filepath << "at Hash: " << soundHash << '\n';
+	m_AudioService->LoadSound(soundHash, filepath);
+}
+
+void dae::LoggingAudioService::Play(unsigned int soundHash, float volume)
+{
+	std::cout << "Playing sound: " << soundHash << "at volume: " << volume << '\n';
+	m_AudioService->Play(soundHash, volume);
+}
+
+void dae::LoggingAudioService::OnNotify(GameObject* , const Event& event)
+{
+	if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
+	{
+		auto* soundArgs = static_cast<SoundARGS*>(event.pArgs.get());
+		if (soundArgs) {
+			Play(soundArgs->soundHash, soundArgs->volume);
+		}
+	}
 }
