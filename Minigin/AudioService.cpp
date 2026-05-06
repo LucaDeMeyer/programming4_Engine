@@ -1,296 +1,292 @@
 #include "AudioService.h"
-
 #include "EventQueue.h"
 #include "ServiceLocator.h"
 #include "Utils.h"
 
 #include <iostream>
 #include <unordered_map>
+#include <thread>
+#include <mutex>
+#include <queue>
+#include <condition_variable>
 
 #include "SDL3_mixer/SDL_mixer.h"
+
 class dae::AudioService::AudioServiceImpl
 {
-	MIX_Mixer* m_Mixer = nullptr;
-	std::unordered_map<unsigned int, MIX_Audio*> m_LoadedSounds;
+    MIX_Mixer* m_Mixer = nullptr;
+    std::unordered_map<unsigned int, MIX_Audio*> m_LoadedSounds;
+    MIX_Track* m_AmbientTrack = nullptr;
+    std::vector<MIX_Track*> m_SFXTracks;
+    int m_CurrentTrackIndex = 0;
+    std::unordered_map<MIX_Track*, unsigned int> m_TrackHistory;
 
-	MIX_Track* m_AmbientTrack = nullptr;
-	std::vector<MIX_Track*> m_SFXTracks;
-	int m_CurrentTrackIndex = 0;
+    enum class AudioCommandType { Play, Pause, Stop, StopAll };
 
-	std::unordered_map<MIX_Track*, unsigned int> m_TrackHistory;
+    struct AudioCommand
+    {
+        unsigned int soundHash;
+        float volume;
+        AudioType type;
+        AudioCommandType commandType;
+    };
 
+    std::jthread m_AudioThread;
+    std::mutex m_Mutex;
+    std::condition_variable m_Condition;
+    std::atomic<bool> m_IsRunning{ false };
+    std::queue<AudioCommand> m_CommandQueue;
 
 public:
-	bool Init()
-	{
-		if (!MIX_Init())
-		{
-			std::cerr << "Failed to init SDL3_mixer: " << SDL_GetError() << '\n';
-			return false;
-		}
+    bool Init()
+    {
+        if (!MIX_Init())
+        {
+            std::cerr << "Failed to init SDL3_mixer: " << SDL_GetError() << '\n';
+            return false;
+        }
 
-		m_Mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
-		if (!m_Mixer)
-		{
-			std::cerr << "Error: " << SDL_GetError() << '\n';
-			return false;
-		}
+        m_Mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+        if (!m_Mixer)
+        {
+            std::cerr << "Error: " << SDL_GetError() << '\n';
+            return false;
+        }
 
-		m_AmbientTrack = MIX_CreateTrack(m_Mixer);
-		if (!m_AmbientTrack)
-		{
-			std::cerr << "Failed to create track: " << SDL_GetError() << '\n';
-			return false;
-		}
+        m_AmbientTrack = MIX_CreateTrack(m_Mixer);
+        if (!m_AmbientTrack)
+        {
+            std::cerr << "Failed to create track: " << SDL_GetError() << '\n';
+            return false;
+        }
 
-		for (int i = 0; i < 16; ++i)
-		{
-			MIX_Track* newTrack = MIX_CreateTrack(m_Mixer);
-			m_SFXTracks.push_back(newTrack);
-		}
+        for (int i = 0; i < 16; ++i)
+            m_SFXTracks.push_back(MIX_CreateTrack(m_Mixer));
 
-		return true;
+        m_IsRunning = true;
+        m_AudioThread = std::jthread(&AudioServiceImpl::ThreadLoop, this);
 
-	}
-	void play(unsigned int soundHash, float volume, AudioType type)
-	{
-		auto it = m_LoadedSounds.find(soundHash);
-		if (it == m_LoadedSounds.end())
-		{
-			std::cerr << "Tried to play sound ID " << soundHash << " but it wasn't loaded!\n";
-			return;
-		}
+        return true;
+    }
 
-		MIX_Track* targetTrack = nullptr;
-		if (type == AudioType::Ambient)
-		{
-			targetTrack = m_AmbientTrack;
-			MIX_SetTrackAudio(targetTrack, it->second);
-			MIX_SetTrackGain(targetTrack, volume);
-			SDL_PropertiesID props = SDL_CreateProperties();
-			SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
-			
-			MIX_PlayTrack(targetTrack, props);
-			m_TrackHistory[targetTrack] = soundHash;
-		}
-		else if (type == AudioType::FX)
-		{
-			
-			targetTrack = m_SFXTracks[m_CurrentTrackIndex];
-			m_CurrentTrackIndex = (m_CurrentTrackIndex + 1) % m_SFXTracks.size();
+    void EnqueuePlay(unsigned int soundHash, float volume, AudioType type)
+    {
+        Enqueue({ soundHash, volume, type, AudioCommandType::Play });
+    }
 
-			MIX_SetTrackAudio(targetTrack, it->second);
-			MIX_SetTrackGain(targetTrack, volume);
-			MIX_PlayTrack(targetTrack, 0); 
-			m_TrackHistory[targetTrack] = soundHash;
-		}
-	}
+    void EnqueuePause(unsigned int soundHash, AudioType type)
+    {
+        Enqueue({ soundHash, 0.f, type, AudioCommandType::Pause });
+    }
 
-	void LoadSound(unsigned int soundHash, const std::string& filepath)
-	{
-		if (m_LoadedSounds.contains(soundHash)) return;
+    void EnqueueStop(unsigned int soundHash, AudioType type)
+    {
+        Enqueue({ soundHash, 0.f, type, AudioCommandType::Stop });
+    }
 
-		MIX_Audio* newSound = MIX_LoadAudio(m_Mixer, filepath.c_str(), true);
-		if (newSound == nullptr)
-		{
-			std::cerr << "Failed to load sound: " << filepath << " Error: " << SDL_GetError() << '\n';
-			return;
-		}
+    void EnqueueStopAll()
+    {
+        Enqueue({ 0, 0.f, AudioType::FX, AudioCommandType::StopAll });
+    }
 
-		m_LoadedSounds[soundHash] = newSound;
-	}
+    void LoadSound(unsigned int soundHash, const std::string& filepath)
+    {
+        if (m_LoadedSounds.contains(soundHash)) return;
 
-	void Pause(unsigned int soundHash, AudioType )
-	{
-		for (auto& pair : m_TrackHistory)
-		{
-			if (pair.second == soundHash)
-			{
-				MIX_PauseTrack(pair.first);
-			}
-		}
-	}
+        MIX_Audio* newSound = MIX_LoadAudio(m_Mixer, filepath.c_str(), true);
+        if (!newSound)
+        {
+            std::cerr << "Failed to load sound: " << filepath << " Error: " << SDL_GetError() << '\n';
+            return;
+        }
 
-	void Stop(unsigned int soundHash, AudioType )
-	{
-		for (auto& pair : m_TrackHistory)
-		{
-			if (pair.second == soundHash)
-			{
-			
-				MIX_StopTrack(pair.first,0);
-				pair.second = 0;
-			}
-		}
-	}
+        m_LoadedSounds[soundHash] = newSound;
+    }
 
-	void StopAll() 
-	{
-		MIX_StopAllTracks(m_Mixer,0);
-		m_TrackHistory.clear();
-	}
+    ~AudioServiceImpl()
+    {
+       
+        {
+            std::lock_guard lock(m_Mutex);
+            m_IsRunning = false;
+        }
+        m_Condition.notify_one();
+        
 
-	~AudioServiceImpl()
-	{
-		
-		for (auto& pair : m_LoadedSounds) {
-			MIX_DestroyAudio(pair.second);
-		}
+        for (auto& [hash, audio] : m_LoadedSounds)
+            MIX_DestroyAudio(audio);
 
-		for (MIX_Track* track : m_SFXTracks) {
-			if (track) MIX_DestroyTrack(track);
-		}
-		if (m_AmbientTrack) MIX_DestroyTrack(m_AmbientTrack);
-		if (m_Mixer) MIX_DestroyMixer(m_Mixer);
-		MIX_Quit(); // this is causing crashes 
-	}
+        for (MIX_Track* track : m_SFXTracks)
+            if (track) MIX_DestroyTrack(track);
 
+        if (m_AmbientTrack) MIX_DestroyTrack(m_AmbientTrack);
+        if (m_Mixer) MIX_DestroyMixer(m_Mixer);
+
+        MIX_Quit();
+    }
+
+private:
+    void Enqueue(AudioCommand cmd)
+    {
+        std::lock_guard lock(m_Mutex);
+        m_CommandQueue.push(cmd);
+        m_Condition.notify_one();
+    }
+
+    void ThreadLoop()
+    {
+        while (true)
+        {
+            AudioCommand command;
+            {
+                std::unique_lock lock(m_Mutex);
+                m_Condition.wait(lock, [this]
+                    {
+                        return !m_CommandQueue.empty() || !m_IsRunning;
+                    });
+
+                if (!m_IsRunning && m_CommandQueue.empty()) break;
+
+                command = m_CommandQueue.front();
+                m_CommandQueue.pop();
+            }
+
+            switch (command.commandType)
+            {
+            case AudioCommandType::Play:    Play(command.soundHash, command.volume, command.type); break;
+            case AudioCommandType::Pause:   Pause(command.soundHash); break;
+            case AudioCommandType::Stop:    Stop(command.soundHash); break;
+            case AudioCommandType::StopAll: StopAll(); break;
+            }
+        }
+    }
+
+    void Play(unsigned int soundHash, float volume, AudioType type)
+    {
+        auto it = m_LoadedSounds.find(soundHash);
+        if (it == m_LoadedSounds.end())
+        {
+            std::cerr << "Tried to play sound ID " << soundHash << " but it wasn't loaded!\n";
+            return;
+        }
+
+        if (type == AudioType::Ambient)
+        {
+            MIX_SetTrackAudio(m_AmbientTrack, it->second);
+            MIX_SetTrackGain(m_AmbientTrack, volume);
+            SDL_PropertiesID props = SDL_CreateProperties();
+            SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
+            MIX_PlayTrack(m_AmbientTrack, props);
+            m_TrackHistory[m_AmbientTrack] = soundHash;
+        }
+        else if (type == AudioType::FX)
+        {
+            MIX_Track* track = m_SFXTracks[m_CurrentTrackIndex];
+            m_CurrentTrackIndex = (m_CurrentTrackIndex + 1) % static_cast<int>(m_SFXTracks.size());
+            MIX_SetTrackAudio(track, it->second);
+            MIX_SetTrackGain(track, volume);
+            MIX_PlayTrack(track, 0);
+            m_TrackHistory[track] = soundHash;
+        }
+    }
+
+    void Pause(unsigned int soundHash)
+    {
+        for (auto& [track, hash] : m_TrackHistory)
+            if (hash == soundHash)
+                MIX_PauseTrack(track);
+    }
+
+    void Stop(unsigned int soundHash)
+    {
+        for (auto& [track, hash] : m_TrackHistory)
+            if (hash == soundHash)
+            {
+                MIX_StopTrack(track, 0);
+                hash = 0;
+            }
+    }
+
+    void StopAll()
+    {
+        MIX_StopAllTracks(m_Mixer, 0);
+        m_TrackHistory.clear();
+    }
 };
 
 
-
-bool dae::AudioService::Init() {return  m_pImpl->Init(); }
-void dae::AudioService::LoadSound(unsigned int soundHash, const std::string& filepath) { m_pImpl->LoadSound(soundHash, filepath); }
-void dae::AudioService::Play(unsigned int soundHash, float volume, AudioType type)
+dae::AudioService::AudioService()
+    : m_pImpl(std::make_unique<AudioServiceImpl>())
 {
-	std::lock_guard<std::mutex> lock(m_Mutex);
-	m_CommandQueue.push({ soundHash, volume,type,AudioCommandType::Play });
-	m_Condition.notify_one();
 }
 
-void dae::AudioService::Pause(unsigned int soundHash, AudioType type)
-{
-	std::lock_guard<std::mutex> lock(m_Mutex);
+dae::AudioService::~AudioService() = default;
 
-	m_CommandQueue.push({  soundHash, 0.0f, type,AudioCommandType::Pause, });
-	m_Condition.notify_one();
-}
-
-void dae::AudioService::Stop(unsigned int soundHash, AudioType type)
-{
-	std::lock_guard<std::mutex> lock(m_Mutex);
-
-	m_CommandQueue.push({ soundHash, 0.0f, type,AudioCommandType::Stop, });
-	m_Condition.notify_one();
-}
-void dae::AudioService::StopAll()
-{
-	std::lock_guard<std::mutex> lock(m_Mutex);
-	m_CommandQueue.push({  0, 0.0f, AudioType::FX,AudioCommandType::StopAll });
-	m_Condition.notify_one();
-}
+bool dae::AudioService::Init() { return m_pImpl->Init(); }
+void dae::AudioService::LoadSound(unsigned int h, const std::string& path) { m_pImpl->LoadSound(h, path); }
+void dae::AudioService::Play(unsigned int h, float v, AudioType t) { m_pImpl->EnqueuePlay(h, v, t); }
+void dae::AudioService::Pause(unsigned int h, AudioType t) { m_pImpl->EnqueuePause(h, t); }
+void dae::AudioService::Stop(unsigned int h, AudioType t) { m_pImpl->EnqueueStop(h, t); }
+void dae::AudioService::StopAll() { m_pImpl->EnqueueStopAll(); }
 
 void dae::AudioService::OnNotify(GameObject*, const Event& event)
 {
-	if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
-	{
-		auto* soundArgs = static_cast<SoundARGS*>(event.pArgs.get());
-		if (soundArgs) {
-			Play(soundArgs->soundHash, soundArgs->volume,soundArgs->type);
-		}
-	}
+    if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
+    {
+        auto* args = static_cast<SoundARGS*>(event.pArgs.get());
+        if (args) Play(args->soundHash, args->volume, args->type);
+    }
 }
 
-void dae::AudioService::AudioThreadLoop()
-{
-	while (m_IsPlaying)
-	{
-		AudioCommand command;
-		{
-			std::unique_lock<std::mutex> lock(m_Mutex);
-			m_Condition.wait(lock, [this]() {
-				return !m_CommandQueue.empty() || !m_IsPlaying;
-				});
-
-			if (!m_IsPlaying && m_CommandQueue.empty()) break;
-
-			command = m_CommandQueue.front();
-			m_CommandQueue.pop();
-		}
-
-		switch (command.commandType)
-		{
-		case AudioCommandType::Play:
-			m_pImpl->play(command.soundHash, command.volume, command.type);
-			break;
-		case AudioCommandType::Pause:
-			m_pImpl->Pause(command.soundHash,command.type);
-			break;
-		case AudioCommandType::Stop:
-			m_pImpl->Stop(command.soundHash,command.type);
-			break;
-		case AudioCommandType::StopAll:
-			m_pImpl->StopAll();
-			break;
-		}
-	}
-}
-
-
-dae::AudioService::AudioService()
-	: m_pImpl(std::make_unique<AudioServiceImpl>())
-{
-	m_IsPlaying = true;
-
-	//EventQueue::GetInstance().GetNotifier()->AddObserver(this);
-	m_AudioThread = std::jthread(&AudioService::AudioThreadLoop, this);
-}
-
-dae::AudioService::~AudioService()
-{
-	m_IsPlaying = false;
-	m_Condition.notify_one();
-}
 
 dae::LoggingAudioService::LoggingAudioService(std::unique_ptr<IAudioService> wrappedService)
+    : m_AudioService(std::move(wrappedService))
 {
-	m_AudioService = std::move(wrappedService);
-	EventQueue::GetInstance().GetNotifier()->AddObserver(this);
+    EventQueue::GetInstance().GetNotifier()->AddObserver(this);
 }
 
 bool dae::LoggingAudioService::Init()
 {
-	std::cout << "Initializing Audio Service\n";
-	return m_AudioService->Init();
+    std::cout << "Initializing Audio Service\n";
+    return m_AudioService->Init();
 }
 
-void dae::LoggingAudioService::LoadSound(unsigned int soundHash, const std::string& filepath)
+void dae::LoggingAudioService::LoadSound(unsigned int h, const std::string& path)
 {
-	std::cout << "Loading Sound: " << filepath << "at Hash: " << soundHash << '\n';
-	m_AudioService->LoadSound(soundHash, filepath);
+    std::cout << "Loading sound: " << path << " at hash: " << h << '\n';
+    m_AudioService->LoadSound(h, path);
 }
 
-void dae::LoggingAudioService::Play(unsigned int soundHash, float volume, AudioType type)
+void dae::LoggingAudioService::Play(unsigned int h, float v, AudioType t)
 {
-	std::cout << "Playing sound: " << soundHash << "at volume: " << volume << '\n';
-	m_AudioService->Play(soundHash, volume,type);
+    std::cout << "Playing sound: " << h << " at volume: " << v << '\n';
+    m_AudioService->Play(h, v, t);
 }
 
-void dae::LoggingAudioService::OnNotify(GameObject* , const Event& event)
+void dae::LoggingAudioService::Pause(unsigned int h, AudioType t)
 {
-	if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
-	{
-		std::cout << "Firing Audio Event\n";
-		auto* soundArgs = static_cast<SoundARGS*>(event.pArgs.get());
-		if (soundArgs) {
-			Play(soundArgs->soundHash, soundArgs->volume, soundArgs->type);
-		}
-	}
+    std::cout << "Pausing audio: " << h << '\n';
+    m_AudioService->Pause(h, t);
 }
 
-void dae::LoggingAudioService::Pause(unsigned int soundHash, AudioType type)
+void dae::LoggingAudioService::Stop(unsigned int h, AudioType t)
 {
-	std::cout << "Pausing Audio: " << soundHash << '\n';
-	m_AudioService->Pause(soundHash, type);
+    std::cout << "Stopping audio: " << h << '\n';
+    m_AudioService->Stop(h, t);
 }
 
-void dae::LoggingAudioService::Stop(unsigned int soundHash, AudioType type)
+void dae::LoggingAudioService::StopAll()
 {
-
-	std::cout << "Stopping Audio: " << soundHash << '\n';
-	m_AudioService->Stop(soundHash, type);
+    std::cout << "Stopping all audio tracks.\n";
+    m_AudioService->StopAll();
 }
-void dae::LoggingAudioService::StopAll() {
-	std::cout << "Stopping all audio tracks.\n";
-	m_AudioService->StopAll();
+
+void dae::LoggingAudioService::OnNotify(GameObject*, const Event& event)
+{
+    if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
+    {
+        std::cout << "Firing audio event\n";
+        auto* args = static_cast<SoundARGS*>(event.pArgs.get());
+        if (args) Play(args->soundHash, args->volume, args->type);
+    }
 }
