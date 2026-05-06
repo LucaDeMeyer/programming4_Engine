@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "BaseComponent.h"
+#include "States.h"
 #include "glm/vec3.hpp"
 
 namespace Tron
@@ -20,20 +21,27 @@ namespace Tron
 	class AIComponent : public dae::BaseComponent
 	{
 	public:
-        explicit AIComponent(dae::GameObject* owner) : BaseComponent(owner) {}
-
-		void Update() override;
+        explicit AIComponent(dae::GameObject* owner);
+        void Update() override;
         void Render() const override {}
-        void SetMoveCommand(std::unique_ptr<Tron::MoveCommand> pCommand) { m_pMoveCommand = std::move(pCommand); }
+
+        void SetMoveCommand(std::unique_ptr<MoveCommand> cmd) { m_pMoveCommand = std::move(cmd); }
         glm::vec3& GetCurrentDirection() { return m_CurrentDirection; }
-    private:
-        void ChooseNewDirection();
+
+        
         bool IsAtTileCenter() const;
-        bool ShouldChangeDirection() const;
         bool IsPathBlocked(const glm::vec3& dir) const;
+        void ChooseNewDirection();
         void SnapToGrid();
-        std::unique_ptr<Tron::MoveCommand> m_pMoveCommand;
-        glm::vec3 m_CurrentDirection{ 1, 0, 0 }; 
+        bool CanSeePlayer() const;
+        void ChasePlayer();
+
+    private:
+        void TransitionTo(EnemyState* newState);
+
+        std::unique_ptr<EnemyState> m_CurrentState;
+        std::unique_ptr<MoveCommand> m_pMoveCommand;
+        glm::vec3 m_CurrentDirection{ 1, 0, 0 };
         float m_TileSize{ 32.0f };
         bool m_MadeDecisionThisTile = false;
     };

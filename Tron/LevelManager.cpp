@@ -395,3 +395,22 @@ void Tron::LevelManager::Update()
 		LoadLevel(m_PendingPath, m_PendingCategory);
 	}
 }
+
+dae::GameObject* Tron::LevelManager::GetNearestPlayer(const glm::vec3& pos) const
+{
+	dae::GameObject* nearest = nullptr;
+	float bestDist = FLT_MAX;
+
+	if (m_Pplayer1)
+	{
+		float d = glm::length(m_Pplayer1->GetTransform()->GetLocalPosition() - pos);
+		if (d < bestDist) { bestDist = d; nearest = m_Pplayer1; }
+	}
+	if (m_Pplayer2)
+	{
+		float d = glm::length(m_Pplayer2->GetTransform()->GetLocalPosition() - pos);
+		if (d < bestDist) { bestDist = d; nearest = m_Pplayer2; }
+	}
+
+	return nearest;
+}

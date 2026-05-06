@@ -52,6 +52,7 @@ namespace Tron
 
 		void RequestLevel(const std::string& path, LevelCategory category);
 
+		dae::GameObject* GetNearestPlayer(const glm::vec3& pos) const;
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;
