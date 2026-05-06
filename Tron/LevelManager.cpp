@@ -399,7 +399,7 @@ void Tron::LevelManager::Update()
 dae::GameObject* Tron::LevelManager::GetNearestPlayer(const glm::vec3& pos) const
 {
 	dae::GameObject* nearest = nullptr;
-	float bestDist = FLT_MAX;
+	float bestDist = std::numeric_limits<float>::max();
 
 	if (m_Pplayer1)
 	{

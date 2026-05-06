@@ -36,7 +36,6 @@ Tron::EnemyState* Tron::PatrolState::Update(AIComponent& ai)
 
 void Tron::ChaseState::OnEnter(AIComponent& ai)
 {
-    std::cout << "ENTERED CHASE STATE\n";
     m_LostSightTimer = 0.f;
     m_MadeDecisionThisTile = false;
     m_LostSightTimer = 0.f;
@@ -56,16 +55,11 @@ Tron::EnemyState* Tron::ChaseState::Update(AIComponent& ai)
     }
 
     bool atCenter = ai.IsAtTileCenter();
-    std::cout << "ChaseUpdate - atCenter: " << atCenter
-        << " madeDecision: " << m_MadeDecisionThisTile << "\n";
 
     if (atCenter && !m_MadeDecisionThisTile)
     {
         ai.SnapToGrid();
         ai.ChasePlayer();
-        std::cout << "ChasePlayer called, new dir: "
-            << ai.GetCurrentDirection().x << ","
-            << ai.GetCurrentDirection().y << "\n";
         m_MadeDecisionThisTile = true;
     }
     else if (!atCenter)
