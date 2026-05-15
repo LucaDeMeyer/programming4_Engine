@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+
+#include "GameTime.h"
 #include "TankCommands.h"
 #include "States.h"
 
@@ -24,6 +26,18 @@ void Tron::AIComponent::Update()
 
     m_pMoveCommand->SetDirection(m_CurrentDirection * 100.f);
     m_pMoveCommand->Execute();
+
+    m_LastFireTime += Time::GetInstance().GetDeltaTime(); 
+
+    if (m_LastFireTime >= m_FireCooldown)
+    {
+        if (CanSeePlayer())
+        {
+            m_pFireCommand->Execute();
+            m_LastFireTime = 0.0f; 
+        }
+    }
+
 }
 
 void Tron::AIComponent::TransitionTo(EnemyState* newState)

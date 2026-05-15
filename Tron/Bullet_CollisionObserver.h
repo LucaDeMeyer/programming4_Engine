@@ -28,6 +28,9 @@ namespace Tron
 		void Render() const override {}
 
 		void OnNotify(dae::GameObject* obj, const dae::Event& event) override;
+
+	private:
+		void DestroyBullet();
 	};
 }
 #endif

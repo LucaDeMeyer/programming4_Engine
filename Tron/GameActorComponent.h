@@ -15,7 +15,7 @@ namespace Tron {
     };
     class GameActor : public dae::BaseComponent {
     public:
-        explicit GameActor(dae::GameObject* owner,ActorType type) : BaseComponent(owner),m_ActorType(type) {}
+        explicit GameActor(dae::GameObject* owner,ActorType type, float movespeed) : BaseComponent(owner),m_ActorType(type),m_MoveSpeed(movespeed) {}
 
         GameActor(const GameActor& other) = delete;
         GameActor(GameActor&& other) = delete;
@@ -28,7 +28,7 @@ namespace Tron {
 
         dae::Subject& GetEventSubject() { return m_Event; }
 
-        int GetActorValue(){ return m_Score; }
+        int GetActorValue() const{ return m_Score; }
         void SetScore(int _score) { m_Score = _score; }
 
         void InvokeDeath() {
@@ -38,12 +38,14 @@ namespace Tron {
             m_Event.Notify(GetOwner(), deathEvent);
         }
 
-        ActorType GetActorType() { return m_ActorType; }
+        ActorType GetActorType() const { return m_ActorType; }
+        float GetMoveSpeed() const { return m_MoveSpeed; }
     private:
         dae::Subject m_Event;
         int m_Score{};
 
         ActorType m_ActorType;
+        float m_MoveSpeed;
     };
 }
 

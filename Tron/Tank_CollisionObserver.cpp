@@ -52,36 +52,32 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
 
 void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)
 {
-   auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
-   auto* bulletFaction = other->GetComponent<FactionComponent>();
-   if (myFaction && bulletFaction)
-   {
-       Team me = myFaction->GetTeam();
-       Team bulletTeam = bulletFaction->GetTeam();
+    auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
+    auto* bulletFaction = other->GetComponent<FactionComponent>();
 
-       bool shouldTakeDamage = false;
-       if (bulletTeam == Team::Enemy)
-       {
-           shouldTakeDamage = true;
-       }
-       else if (bulletTeam != me)
-       {
-           shouldTakeDamage = true;
-       }
+    if (myFaction && bulletFaction)
+    {
+        Team me = myFaction->GetTeam();
+        Team bulletTeam = bulletFaction->GetTeam();
 
-       if (shouldTakeDamage)
-       {
-           if (auto* lives = GetOwner()->GetComponent<LivesComponent>()) {
+        // Only take damage if the bullet is NOT on my team
+        if (bulletTeam != me)
+        {
+            if (auto* lives = GetOwner()->GetComponent<LivesComponent>())
+            {
+                dae::GameObject* shooter = nullptr;
+                if (auto* bulletComp = other->GetComponent<TankBullet>())
+                {
+                    shooter = bulletComp->GetShooter();
+                }
 
-               dae::GameObject* shooter = nullptr;
-               if (auto* bulletComp = other->GetComponent<TankBullet>())
-               {
-                   shooter = bulletComp->GetShooter();
-               }
-               lives->DoDamage(1, shooter);
-           }
-       }
-   }
+                if (shooter != GetOwner())
+                {
+                    lives->DoDamage(1, shooter);
+                }
+            }
+        }
+    }
 }
 
 void Tron::TankCollisionObserver::HandleWallCollision(dae::GameObject* other, dae::ColliderComponent* triggeredCollider)
