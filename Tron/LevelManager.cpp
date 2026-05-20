@@ -85,227 +85,168 @@ void Tron::LevelManager::LoadLevel(LevelCategory category)
 	}
 }
 
-void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
+void Tron::LevelManager::LoadGrid( std::string& path, dae::Scene& scene)
 {
-    m_Grid.clear();
-    m_Rows = 0;
-    m_Cols = 0;
-	m_EnemySpawnPoints.clear(); 
+	ParseGrid(path, scene);
+	SpawnPlayers(scene);
+	SpawnEnemies(scene);
+	CreateFPSCounter(scene, { 10, 40, 1 });
+	SetupLevelAudio();
+}
+
+void Tron::LevelManager::ParseGrid( std::string& path, dae::Scene& scene)
+{
+	m_Grid.clear();
+	m_Rows = 0;
+	m_Cols = 0;
+	m_EnemySpawnPoints.clear();
 	m_EmptyLocations.clear();
 
-    std::ifstream file(path);
-    if (!file.is_open()) return;
-    std::string line;
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string cell;
-        int currentLineCols = 0;
+	std::ifstream file(path);
+	if (!file.is_open()) return;
 
-        while (std::getline(ss, cell, ',')) {
-            m_Grid.push_back(static_cast<TileType>(std::stoi(cell)));
-            currentLineCols++;
-        }
-        if (m_Cols == 0) m_Cols = currentLineCols;
-        m_Rows++;
-    }
+	std::string line;
+	while (std::getline(file, line)) {
+		std::stringstream ss(line);
+		std::string cell;
+		int currentLineCols = 0;
 
-    float totalLevelWidth = m_Cols * m_TileSize;
-    float totalLevelHeight = m_Rows * m_TileSize;
-
-    float windowWidth = 1024.f;
-    float windowHeight = 576.f;
-
-    m_OffsetX = (windowWidth - totalLevelWidth) / 2.0f;
-    m_OffsetY = (windowHeight - totalLevelHeight) / 2.0f;
-
-    for (size_t i = 0; i < m_Grid.size(); ++i) {
-        float x = ((i % m_Cols) * m_TileSize) + m_OffsetX;
-        float y = ((i / m_Cols) * m_TileSize) + m_OffsetY;
-
-        auto tile = std::make_unique<dae::GameObject>();
-        tile->GetTransform()->SetLocalPosition(glm::vec3{ x, y ,0 });
-
-        std::string texName = GetTextureForType(m_Grid[i]);
-        tile->AddComponent<dae::TextureComponent>()->SetTexture(texName);
-        tile->GetComponent<dae::TextureComponent>()->SetDimensions(m_TileSize, m_TileSize);
-		if (m_Grid[i] == TileType::P1Spawn) {
-			m_P1Spawn = { x, y, 1 };
-			continue;
+		while (std::getline(ss, cell, ',')) {
+			m_Grid.push_back(static_cast<TileType>(std::stoi(cell)));
+			currentLineCols++;
 		}
-		if (m_Grid[i] == TileType::P2Spawn) {
-			m_P2Spawn = { x, y, 1 };
-			continue;
-		}
-		if (m_Grid[i] == TileType::EnemySpawn) {
-			m_EnemySpawnPoints.emplace_back(glm::vec3{x,y,1});
-			continue;
-		}
-        if (m_Grid[i] == TileType::Wall) {
-            tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize});
-            tile->AddComponent<FactionComponent>(Team::Wall);
-        }
-		if (m_Grid[i] == TileType::CenterTile)
-		{
-			tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
-			tile->AddComponent<FactionComponent>(Team::Center);
-			m_CenterTile = {x,y,1};
-		}
-		if (m_Grid[i] == TileType::Black || m_Grid[i] == TileType::VerticalPath || m_Grid[i] == TileType::Crossroad || m_Grid[i] == TileType::HorizontalPath) {
-			m_EmptyLocations.push_back({ x, y, 1 });
-		}
-
-        scene.Add(std::move(tile));
-    }
-
-
-	GameMode currentMode = GameManager::GetInstance().GetGameMode();
-
-	// we should move this into the CVS aswell so we are data driven instead of hard coding all of this
-	auto player = Tron::GOFactory::CreatePlayer(m_P1Spawn, "RedTank_SpriteSheet.png", Tron::Team::Player1);
-	m_Pplayer1 = player.Base.get();
-
-	auto LivesDisplayTank_1 = std::make_unique<dae::GameObject>();
-	LivesDisplayTank_1->AddComponent<Tron::LivesDisplay>(player.Base->GetComponent<Tron::LivesComponent>()->GetLives());
-	LivesDisplayTank_1->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
-	LivesDisplayTank_1->GetTransform()->SetLocalPosition({ 60, 10, 1 });
-	player.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_1->GetComponent<Tron::LivesDisplay>());
-
-	auto ScoreDisplay1 = std::make_unique<dae::GameObject>();
-	ScoreDisplay1->GetTransform()->SetLocalPosition({ 130, 5, 0 });
-	ScoreDisplay1->AddComponent<dae::TextComponent>();
-	ScoreDisplay1->AddComponent<Tron::ScoreDisplay>();
-	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay1->GetComponent<Tron::ScoreDisplay>());
-
-	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
-
-	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&GameManager::GetInstance());
-
-	if (auto scoreComp = m_Pplayer1->GetComponent<ScoreComponent>()) {
-		scoreComp->AddScore(GameManager::GetInstance().m_P1Score);
-		scoreComp->SetPlayerIndex(0);
+		if (m_Cols == 0) m_Cols = currentLineCols;
+		m_Rows++;
 	}
 
-	auto moveUpCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
-	auto MoveLeftCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
-	auto moveDownCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,100 });
-	auto MoveRightCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 100,0 });
-	auto fireCommand = std::make_unique<Tron::PlayerFireCommand>(player.Base.get(), player.Turret.get());
+	float totalLevelWidth = m_Cols * m_TileSize;
+	float totalLevelHeight = m_Rows * m_TileSize;
+	m_OffsetX = (1024.f - totalLevelWidth) / 2.0f;
+	m_OffsetY = (576.f - totalLevelHeight) / 2.0f;
 
-	auto damageCommand = std::make_unique<Tron::DamageCommand>(player.Base.get(), 2);
-	auto aimCommand1 = std::make_unique<Tron::AimCommand>(player.Turret.get(), -1);
+	for (size_t i = 0; i < m_Grid.size(); ++i) {
+		float x = ((i % m_Cols) * m_TileSize) + m_OffsetX;
+		float y = ((i / m_Cols) * m_TileSize) + m_OffsetY;
+		glm::vec3 pos{ x, y, 1 };
+
+		auto tile = std::make_unique<dae::GameObject>();
+		tile->GetTransform()->SetLocalPosition({ x, y ,0 });
+
+		std::string texName = GetTextureForType(m_Grid[i]);
+		auto texComp = tile->AddComponent<dae::TextureComponent>();
+		texComp->SetTexture(texName);
+		texComp->SetDimensions(m_TileSize, m_TileSize);
+
+		switch (m_Grid[i]) {
+		case TileType::P1Spawn:      m_P1Spawn = pos; break;
+		case TileType::P2Spawn:      m_P2Spawn = pos; break;
+		case TileType::EnemySpawn:   m_EnemySpawnPoints.push_back(pos); break;
+		case TileType::CenterTile:
+			tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
+			tile->AddComponent<FactionComponent>(Team::Center);
+			m_CenterTile = pos;
+			break;
+		case TileType::Wall:
+			tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
+			tile->AddComponent<FactionComponent>(Team::Wall);
+			break;
+		case TileType::Black:
+		case TileType::VerticalPath:
+		case TileType::Crossroad:
+		case TileType::HorizontalPath:
+			m_EmptyLocations.push_back(pos);
+			break;
+		}
+		scene.Add(std::move(tile));
+	}
+}
+
+void Tron::LevelManager::SpawnPlayers( dae::Scene& scene)
+{
+	GameMode currentGameMode = GameManager::GetInstance().GetGameMode();
+
+	SpawnSinglePlayer(scene, 0, m_P1Spawn, "RedTank_SpriteSheet.png", Tron::Team::Player1);
+
+	if (currentGameMode == GameMode::COOP || currentGameMode == GameMode::PVP)
+	{
+		Team p2Team = (currentGameMode == GameMode::PVP) ? Team::Enemy : Team::Player1;
+		SpawnSinglePlayer(scene, 1, m_P2Spawn, "GreenTank_SpriteSheet.png", p2Team);
+	}
+}
+
+void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, const glm::vec3& spawnPos, const std::string& texture, Tron::Team team)
+{
+	auto player = Tron::GOFactory::CreatePlayer(spawnPos, texture, team);
+	auto* pTankBase = player.Base.get();
+
+	if (playerIndex == 0) m_Pplayer1 = pTankBase;
+	else m_Pplayer2 = pTankBase;
+
+	// --- UI Setup ---
+	float uiXOffset = (playerIndex == 0) ? 60.f : 780.f;
+	float scoreXOffset = (playerIndex == 0) ? 130.f : 850.f;
+
+	auto livesDisplay = std::make_unique<dae::GameObject>();
+	livesDisplay->GetTransform()->SetLocalPosition({ uiXOffset, 10, 1 });
+	auto livesComp = livesDisplay->AddComponent<Tron::LivesDisplay>(pTankBase->GetComponent<Tron::LivesComponent>()->GetLives());
+	livesComp->SetTexture("Player_Lives.png");
+	pTankBase->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(livesComp);
+
+	auto scoreDisplay = std::make_unique<dae::GameObject>();
+	scoreDisplay->GetTransform()->SetLocalPosition({ scoreXOffset, 5, 0 });
+	scoreDisplay->AddComponent<dae::TextComponent>();
+	scoreDisplay->AddComponent<Tron::ScoreDisplay>();
+
+	auto scoreEvent = &pTankBase->GetComponent<Tron::ScoreComponent>()->GetScoreEvent();
+	scoreEvent->AddObserver(scoreDisplay->GetComponent<Tron::ScoreDisplay>());
+	scoreEvent->AddObserver(&Tron::AchievementManager::GetInstance());
+	scoreEvent->AddObserver(&GameManager::GetInstance());
 
 
+	if (auto scoreComp = pTankBase->GetComponent<ScoreComponent>()) {
+		int previousScore = (playerIndex == 0) ? GameManager::GetInstance().m_P1Score : GameManager::GetInstance().m_p2Score;
+		scoreComp->AddScore(previousScore);
+		scoreComp->SetPlayerIndex(playerIndex);
+	}
 
-    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_W, std::move(moveUpCommand));
-    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_S, std::move(moveDownCommand));
-    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_A, std::move(MoveLeftCommand));
-    dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_D, std::move(MoveRightCommand));
+	auto& input = dae::InputManager::GetInstance();
 
-	dae::InputManager::GetInstance().BindKeyCommand(
-		SDLK_SPACE,
-		dae::InputState::Down,
-		std::move(fireCommand));
+	// Keyboard fallback for Player 1
+	if (playerIndex == 0) {
+		input.RegisterMovementCommand(SDLK_W, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
+		input.RegisterMovementCommand(SDLK_S, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,100 }));
+		input.RegisterMovementCommand(SDLK_A, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ -100,0 }));
+		input.RegisterMovementCommand(SDLK_D, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 100,0 }));
+		input.BindKeyCommand(SDLK_SPACE, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
+		input.BindKeyCommand(SDLK_C, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2));
+		input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1)); // -1 for Keyboard
+	}
 
-	dae::InputManager::GetInstance().BindKeyCommand(
-		SDLK_C,
-		dae::InputState::Down,
-		std::move(damageCommand));
-
-	dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand1));
-
-
-
-	auto moveUpCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
-	auto MoveLeftCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
-	auto moveDownCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,100 });
-	auto MoveRightCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 100,0 });
-	auto fireCommandCon = std::make_unique<Tron::PlayerFireCommand>(player.Base.get(), player.Turret.get());
-
-	auto damageCommandCon = std::make_unique<Tron::DamageCommand>(player.Base.get(), 2);
-	auto aimCommand1Con = std::make_unique<Tron::AimCommand>(player.Turret.get(), 0);
-
-	dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand1Con));
-	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadUp, std::move(moveUpCommandCon));
-	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadDown, std::move(moveDownCommandCon));
-	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadLeft, std::move(MoveLeftCommandCon));
-	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadRight, std::move(MoveRightCommandCon));
-	dae::InputManager::GetInstance().BindControllerCommand(0, dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down, std::move(fireCommandCon));
-	//dae::InputManager::GetInstance().BindControllerCommand(1, dae::Controller::ControllerButton::ButtonB, dae::InputState::Down, std::move(DamageTest));
-
+	input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), playerIndex));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadUp, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadDown, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,100 }));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadLeft, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ -100,0 }));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadRight, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 100,0 }));
+	input.BindControllerCommand(playerIndex, dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
+	input.BindControllerCommand(playerIndex, dae::Controller::ControllerButton::ButtonB, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2)); // Debug damage
 
 	scene.Add(std::move(player.Base));
 	scene.Add(std::move(player.Turret));
-	scene.Add(std::move(LivesDisplayTank_1));
-	scene.Add(std::move(ScoreDisplay1));
+	scene.Add(std::move(livesDisplay));
+	scene.Add(std::move(scoreDisplay));
+}
 
-	if (currentMode == GameMode::COOP || currentMode == GameMode::PVP)
-	{
+void Tron::LevelManager::SpawnEnemies(dae::Scene& scene)
+{
+	if (GameManager::GetInstance().GetGameMode() == GameMode::PVP) return;
 
-		auto tank_2 = Tron::GOFactory::CreatePlayer(m_P2Spawn, "GreenTank_SpriteSheet.png", Tron::Team::Player1);
-		m_Pplayer2 = tank_2.Base.get();
-		if (currentMode == GameMode::PVP)
-			tank_2.Base->GetComponent<FactionComponent>()->SetTeam(Team::Enemy);
-		auto LivesDisplayTank_2 = std::make_unique<dae::GameObject>();
-		LivesDisplayTank_2->AddComponent<Tron::LivesDisplay>(tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLives());
-		LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>()->SetTexture("Player_Lives.png");
-		LivesDisplayTank_2->GetTransform()->SetLocalPosition({ 780, 10, 1 });
-		tank_2.Base->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(LivesDisplayTank_2->GetComponent<Tron::LivesDisplay>());
-
-		auto ScoreDisplay2 = std::make_unique<dae::GameObject>();
-		ScoreDisplay2->GetTransform()->SetLocalPosition({ 850, 5, 0 });
-		ScoreDisplay2->AddComponent<dae::TextComponent>();
-		ScoreDisplay2->AddComponent<Tron::ScoreDisplay>();
-		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay2->GetComponent<Tron::ScoreDisplay>());
-
-		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
-		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&GameManager::GetInstance());
-
-		if (auto scoreComp = m_Pplayer2->GetComponent<ScoreComponent>()) {
-			scoreComp->AddScore(GameManager::GetInstance().m_p2Score);
-			scoreComp->SetPlayerIndex(1);
-		}
-
-		auto moveUpCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,-100 });
-		auto MoveLeftCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ -100,0 });
-		auto moveDownCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,100 });
-		auto MoveRightCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 100,0 });
-		auto fireCommand2 = std::make_unique<Tron::PlayerFireCommand>(tank_2.Base.get(), tank_2.Turret.get());
-
-		auto DamageTest = std::make_unique<Tron::DamageCommand>(tank_2.Base.get(), 1);
-		auto aimCommand2 = std::make_unique<Tron::AimCommand>(tank_2.Turret.get(), 1);
-
-
-		dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadUp, std::move(moveUpCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadDown, std::move(moveDownCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadLeft, std::move(MoveLeftCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadRight, std::move(MoveRightCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(1, dae::Controller::ControllerButton::RightShoulder,dae::InputState::Down, std::move(fireCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(1, dae::Controller::ControllerButton::ButtonB,dae::InputState::Down, std::move(DamageTest));
-
-		scene.Add(std::move(tank_2.Base));
-		scene.Add(std::move(tank_2.Turret));
-		scene.Add(std::move(LivesDisplayTank_2));
-		scene.Add(std::move(ScoreDisplay2));
+	for (auto& point : m_EnemySpawnPoints) {
+		scene.Add(Tron::GOFactory::CreateEnemy(point));
 	}
-	if (currentMode != GameMode::PVP)
-	{
-		for (auto& point : m_EnemySpawnPoints)
-		{
-			auto enemy = Tron::GOFactory::CreateEnemy(point);
-			scene.Add(std::move(enemy));
-		}
-	}
+}
 
-	auto fps = std::make_unique<dae::GameObject>();
-	fps->AddComponent<dae::TextComponent>()
-		->SetText("FPS")
-		->SetFont("Lingua.otf", 15)
-		->SetColor(255, 255, 255, 255);
-	fps->AddComponent<dae::FPSComponent>();
-	fps->GetTransform()->SetLocalPosition({ 10, 40,1 });
-	scene.Add(std::move(fps));
-
+void Tron::LevelManager::SetupLevelAudio()
+{
 	auto& audioService = dae::ServiceLocator::GetAudioService();
 	audioService.LoadSound(dae::Utils::make_sdbm_hash("tank_fire"), "Data/Tank_Fire.wav");
 	audioService.LoadSound(dae::Utils::make_sdbm_hash("Bullet_Explosion"), "Data/Bullet_Explosion.wav");
@@ -314,70 +255,14 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	audioService.Play(dae::Utils::make_sdbm_hash("Level_Theme"), 1.0f, dae::AudioType::Ambient);
 }
 
-void Tron::LevelManager::LoadMenu(dae::Scene& scene)
+void Tron::LevelManager::CreateFPSCounter(dae::Scene& scene, const glm::vec3& pos)
 {
-	auto& audioService = dae::ServiceLocator::GetAudioService();
-	audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
-	audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f,dae::AudioType::Ambient);
-
 	auto fps = std::make_unique<dae::GameObject>();
-	fps->AddComponent<dae::TextComponent>()
-		->SetText("FPS")
-		->SetFont("Lingua.otf", 15)
-		->SetColor(255, 255, 255, 255);
+	fps->GetTransform()->SetLocalPosition(pos);
+	fps->AddComponent<dae::TextComponent>()->SetText("FPS")->SetFont("Lingua.otf", 15)->SetColor(255, 255, 255, 255);
 	fps->AddComponent<dae::FPSComponent>();
-	fps->GetTransform()->SetLocalPosition({ 5, 15,1 });
 	scene.Add(std::move(fps));
-
-	auto Title = std::make_unique<dae::GameObject>();
-	Title->GetTransform()->SetLocalPosition({ 300, 100, 0 });
-	Title->AddComponent<dae::TextComponent>()->SetText("TRON - BATTLE TANKS");
-	Title->GetComponent<dae::TextComponent>()->SetFont("TRON.TTF", 25);
-	Title->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
-	scene.Add(std::move(Title));
-	// should not be hardcoding these texture sizes and button locations, fine for now since were still testing i guess
-  
-	auto SinglePlayerBtn = std::make_unique<dae::GameObject>();
-	SinglePlayerBtn->GetTransform()->SetLocalPosition({ 400, 250, 0 });
-	SinglePlayerBtn->AddComponent<dae::TextComponent>()->SetText("Single Player");
-	SinglePlayerBtn->GetComponent<dae::TextComponent>()->SetFont("TRON.TTF", 25);
-	SinglePlayerBtn->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
-	SinglePlayerBtn->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 350, 50 });
-	auto SinglePlayerBtncomp = SinglePlayerBtn->AddComponent<dae::ButtonComponent>();
-	SinglePlayerBtncomp->SetCallback([this]() {
-		GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
-		this->LoadLevel(LevelCategory::Game); 
-		});
-	scene.Add(std::move(SinglePlayerBtn));
-
-
-	auto COOPBtn = std::make_unique<dae::GameObject>();
-	COOPBtn->GetTransform()->SetLocalPosition({ 400, 310, 0 });
-	COOPBtn->AddComponent<dae::TextComponent>()->SetText("CO-OP");
-	COOPBtn->GetComponent<dae::TextComponent>()->SetFont("TRON.TTF", 25);
-	COOPBtn->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
-	COOPBtn->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 200, 50 });
-	auto COOPBtncomp = COOPBtn->AddComponent<dae::ButtonComponent>();
-	COOPBtncomp->SetCallback([this]() {
-		GameManager::GetInstance().SetGameMode(GameMode::COOP);
-		this->LoadLevel(LevelCategory::Game);
-		});
-	scene.Add(std::move(COOPBtn));
-
-	auto PVPbtn = std::make_unique<dae::GameObject>();
-	PVPbtn->GetTransform()->SetLocalPosition({ 400, 370, 0 });
-	PVPbtn->AddComponent<dae::TextComponent>()->SetText("PVP");
-	PVPbtn->GetComponent<dae::TextComponent>()->SetFont("TRON.TTF", 25);
-	PVPbtn->GetComponent<dae::TextComponent>()->SetColor(255, 255, 255, 255);
-	PVPbtn->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 200, 50 });
-	auto PVPbtncomp = PVPbtn->AddComponent<dae::ButtonComponent>();
-	PVPbtncomp->SetCallback([this]() {
-		GameManager::GetInstance().SetGameMode(GameMode::PVP);
-		this->LoadLevel(LevelCategory::Game);
-		});
-	scene.Add(std::move(PVPbtn));
 }
-
 
 std::string Tron::LevelManager::GetTextureForType(TileType type) {
     switch (type) {
@@ -392,6 +277,49 @@ std::string Tron::LevelManager::GetTextureForType(TileType type) {
 	case TileType::CenterTile:		return "Center_Tile.png";
     default: throw std::runtime_error("Unknown tile type, failed to load level");
     }
+}
+
+
+void Tron::LevelManager::LoadMenu(dae::Scene& scene)
+{
+	auto& audioService = dae::ServiceLocator::GetAudioService();
+	audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
+	audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f, dae::AudioType::Ambient);
+
+	CreateFPSCounter(scene, { 5, 15, 1 });
+
+	auto title = std::make_unique<dae::GameObject>();
+	title->GetTransform()->SetLocalPosition({ 300, 100, 0 });
+	title->AddComponent<dae::TextComponent>()->SetText("TRON - BATTLE TANKS")->SetFont("TRON.TTF", 25)->SetColor(255, 255, 255, 255);
+	scene.Add(std::move(title));
+
+	CreateMenuButton(scene, "Single Player", { 400, 250, 0 }, [this]() {
+		GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
+		this->LoadLevel(LevelCategory::Game);
+		});
+
+	CreateMenuButton(scene, "CO-OP", { 400, 310, 0 }, [this]() {
+		GameManager::GetInstance().SetGameMode(GameMode::COOP);
+		this->LoadLevel(LevelCategory::Game);
+		});
+
+	CreateMenuButton(scene, "PVP", { 400, 370, 0 }, [this]() {
+		GameManager::GetInstance().SetGameMode(GameMode::PVP);
+		this->LoadLevel(LevelCategory::Game);
+		});
+}
+
+void Tron::LevelManager::CreateMenuButton(dae::Scene& scene, const std::string& text, const glm::vec3& pos, std::function<void()> callback)
+{
+	auto btnObj = std::make_unique<dae::GameObject>();
+	btnObj->GetTransform()->SetLocalPosition(pos);
+	btnObj->AddComponent<dae::TextComponent>()->SetText(text)->SetFont("TRON.TTF", 25)->SetColor(255, 255, 255, 255);
+	btnObj->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 350, 50 });
+
+	auto btnComp = btnObj->AddComponent<dae::ButtonComponent>();
+	btnComp->SetCallback(callback);
+
+	scene.Add(std::move(btnObj));
 }
 
 glm::vec3 Tron::LevelManager::GetRandomPathLocation() {
