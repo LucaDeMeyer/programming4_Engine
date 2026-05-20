@@ -11,44 +11,107 @@
 #include "TankCommands.h"
 #include "States.h"
 
-Tron::AIComponent::AIComponent(dae::GameObject* owner)
-    : BaseComponent(owner)
+Tron::AIComponent::AIComponent(dae::GameObject* owner,AIType type)
+    : BaseComponent(owner),m_Type(type)
     , m_CurrentState(std::make_unique<PatrolState>())
 {
 }
 
+void Tron::AIComponent::SetMoveCommands(
+    std::unique_ptr<MoveCommand> up,
+    std::unique_ptr<MoveCommand> down,
+    std::unique_ptr<MoveCommand> left,
+    std::unique_ptr<MoveCommand> right)
+{
+    m_pMoveUp = std::move(up);
+    m_pMoveDown = std::move(down);
+    m_pMoveLeft = std::move(left);
+    m_pMoveRight = std::move(right);
+}
+
+void Tron::AIComponent::ExecuteMovement()
+{
+    if (m_CurrentDirection.y < -0.5f && m_pMoveUp)    m_pMoveUp->Execute();
+    else if (m_CurrentDirection.y > 0.5f && m_pMoveDown) m_pMoveDown->Execute();
+    else if (m_CurrentDirection.x < -0.5f && m_pMoveLeft) m_pMoveLeft->Execute();
+    else if (m_CurrentDirection.x > 0.5f && m_pMoveRight) m_pMoveRight->Execute();
+}
+
 void Tron::AIComponent::Update()
 {
-    if (!m_pMoveCommand || !m_CurrentState) return;
+    if (!m_CurrentState) return;
+
+    m_LastFireTime += Time::GetInstance().GetDeltaTime();
 
     auto nextState = m_CurrentState->Update(*this);
 
     if (nextState)
     {
-       
         TransitionTo(std::move(nextState));
-    };
-
-    m_pMoveCommand->SetDirection(m_CurrentDirection * 100.f);
-    m_pMoveCommand->Execute();
-
-    m_LastFireTime += Time::GetInstance().GetDeltaTime(); 
-
-    if (m_LastFireTime >= m_FireCooldown)
-    {
-        if (CanSeePlayer())
-        {
-            m_pFireCommand->Execute();
-            m_LastFireTime = 0.0f; 
-        }
     }
+}
 
+std::unique_ptr<Tron::EnemyState> Tron::AIComponent::GetAggroState() const
+{
+    if (m_Type == AIType::Tank) return std::make_unique<AttackState>();
+    return std::make_unique<ChaseState>();
 }
 
 void Tron::AIComponent::TransitionTo(std::unique_ptr<EnemyState> newState)
 {
     m_CurrentState = std::move(newState);
     m_CurrentState->OnEnter(*this);
+}
+
+void Tron::AIComponent::HandlePatrol()
+{
+    if (IsAtTileCenter())
+    {
+        if (!m_MadeDecisionThisTile)
+        {
+            SnapToGrid();
+            ChooseNewDirection();
+            m_MadeDecisionThisTile = true;
+        }
+    }
+    else
+    {
+        m_MadeDecisionThisTile = false;
+    }
+
+    ExecuteMovement();
+}
+
+void Tron::AIComponent::HandleChase()
+{
+    if (m_Type != AIType::Recogniser) return; 
+
+    if (IsAtTileCenter())
+    {
+        if (!m_MadeDecisionThisTile)
+        {
+            SnapToGrid();
+            ChasePlayer();
+            m_MadeDecisionThisTile = true;
+        }
+    }
+    else
+    {
+        m_MadeDecisionThisTile = false;
+    }
+
+    ExecuteMovement();
+}
+
+void Tron::AIComponent::HandleAttack()
+{
+    if (m_Type != AIType::Tank) return; 
+
+    if (m_LastFireTime >= m_FireCooldown)
+    {
+        if (m_pFireCommand) m_pFireCommand->Execute();
+        m_LastFireTime = 0.0f;
+    }
 }
 
 bool Tron::AIComponent::IsAtTileCenter() const
@@ -122,7 +185,12 @@ void Tron::AIComponent::ChasePlayer()
 bool Tron::AIComponent::IsPathBlocked(const glm::vec3& dir) const
 {
     const auto pos = GetOwner()->GetTransform()->GetLocalPosition();
+
     glm::vec3 checkPos = pos + (dir * m_TileSize);
+
+    checkPos.x += (m_TileSize * 0.5f);
+    checkPos.y += (m_TileSize * 0.5f);
+
     return Tron::LevelManager::GetInstance().IsWallAt(checkPos);
 }
 

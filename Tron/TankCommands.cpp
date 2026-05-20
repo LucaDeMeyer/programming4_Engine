@@ -22,18 +22,15 @@ void MoveCommand::Execute()
 
     float deltaTime = Time::GetInstance().GetDeltaTime();
 
-    auto moveSpeed = obj->GetComponent<GameActor>()->GetMoveSpeed();
+   // auto moveSpeed = obj->GetComponent<GameActor>()->GetMoveSpeed();
 
 
-    currentPos.x += m_Direction.x *(deltaTime * moveSpeed);
-    currentPos.y += m_Direction.y * (deltaTime * moveSpeed);
+    currentPos.x += m_Direction.x *(deltaTime );
+    currentPos.y += m_Direction.y * (deltaTime);
     transform->SetLocalPosition(currentPos);
     UpdateSpriteDirection();
 }
 
-void MoveCommand::SetDirection(const glm::vec2& newDir) {
-    m_Direction = newDir;
-}
 
 void MoveCommand::UpdateSpriteDirection()
 {

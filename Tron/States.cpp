@@ -5,39 +5,22 @@
 #include "AIComponent.h"
 #include "TankCommands.h" 
 #include "GameTime.h"
-
-void Tron::PatrolState::OnEnter(AIComponent& ai)
-{
-    m_MadeDecisionThisTile = false;
-}
-
 std::unique_ptr<Tron::EnemyState> Tron::PatrolState::Update(AIComponent& ai)
 {
+   
     if (ai.CanSeePlayer())
-        return std::make_unique<ChaseState>();
-
-    bool atCenter = ai.IsAtTileCenter();
-    if (atCenter && !m_MadeDecisionThisTile)
     {
-        ai.SnapToGrid();
-        if (ai.IsPathBlocked(ai.GetCurrentDirection()))
-            ai.ChooseNewDirection();
+        
+        return ai.GetAggroState();
+    }
 
-        m_MadeDecisionThisTile = true;
-    }
-    else if (!atCenter)
-    {
-        m_MadeDecisionThisTile = false;
-    }
+    ai.HandlePatrol();
 
     return nullptr;
 }
-
-
 void Tron::ChaseState::OnEnter(AIComponent& ai)
 {
     m_LostSightTimer = 0.f;
-    m_MadeDecisionThisTile = false;
 }
 
 std::unique_ptr<Tron::EnemyState> Tron::ChaseState::Update(AIComponent& ai)
@@ -46,25 +29,29 @@ std::unique_ptr<Tron::EnemyState> Tron::ChaseState::Update(AIComponent& ai)
     {
         m_LostSightTimer += Time::GetInstance().GetDeltaTime();
         if (m_LostSightTimer >= k_LostSightTimeout)
-            return std::make_unique<PatrolState>();
+        {
+            return std::make_unique<PatrolState>(); 
+        }
     }
     else
     {
         m_LostSightTimer = 0.f;
     }
 
-    bool atCenter = ai.IsAtTileCenter();
+  
+    ai.HandleChase();
 
-    if (atCenter && !m_MadeDecisionThisTile)
+    return nullptr;
+}
+std::unique_ptr<Tron::EnemyState> Tron::AttackState::Update(AIComponent& ai)
+{
+    if (!ai.CanSeePlayer())
     {
-        ai.SnapToGrid();
-        ai.ChasePlayer();
-        m_MadeDecisionThisTile = true;
+        return std::make_unique<PatrolState>();
     }
-    else if (!atCenter)
-    {
-        m_MadeDecisionThisTile = false;
-    }
+
+    ai.HandlePatrol(); 
+    ai.HandleAttack();
 
     return nullptr;
 }

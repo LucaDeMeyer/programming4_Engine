@@ -99,7 +99,8 @@ void Tron::LevelManager::ParseGrid( std::string& path, dae::Scene& scene)
 	m_Grid.clear();
 	m_Rows = 0;
 	m_Cols = 0;
-	m_EnemySpawnPoints.clear();
+	m_TankSpawnPoints.clear();
+	m_RecogniserSpawnPoints.clear();
 	m_EmptyLocations.clear();
 
 	std::ifstream file(path);
@@ -140,7 +141,8 @@ void Tron::LevelManager::ParseGrid( std::string& path, dae::Scene& scene)
 		switch (m_Grid[i]) {
 		case TileType::P1Spawn:      m_P1Spawn = pos; break;
 		case TileType::P2Spawn:      m_P2Spawn = pos; break;
-		case TileType::EnemySpawn:   m_EnemySpawnPoints.push_back(pos); break;
+		case TileType::RecogniserSpawn: m_RecogniserSpawnPoints.push_back(pos);break;
+		case TileType::TankSpawn:   m_TankSpawnPoints.push_back(pos); break;
 		case TileType::CenterTile:
 			tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
 			tile->AddComponent<FactionComponent>(Team::Center);
@@ -182,7 +184,7 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 	if (playerIndex == 0) m_Pplayer1 = pTankBase;
 	else m_Pplayer2 = pTankBase;
 
-	// --- UI Setup ---
+
 	float uiXOffset = (playerIndex == 0) ? 60.f : 780.f;
 	float scoreXOffset = (playerIndex == 0) ? 130.f : 850.f;
 
@@ -240,8 +242,12 @@ void Tron::LevelManager::SpawnEnemies(dae::Scene& scene)
 {
 	if (GameManager::GetInstance().GetGameMode() == GameMode::PVP) return;
 
-	for (auto& point : m_EnemySpawnPoints) {
-		scene.Add(Tron::GOFactory::CreateEnemy(point));
+	for (auto& point : m_TankSpawnPoints) {
+		scene.Add(Tron::GOFactory::CreateEnemy(point,Tron::AIType::Tank));
+	}
+
+	for (auto& point : m_RecogniserSpawnPoints) {
+		scene.Add(Tron::GOFactory::CreateEnemy(point, Tron::AIType::Recogniser));
 	}
 }
 
@@ -266,15 +272,16 @@ void Tron::LevelManager::CreateFPSCounter(dae::Scene& scene, const glm::vec3& po
 
 std::string Tron::LevelManager::GetTextureForType(TileType type) {
     switch (type) {
-    case TileType::Wall:			return "Tile_Wall.png";
-    case TileType::VerticalPath:	return "Tile_vertical.png";
+	case TileType::Wall:			return "Tile_Wall.png";
+	case TileType::VerticalPath:	return "Tile_vertical.png"; 
     case TileType::HorizontalPath:	return "Tile_Horizontal.png";
     case TileType::Crossroad:		return "Tile_Crossing.png";
     case TileType::Black:			return "Tile_Black.png";
     case TileType::P1Spawn:			return "Tile_Black.png";
     case TileType::P2Spawn:			return "Tile_Black.png";
-    case TileType::EnemySpawn:		return "Tile_Black.png";
+    case TileType::TankSpawn:		return "Tile_Black.png";
 	case TileType::CenterTile:		return "Center_Tile.png";
+    case TileType::RecogniserSpawn: return "Tile_Black.png";
     default: throw std::runtime_error("Unknown tile type, failed to load level");
     }
 }
@@ -364,7 +371,7 @@ dae::GameObject* Tron::LevelManager::GetNearestPlayer(const glm::vec3& pos) cons
 
 	if (m_Pplayer1 && !m_Pplayer1->IsMarkedForDestruction())
 	{
-		auto* pTrans = m_Pplayer1->GetTransform(); // this check is redundant i think since every obj has a transform
+		auto* pTrans = m_Pplayer1->GetTransform(); 
 		if (pTrans)
 		{
 			float d = glm::distance(pTrans->GetLocalPosition(), pos);

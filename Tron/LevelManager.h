@@ -26,8 +26,9 @@ namespace Tron
 		Crossroad = 4,
 		P1Spawn = 5,
 		P2Spawn = 6,
-		EnemySpawn = 7,
-		CenterTile = 8
+		TankSpawn = 7,
+		CenterTile = 8,
+		RecogniserSpawn = 9
 	};
 
 
@@ -80,7 +81,8 @@ namespace Tron
 		float m_OffsetY;
 		glm::vec3 m_P1Spawn;
 		glm::vec3 m_P2Spawn;
-		std::vector<glm::vec3> m_EnemySpawnPoints;
+		std::vector<glm::vec3> m_TankSpawnPoints;
+		std::vector<glm::vec3> m_RecogniserSpawnPoints;
 		glm::vec3 m_CenterTile;
 		std::vector<glm::vec3> m_EmptyLocations;
 		std::vector<TileType> m_Grid;

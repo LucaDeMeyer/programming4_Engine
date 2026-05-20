@@ -1,7 +1,5 @@
 #include "Tank_CollisionObserver.h"
-
-#include <iostream>
-
+#include "AIComponent.h"
 #include "FactionComponent.h"
 #include "LivesComponent.h"
 #include "Tank_Bullet.h"
@@ -11,6 +9,7 @@
 #include "TransformComponent.h"
 #include "TronEvents.h"
 #include "Utils.h"
+
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
     if (event.ID != dae::Utils::make_sdbm_hash("CollisionEvent")) return;
@@ -35,6 +34,9 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
 
 
 	HandleWallCollision(otherObject,myCollider);
+
+    if (otherObject->GetComponent<LivesComponent>())
+        HandleTankCollision(otherObject);
 
     auto* faction = otherObject->GetComponent<FactionComponent>();
 
@@ -86,7 +88,28 @@ void Tron::TankCollisionObserver::HandleWallCollision(dae::GameObject* other, da
     auto* myBodyCollider = GetOwner()->GetComponent<dae::ColliderComponent>();
     if (triggeredCollider != myBodyCollider) return;
 
+    if (GetOwner()->GetComponent<AIComponent>()) return;
+
     auto* transform = GetOwner()->GetTransform();
     transform->SetLocalPosition(transform->GetPreviousPosition());
 }
 
+void Tron::TankCollisionObserver::HandleTankCollision(dae::GameObject* other)
+{
+    auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
+    auto* otherFaction = other->GetComponent<FactionComponent>();
+    if (!otherFaction || !myFaction) return;
+
+    if (otherFaction->GetTeam() == myFaction->GetTeam() || otherFaction->GetTeam() == Team::Wall) return;
+
+    if (auto* otherAI = other->GetComponent<AIComponent>())
+    {
+        if (myFaction->GetTeam() == Team::Player1 || myFaction->GetTeam() == Team::Player2)
+        {
+            if (auto* lives = GetOwner()->GetComponent<LivesComponent>())
+            {
+                lives->DoDamage(1, other);
+            }
+        }
+    }
+}

@@ -15,7 +15,7 @@ namespace Tron {
     };
     class GameActor : public dae::BaseComponent {
     public:
-        explicit GameActor(dae::GameObject* owner,ActorType type, float movespeed) : BaseComponent(owner),m_ActorType(type),m_MoveSpeed(movespeed) {}
+        explicit GameActor(dae::GameObject* owner,ActorType type) : BaseComponent(owner),m_ActorType(type){}
 
         GameActor(const GameActor& other) = delete;
         GameActor(GameActor&& other) = delete;
@@ -39,13 +39,12 @@ namespace Tron {
         }
 
         ActorType GetActorType() const { return m_ActorType; }
-        float GetMoveSpeed() const { return m_MoveSpeed; }
+
     private:
         dae::Subject m_Event;
         int m_Score{};
 
         ActorType m_ActorType;
-        float m_MoveSpeed;
     };
 }
 

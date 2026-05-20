@@ -11,7 +11,7 @@ namespace Tron
         MoveCommand(dae::GameObject* obj, const glm::vec2& direction) : dae::ActorCommand(obj), m_Direction(direction) {}
         ~MoveCommand() override = default;
         void Execute() override;
-        void SetDirection(const glm::vec2& newDir);
+   
     private:
         glm::vec2 m_Direction;
         void UpdateSpriteDirection();

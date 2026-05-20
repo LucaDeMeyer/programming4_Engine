@@ -43,7 +43,7 @@ namespace Tron
             bullet->AddComponent<Tron::BulletObserver>();
             bullet->AddComponent<Tron::TankBullet>(shooter,velocity);
             bullet->AddComponent<Tron::FactionComponent>(team);
-            bullet->AddComponent<Tron::GameActor>(ActorType::bullet,100.f);
+            bullet->AddComponent<Tron::GameActor>(ActorType::bullet);
             Tron::GameManager::GetInstance().RegisterEntiy(bullet.get());
             return bullet;
         }
@@ -63,7 +63,7 @@ namespace Tron
             base->AddComponent<Tron::FactionComponent>(team);
             base->AddComponent<Tron::TankCollisionObserver>();
             base->AddComponent<Tron::ScoreComponent>();
-            base->AddComponent<Tron::GameActor>(ActorType::player,1.f);
+            base->AddComponent<Tron::GameActor>(ActorType::player);
             base->GetComponent<GameActor>()->SetScore(500);
 
             auto turret = std::make_unique<dae::GameObject>();
@@ -75,7 +75,7 @@ namespace Tron
             return PlayerAssembly{ std::move(base), std::move(turret) };
         }
 
-        static std::unique_ptr<dae::GameObject> CreateEnemy(glm::vec3 startPos)
+        static std::unique_ptr<dae::GameObject> CreateEnemy(glm::vec3 startPos,AIType type)
         {
             float spriteSize = 32.f;
             float colSize = 25.f;
@@ -83,19 +83,44 @@ namespace Tron
 
             auto enemy = std::make_unique<dae::GameObject>();
             enemy->GetTransform()->SetLocalPosition(startPos);
-            enemy->AddComponent<dae::SpriteComponent>("BlueTank_SpriteSheet.png", 4, 1);
+
+            enemy->AddComponent<Tron::GameActor>(ActorType::enemy);
+
+            if (type == AIType::Tank)
+            {
+                enemy->AddComponent<dae::SpriteComponent>("BlueTank_SpriteSheet.png", 4, 1);
+                enemy->AddComponent<Tron::AIComponent>(type);
+
+                auto moveUp = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 0, -50 });
+                auto moveDown = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 0, 50 });
+                auto moveLeft = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ -50, 0 });
+                auto moveRight = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 50, 0 });
+                enemy->GetComponent<AIComponent>()->SetMoveCommands(std::move(moveUp), std::move(moveDown), std::move(moveLeft), std::move(moveRight));
+
+                auto FireCommand = std::make_unique<Tron::FireCommand>(enemy.get());
+                enemy->GetComponent<AIComponent>()->SetFireCommand(std::move(FireCommand));
+
+                enemy->GetComponent<GameActor>()->SetScore(50);
+            }
+            else
+            {
+                enemy->AddComponent<dae::SpriteComponent>("Recogniser.png", 4, 1);
+
+                enemy->AddComponent<Tron::AIComponent>(type);
+
+                auto moveUp = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 0, -125});
+                auto moveDown = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 0, 125 });
+                auto moveLeft = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ -125, 0 });
+                auto moveRight = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 125, 0 });
+                enemy->GetComponent<AIComponent>()->SetMoveCommands(std::move(moveUp), std::move(moveDown), std::move(moveLeft), std::move(moveRight));
+
+                enemy->GetComponent<GameActor>()->SetScore(100);
+
+            }
             enemy->AddComponent<Tron::LivesComponent>(1); 
             enemy->AddComponent<dae::BoxColliderComponent>(glm::vec4{ offset,offset,25,25 });
             enemy->AddComponent<Tron::FactionComponent>(Team::Enemy);
             enemy->AddComponent<Tron::TankCollisionObserver>();
-            enemy->AddComponent<Tron::GameActor>(ActorType::enemy,.5f);
-            enemy->GetComponent<GameActor>()->SetScore(100);
-            enemy->AddComponent<Tron::AIComponent>();
-
-            auto MoveCommand = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 1,0 });
-            enemy->GetComponent<Tron::AIComponent>()->SetMoveCommand(std::move(MoveCommand));
-            auto FireCommand = std::make_unique<Tron::FireCommand>(enemy.get());
-            enemy->GetComponent<AIComponent>()->SetFireCommand(std::move(FireCommand));
             Tron::GameManager::GetInstance().RegisterEntiy(enemy.get());
             return enemy;
         }

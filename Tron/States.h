@@ -18,10 +18,8 @@ namespace Tron
     class PatrolState final : public EnemyState
     {
     public:
-        void OnEnter(AIComponent& ai) override;
+        void OnEnter(AIComponent& ai) override {}
         std::unique_ptr<EnemyState> Update(AIComponent& ai) override;
-    private:
-        bool m_MadeDecisionThisTile = false;
     };
 
     class ChaseState final : public EnemyState
@@ -32,7 +30,13 @@ namespace Tron
     private:
         float m_LostSightTimer = 0.f;
         static constexpr float k_LostSightTimeout = 2.f;
-        bool m_MadeDecisionThisTile = false;
+    };
+
+    class AttackState final : public EnemyState
+    {
+    public:
+        void OnEnter(AIComponent& ai) override {}
+        std::unique_ptr<EnemyState> Update(AIComponent& ai) override;
     };
 }
 #endif
