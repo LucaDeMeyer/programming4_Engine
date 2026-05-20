@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 #include "InputManager.h"
 #include <backends/imgui_impl_sdl3.h>
-
 #include "ButtonComponent.h"
 #include "ColliderComponents.h"
 #include "SceneManager.h"
@@ -9,7 +8,7 @@
 
 dae::InputManager::InputManager()
 {
-	for (unsigned int i = 0; i < 1; ++i) {
+	for (unsigned int i = 0; i < 2; ++i) {
 		m_Controllers.push_back(std::make_unique<Controller>(i));
 	}
 }

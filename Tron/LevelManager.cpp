@@ -194,6 +194,8 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 	auto damageCommand = std::make_unique<Tron::DamageCommand>(player.Base.get(), 2);
 	auto aimCommand1 = std::make_unique<Tron::AimCommand>(player.Turret.get(), -1);
 
+
+
     dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_W, std::move(moveUpCommand));
     dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_S, std::move(moveDownCommand));
     dae::InputManager::GetInstance().RegisterMovementCommand(SDLK_A, std::move(MoveLeftCommand));
@@ -210,6 +212,26 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 		std::move(damageCommand));
 
 	dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand1));
+
+
+
+	auto moveUpCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
+	auto MoveLeftCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ -100,0 });
+	auto moveDownCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,100 });
+	auto MoveRightCommandCon = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 100,0 });
+	auto fireCommandCon = std::make_unique<Tron::PlayerFireCommand>(player.Base.get(), player.Turret.get());
+
+	auto damageCommandCon = std::make_unique<Tron::DamageCommand>(player.Base.get(), 2);
+	auto aimCommand1Con = std::make_unique<Tron::AimCommand>(player.Turret.get(), 0);
+
+	dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand1Con));
+	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadUp, std::move(moveUpCommandCon));
+	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadDown, std::move(moveDownCommandCon));
+	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadLeft, std::move(MoveLeftCommandCon));
+	dae::InputManager::GetInstance().RegisterControllerMovementCommand(0, dae::Controller::ControllerButton::DPadRight, std::move(MoveRightCommandCon));
+	dae::InputManager::GetInstance().BindControllerCommand(0, dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down, std::move(fireCommandCon));
+	//dae::InputManager::GetInstance().BindControllerCommand(1, dae::Controller::ControllerButton::ButtonB, dae::InputState::Down, std::move(DamageTest));
+
 
 	scene.Add(std::move(player.Base));
 	scene.Add(std::move(player.Turret));
@@ -250,16 +272,16 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 		auto fireCommand2 = std::make_unique<Tron::PlayerFireCommand>(tank_2.Base.get(), tank_2.Turret.get());
 
 		auto DamageTest = std::make_unique<Tron::DamageCommand>(tank_2.Base.get(), 1);
-		auto aimCommand2 = std::make_unique<Tron::AimCommand>(tank_2.Turret.get(), 0);
+		auto aimCommand2 = std::make_unique<Tron::AimCommand>(tank_2.Turret.get(), 1);
 
 
 		dae::InputManager::GetInstance().BindContinuousCommand(std::move(aimCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadUp, std::move(moveUpCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadDown, std::move(moveDownCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadLeft, std::move(MoveLeftCommand2));
-		dae::InputManager::GetInstance().RegisterControllerMovementCommand(0,dae::Controller::ControllerButton::DPadRight, std::move(MoveRightCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(0, dae::Controller::ControllerButton::RightShoulder,dae::InputState::Down, std::move(fireCommand2));
-		dae::InputManager::GetInstance().BindControllerCommand(0, dae::Controller::ControllerButton::ButtonB,dae::InputState::Down, std::move(DamageTest));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadUp, std::move(moveUpCommand2));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadDown, std::move(moveDownCommand2));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadLeft, std::move(MoveLeftCommand2));
+		dae::InputManager::GetInstance().RegisterControllerMovementCommand(1,dae::Controller::ControllerButton::DPadRight, std::move(MoveRightCommand2));
+		dae::InputManager::GetInstance().BindControllerCommand(1, dae::Controller::ControllerButton::RightShoulder,dae::InputState::Down, std::move(fireCommand2));
+		dae::InputManager::GetInstance().BindControllerCommand(1, dae::Controller::ControllerButton::ButtonB,dae::InputState::Down, std::move(DamageTest));
 
 		scene.Add(std::move(tank_2.Base));
 		scene.Add(std::move(tank_2.Turret));
