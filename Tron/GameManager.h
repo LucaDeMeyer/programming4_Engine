@@ -15,6 +15,17 @@ namespace Tron
 		PVP
 	};
 
+	struct HighScoreEntry
+	{
+		std::string name;
+		int score;
+
+		bool operator > (const HighScoreEntry& other) const
+		{
+			return score > other.score;
+		}
+	};
+
 	class GameManager : public dae::Singleton<GameManager>, public dae::Observer
 	{
 	public:
@@ -33,8 +44,11 @@ namespace Tron
 			m_enemies = 0;
 		}
 
+		void AddScore(const std::string& name, int score);
 		int m_P1Score{};
 		int m_p2Score{};
+
+
 	private:
 		friend class dae::Singleton<GameManager>;
 		GameManager() = default;
@@ -45,10 +59,14 @@ namespace Tron
 		void RemoveEntity(dae::GameObject* entity);
 		void CheckWinCondition();
 
+		void SaveToFile();
+		void LoadFile();
 		int m_enemies{};
 		int m_Players{};
 		int m_LVLNR{};
-		
+
+		std::vector<HighScoreEntry> m_HighScores;
+		const std::string m_FileName = "highscores.txt";
 
 
 	};

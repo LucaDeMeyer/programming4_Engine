@@ -1,5 +1,6 @@
 #ifndef STATES_H
 #define STATES_H
+#include <memory>
 
 namespace Tron
 {
@@ -11,14 +12,14 @@ namespace Tron
         virtual ~EnemyState() = default;
         virtual void OnEnter(AIComponent& ai) {};
         virtual void OnExit(AIComponent& ai) {};
-        virtual EnemyState* Update(AIComponent& ai) = 0;
+        virtual std::unique_ptr<EnemyState> Update(AIComponent& ai) = 0;
     };
 
     class PatrolState final : public EnemyState
     {
     public:
         void OnEnter(AIComponent& ai) override;
-        EnemyState* Update(AIComponent& ai) override;
+        std::unique_ptr<EnemyState> Update(AIComponent& ai) override;
     private:
         bool m_MadeDecisionThisTile = false;
     };
@@ -27,7 +28,7 @@ namespace Tron
     {
     public:
         void OnEnter(AIComponent& ai) override;
-        EnemyState* Update(AIComponent& ai) override;
+        std::unique_ptr<EnemyState> Update(AIComponent& ai) override;
     private:
         float m_LostSightTimer = 0.f;
         static constexpr float k_LostSightTimeout = 2.f;

@@ -11,10 +11,10 @@ void Tron::PatrolState::OnEnter(AIComponent& ai)
     m_MadeDecisionThisTile = false;
 }
 
-Tron::EnemyState* Tron::PatrolState::Update(AIComponent& ai)
+std::unique_ptr<Tron::EnemyState> Tron::PatrolState::Update(AIComponent& ai)
 {
     if (ai.CanSeePlayer())
-        return new ChaseState();
+        return std::make_unique<ChaseState>();
 
     bool atCenter = ai.IsAtTileCenter();
     if (atCenter && !m_MadeDecisionThisTile)
@@ -38,16 +38,15 @@ void Tron::ChaseState::OnEnter(AIComponent& ai)
 {
     m_LostSightTimer = 0.f;
     m_MadeDecisionThisTile = false;
-    m_LostSightTimer = 0.f;
 }
 
-Tron::EnemyState* Tron::ChaseState::Update(AIComponent& ai)
+std::unique_ptr<Tron::EnemyState> Tron::ChaseState::Update(AIComponent& ai)
 {
     if (!ai.CanSeePlayer())
     {
         m_LostSightTimer += Time::GetInstance().GetDeltaTime();
         if (m_LostSightTimer >= k_LostSightTimeout)
-            return new PatrolState();
+            return std::make_unique<PatrolState>();
     }
     else
     {

@@ -37,7 +37,7 @@ namespace Tron
 		void Init();
 		void Update() ;
 
-		void LoadLevel(const std::string& path,LevelCategory category);
+		void LoadLevel(LevelCategory category);
 
 		void NextLevel();
 
@@ -50,7 +50,7 @@ namespace Tron
 
 		float GetOffsetY() const { return m_OffsetY; }
 
-		void RequestLevel(const std::string& path, LevelCategory category);
+		void RequestLevel(LevelCategory category);
 
 		dae::GameObject* GetNearestPlayer(const glm::vec3& pos) const;
 	private:
@@ -77,6 +77,10 @@ namespace Tron
 		bool m_PendingLoad = false;
 		std::string m_PendingPath;
 		LevelCategory m_PendingCategory = LevelCategory::Menu;
+
+		std::vector<std::string> m_LevelFiles{ "Data/Level1.csv", "Data/Level2.csv", "Data/Level3.csv" };
+		int m_LevelPlaylistIndex = 0;
+
 
 		size_t m_CurrentLevelIndex{ 0 };
 

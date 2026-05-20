@@ -25,10 +25,13 @@ namespace Tron
         int GetScore() { return m_Score; }
         dae::Subject& GetScoreEvent() { return m_ScoreEvent; }
 
+        void SetPlayerIndex(int index) { m_PlayerIndex = index; }
+        int GetPlayerIndex() const { return m_PlayerIndex; }
+
     private:
         dae::Subject m_ScoreEvent;
         int m_Score;
-      
+        int m_PlayerIndex = 0;
     };
 }
 

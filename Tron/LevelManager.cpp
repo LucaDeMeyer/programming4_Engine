@@ -26,16 +26,20 @@
 //TODO: stop hardcoding all OBJ locations -> should scale with window scaling
 void Tron::LevelManager::Init()
 {
-	auto& menuScene = dae::SceneManager::GetInstance().CreateScene();
+	auto& sceneManager = dae::SceneManager::GetInstance();
+
+	// Scene 0: Menu
+	auto& menuScene = sceneManager.CreateScene();
 	LoadMenu(menuScene);
-	dae::SceneManager::GetInstance().SetActiveScene(0);
-	
-	auto& telvl = dae::SceneManager::GetInstance().CreateScene();
-	auto& lvl1 = dae::SceneManager::GetInstance().CreateScene();
-	auto& lvl2 = dae::SceneManager::GetInstance().CreateScene();
-	auto& lvl3 = dae::SceneManager::GetInstance().CreateScene();
+
+	sceneManager.CreateScene();
+	sceneManager.CreateScene(); 
+	sceneManager.CreateScene(); 
+
+	sceneManager.SetActiveScene(0);
+
 }
-void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory category)
+void Tron::LevelManager::LoadLevel(LevelCategory category)
 {
 	auto& sceneManager = dae::SceneManager::GetInstance();
 	auto& inputManager = dae::InputManager::GetInstance();
@@ -43,12 +47,6 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 	auto& audioService = dae::ServiceLocator::GetAudioService();
 
 	audioService.StopAll();
-	
-
-	if (m_Pplayer1 && m_Pplayer1->GetComponent<ScoreComponent>())
-		gameManager.m_P1Score = m_Pplayer1->GetComponent<ScoreComponent>()->GetScore();
-	if (m_Pplayer2 && m_Pplayer2->GetComponent<ScoreComponent>())
-		gameManager.m_p2Score = m_Pplayer2->GetComponent<ScoreComponent>()->GetScore();
 
 	gameManager.ClearEntities();
 	inputManager.ClearAllCommands();
@@ -56,25 +54,34 @@ void Tron::LevelManager::LoadLevel(const std::string& path, LevelCategory catego
 
 	m_Pplayer1 = nullptr;
 	m_Pplayer2 = nullptr;
+
 	if (category == LevelCategory::Menu)
 	{
-		m_CurrentLevelIndex = 0;
+		m_LevelPlaylistIndex = 0; 
+		m_CurrentLevelIndex = 0;  
 		sceneManager.SetActiveScene(0);
-		sceneManager.GetActiveScene().RemoveAll();
 		LoadMenu(sceneManager.GetActiveScene());
-
-	
-
 	}
 	else
 	{
-		size_t nextIdx = m_CurrentLevelIndex + 1;
-		if (nextIdx >= sceneManager.GetSceneCount())
-			nextIdx = 1; 
-		m_CurrentLevelIndex = nextIdx;
-		sceneManager.SetActiveScene(nextIdx);
-		sceneManager.GetActiveScene().RemoveAll();
-		LoadGrid(path, sceneManager.GetActiveScene());
+		size_t nextSceneIdx = m_CurrentLevelIndex + 1;
+		if (nextSceneIdx >= sceneManager.GetSceneCount())
+			nextSceneIdx = 1;
+		if (m_CurrentLevelIndex != 0)
+		{
+			m_LevelPlaylistIndex++;
+			if (m_LevelPlaylistIndex >= static_cast<int>(m_LevelFiles.size()))
+				m_LevelPlaylistIndex = 0;
+		}
+
+		m_CurrentLevelIndex = nextSceneIdx;
+		sceneManager.SetActiveScene(nextSceneIdx);
+
+		auto& activeScene = sceneManager.GetActiveScene();
+		activeScene.RemoveAll();
+
+		std::string actualFile = m_LevelFiles[m_LevelPlaylistIndex];
+		LoadGrid(actualFile, activeScene);
 	}
 }
 
@@ -171,8 +178,11 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 
 	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
 
+	player.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&GameManager::GetInstance());
+
 	if (auto scoreComp = m_Pplayer1->GetComponent<ScoreComponent>()) {
 		scoreComp->AddScore(GameManager::GetInstance().m_P1Score);
+		scoreComp->SetPlayerIndex(0);
 	}
 
 	auto moveUpCommand = std::make_unique<Tron::MoveCommand>(player.Base.get(), glm::vec2{ 0,-100 });
@@ -226,9 +236,11 @@ void Tron::LevelManager::LoadGrid(const std::string& path, dae::Scene& scene)
 		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(ScoreDisplay2->GetComponent<Tron::ScoreDisplay>());
 
 		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&Tron::AchievementManager::GetInstance());
+		tank_2.Base->GetComponent<Tron::ScoreComponent>()->GetScoreEvent().AddObserver(&GameManager::GetInstance());
 
 		if (auto scoreComp = m_Pplayer2->GetComponent<ScoreComponent>()) {
 			scoreComp->AddScore(GameManager::GetInstance().m_p2Score);
+			scoreComp->SetPlayerIndex(1);
 		}
 
 		auto moveUpCommand2 = std::make_unique<Tron::MoveCommand>(tank_2.Base.get(), glm::vec2{ 0,-100 });
@@ -312,7 +324,7 @@ void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 	auto SinglePlayerBtncomp = SinglePlayerBtn->AddComponent<dae::ButtonComponent>();
 	SinglePlayerBtncomp->SetCallback([this]() {
 		GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
-		this->LoadLevel("Data/TestLevel.csv", LevelCategory::Game); 
+		this->LoadLevel(LevelCategory::Game); 
 		});
 	scene.Add(std::move(SinglePlayerBtn));
 
@@ -326,7 +338,7 @@ void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 	auto COOPBtncomp = COOPBtn->AddComponent<dae::ButtonComponent>();
 	COOPBtncomp->SetCallback([this]() {
 		GameManager::GetInstance().SetGameMode(GameMode::COOP);
-		this->LoadLevel("Data/TestLevel.csv", LevelCategory::Game);
+		this->LoadLevel(LevelCategory::Game);
 		});
 	scene.Add(std::move(COOPBtn));
 
@@ -339,7 +351,7 @@ void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 	auto PVPbtncomp = PVPbtn->AddComponent<dae::ButtonComponent>();
 	PVPbtncomp->SetCallback([this]() {
 		GameManager::GetInstance().SetGameMode(GameMode::PVP);
-		this->LoadLevel("Data/TestLevel.csv", LevelCategory::Game);
+		this->LoadLevel(LevelCategory::Game);
 		});
 	scene.Add(std::move(PVPbtn));
 }
@@ -380,9 +392,8 @@ bool Tron::LevelManager::IsWallAt(const glm::vec3& worldPos) const
 	return m_Grid[row * m_Cols + column] == TileType::Wall;
 }
 
-void Tron::LevelManager::RequestLevel(const std::string& path, LevelCategory category)
+void Tron::LevelManager::RequestLevel( LevelCategory category)
 {
-	m_PendingPath = path;
 	m_PendingCategory = category;
 	m_PendingLoad = true;
 }
@@ -392,7 +403,7 @@ void Tron::LevelManager::Update()
 	if (m_PendingLoad)
 	{
 		m_PendingLoad = false;
-		LoadLevel(m_PendingPath, m_PendingCategory);
+		LoadLevel(m_PendingCategory);
 	}
 }
 
@@ -401,15 +412,23 @@ dae::GameObject* Tron::LevelManager::GetNearestPlayer(const glm::vec3& pos) cons
 	dae::GameObject* nearest = nullptr;
 	float bestDist = std::numeric_limits<float>::max();
 
-	if (m_Pplayer1)
+	if (m_Pplayer1 && !m_Pplayer1->IsMarkedForDestruction())
 	{
-		float d = glm::length(m_Pplayer1->GetTransform()->GetLocalPosition() - pos);
-		if (d < bestDist) { bestDist = d; nearest = m_Pplayer1; }
+		auto* pTrans = m_Pplayer1->GetTransform(); // this check is redundant i think since every obj has a transform
+		if (pTrans)
+		{
+			float d = glm::distance(pTrans->GetLocalPosition(), pos);
+			if (d < bestDist) { bestDist = d; nearest = m_Pplayer1; }
+		}
 	}
-	if (m_Pplayer2)
+	if (m_Pplayer2 && !m_Pplayer2->IsMarkedForDestruction())
 	{
-		float d = glm::length(m_Pplayer2->GetTransform()->GetLocalPosition() - pos);
-		if (d < bestDist) { bestDist = d; nearest = m_Pplayer2; }
+		auto* pTrans = m_Pplayer2->GetTransform();
+		if (pTrans)
+		{
+			float d = glm::distance(pTrans->GetLocalPosition(), pos);
+			if (d < bestDist) { bestDist = d; nearest = m_Pplayer2; }
+		}
 	}
 
 	return nearest;

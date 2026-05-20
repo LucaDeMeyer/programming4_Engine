@@ -16,7 +16,6 @@ namespace Tron
         glm::vec2 m_Direction;
         void UpdateSpriteDirection();
     };
-
     class DamageCommand final : public dae::ActorCommand
     {
     public:
@@ -28,7 +27,6 @@ namespace Tron
     private:
         int m_Damage;
     };
-
     class FireCommand final : public dae::ActorCommand
     {
     public:
@@ -36,7 +34,6 @@ namespace Tron
     	~FireCommand() override = default;
         void Execute() override;
     };
-
     class PlayerFireCommand final : public dae::ActorCommand
     {
     public:
@@ -46,7 +43,6 @@ namespace Tron
     private:
         dae::GameObject* m_Turret;
     };
-
     class AimCommand final : public dae::ActorCommand
     {
     public:
@@ -56,5 +52,7 @@ namespace Tron
     private:
         int m_ControllerIndex;
     };
+
+
 }
 #endif

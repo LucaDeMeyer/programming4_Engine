@@ -14,7 +14,7 @@ using namespace Tron;
 void MoveCommand::Execute()
 {
     auto obj = GetGameObject();
-    if (!obj) return;
+    if (!obj || obj->IsMarkedForDestruction()) return;
 
     auto transform = obj->GetTransform();
     auto currentPos = transform->GetLocalPosition();

@@ -59,8 +59,6 @@ void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)
     {
         Team me = myFaction->GetTeam();
         Team bulletTeam = bulletFaction->GetTeam();
-
-        // Only take damage if the bullet is NOT on my team
         if (bulletTeam != me)
         {
             if (auto* lives = GetOwner()->GetComponent<LivesComponent>())

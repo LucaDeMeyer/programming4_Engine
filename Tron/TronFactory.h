@@ -77,7 +77,6 @@ namespace Tron
 
         static std::unique_ptr<dae::GameObject> CreateEnemy(glm::vec3 startPos)
         {
-
             float spriteSize = 32.f;
             float colSize = 25.f;
             float offset = (spriteSize - colSize) / 2.0f;

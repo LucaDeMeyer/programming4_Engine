@@ -39,7 +39,7 @@ namespace Tron
         void ChasePlayer();
 
     private:
-        void TransitionTo(EnemyState* newState);
+        void TransitionTo(std::unique_ptr<EnemyState> newState);
 
         std::unique_ptr<EnemyState> m_CurrentState;
         std::unique_ptr<MoveCommand> m_pMoveCommand;

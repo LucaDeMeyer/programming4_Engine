@@ -16,8 +16,9 @@ struct PlayerDiedARGS : public dae::EventARGS
 
 struct ScoreGainedARGS : public dae::EventARGS
 {
+	int playerIndex;
 	int points;
-	explicit ScoreGainedARGS(int p) : points(p) {}
+	explicit ScoreGainedARGS(int playerIDX,int p) :playerIndex(playerIDX), points(p) {}
 };
 
 struct ActorDied : public dae::EventARGS

@@ -21,8 +21,13 @@ void Tron::AIComponent::Update()
 {
     if (!m_pMoveCommand || !m_CurrentState) return;
 
-    if (EnemyState* next = m_CurrentState->Update(*this))
-        TransitionTo(next);
+    auto nextState = m_CurrentState->Update(*this);
+
+    if (nextState)
+    {
+       
+        TransitionTo(std::move(nextState));
+    };
 
     m_pMoveCommand->SetDirection(m_CurrentDirection * 100.f);
     m_pMoveCommand->Execute();
@@ -40,10 +45,9 @@ void Tron::AIComponent::Update()
 
 }
 
-void Tron::AIComponent::TransitionTo(EnemyState* newState)
+void Tron::AIComponent::TransitionTo(std::unique_ptr<EnemyState> newState)
 {
-    m_CurrentState->OnExit(*this);
-    m_CurrentState.reset(newState);
+    m_CurrentState = std::move(newState);
     m_CurrentState->OnEnter(*this);
 }
 
@@ -87,7 +91,7 @@ void Tron::AIComponent::ChasePlayer()
 {
     const auto myPos = GetOwner()->GetTransform()->GetLocalPosition();
     auto* player = LevelManager::GetInstance().GetNearestPlayer(myPos);
-    if (!player)
+    if (!player || player->IsMarkedForDestruction())
     {
         ChooseNewDirection();
         return;
@@ -126,9 +130,8 @@ bool Tron::AIComponent::CanSeePlayer() const
 {
     const auto myPos = GetOwner()->GetTransform()->GetLocalPosition();
     auto* player = LevelManager::GetInstance().GetNearestPlayer(myPos);
-    if (!player)
+    if (!player || player->IsMarkedForDestruction())
     {
-
         return false;
     }
 
@@ -150,6 +153,9 @@ bool Tron::AIComponent::CanSeePlayer() const
         dir = { playerPos.x > myPos.x ? 1.f : -1.f, 0, 0 };
     else
         dir = { 0, playerPos.y > myPos.y ? 1.f : -1.f, 0 };
+
+    if (dir.x != m_CurrentDirection.x || dir.y != m_CurrentDirection.y)
+        return false;
 
     float dist = sameRow ? diffX : diffY;
     if (dist > m_TileSize * 6.f) return false;
