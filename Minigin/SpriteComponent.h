@@ -17,6 +17,9 @@ namespace dae
 
         void SetFrame(int frame) { m_CurrentFrame = frame; }
         int GetFrame() const { return m_CurrentFrame; }
+
+        void SetVisible(bool visible) { m_IsVisible = visible; }
+        bool IsVisible() const { return m_IsVisible; }
     private:
         std::shared_ptr<Texture2D> m_Texture;
         int m_Cols;
@@ -25,6 +28,8 @@ namespace dae
 
         float m_FrameWidth{ 0 };
         float m_FrameHeight{ 0 };
+
+        bool m_IsVisible{ true };
     };
 }
 

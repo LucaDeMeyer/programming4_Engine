@@ -4,14 +4,20 @@
 
 namespace Tron
 {
-    class AIComponent;
+	class LevelManager;
 
+	class PlayerComponent;
+	class AIComponent;
+
+    //-----------------
+    //Enemy State
+    //-----------------
     class EnemyState
     {
     public:
         virtual ~EnemyState() = default;
-        virtual void OnEnter(AIComponent& ai) {};
-        virtual void OnExit(AIComponent& ai) {};
+        virtual void OnEnter(AIComponent& ai) {}
+        virtual void OnExit(AIComponent& ai) {}
         virtual std::unique_ptr<EnemyState> Update(AIComponent& ai) = 0;
     };
 
@@ -37,6 +43,77 @@ namespace Tron
     public:
         void OnEnter(AIComponent& ai) override {}
         std::unique_ptr<EnemyState> Update(AIComponent& ai) override;
+    };
+
+    //-----------------
+	//Player State
+	//-----------------
+
+    class PlayerState
+    {
+    public:
+        virtual ~PlayerState() = default;
+        virtual void OnEnter(PlayerComponent& player) {}
+        virtual void OnExit(PlayerComponent& player) {}
+        virtual std::unique_ptr<PlayerState> Update(PlayerComponent& player) = 0;
+    };
+
+
+    class NormalPlayerState final : public PlayerState
+    {
+    public:
+        std::unique_ptr<PlayerState> Update(PlayerComponent& player) override;
+    };
+
+    class InvulnerableState final : public PlayerState
+    {
+    public:
+        void OnEnter(PlayerComponent& player) override;
+        virtual void OnExit(PlayerComponent& player) override;
+        std::unique_ptr<PlayerState> Update(PlayerComponent& player) override;
+    private:
+        float m_Timer = 0.0f;
+        static constexpr float k_InvulnerableTime = 3.0f;
+    };
+
+
+    //-----------------
+	//Game State
+	//-----------------
+    class GameState
+    {
+    public:
+        virtual ~GameState() = default;
+        virtual void OnEnter(LevelManager& manager) {}
+        virtual void OnExit(LevelManager& manager) {}
+        virtual std::unique_ptr<GameState> Update(LevelManager& manager) = 0;
+    };
+
+    class MainMenuState : public GameState
+    {
+    public:
+        void OnEnter(LevelManager& manager) override;
+        std::unique_ptr<GameState> Update(LevelManager& manager) override;
+	    
+    };
+
+    class LevelSplashScreenState : public GameState
+    {
+    public:
+	    void OnEnter(LevelManager& manager) override;
+        void OnExit(LevelManager& manager) override;
+        std::unique_ptr<GameState> Update(LevelManager& manager) override;
+    private:
+        float m_Timer = 0.0f;
+        float m_Duration = 3.5f;
+    };
+
+    class GameplayState : public GameState
+    {
+    public:
+        void OnEnter(LevelManager& manager) override;
+        void OnExit(LevelManager& manager) override;
+        std::unique_ptr<GameState> Update(LevelManager& manager) override;
     };
 }
 #endif

@@ -15,6 +15,7 @@
 #include "glm/vec3.hpp"
 #include "TransformComponent.h"
 #include "ScoreComponent.h"
+#include "PlayerComponent.h"
 namespace Tron
 {
     struct PlayerAssembly
@@ -65,6 +66,7 @@ namespace Tron
             base->AddComponent<Tron::ScoreComponent>();
             base->AddComponent<Tron::GameActor>(ActorType::player);
             base->GetComponent<GameActor>()->SetScore(500);
+            base->AddComponent<PlayerComponent>();
 
             auto turret = std::make_unique<dae::GameObject>();
             turret->GetTransform()->SetLocalPosition({ -16, -16, 0 });
@@ -101,6 +103,7 @@ namespace Tron
                 enemy->GetComponent<AIComponent>()->SetFireCommand(std::move(FireCommand));
 
                 enemy->GetComponent<GameActor>()->SetScore(50);
+                enemy->AddComponent<Tron::LivesComponent>(2);
             }
             else
             {
@@ -116,8 +119,10 @@ namespace Tron
 
                 enemy->GetComponent<GameActor>()->SetScore(100);
 
+                enemy->AddComponent<Tron::LivesComponent>(1);
+
             }
-            enemy->AddComponent<Tron::LivesComponent>(1); 
+          
             enemy->AddComponent<dae::BoxColliderComponent>(glm::vec4{ offset,offset,25,25 });
             enemy->AddComponent<Tron::FactionComponent>(Team::Enemy);
             enemy->AddComponent<Tron::TankCollisionObserver>();

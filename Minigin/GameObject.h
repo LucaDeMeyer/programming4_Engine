@@ -68,7 +68,7 @@ namespace dae
 		void MarkForDestruction()
 		{
 			m_MarkedForDestruction = true;
-			for (auto child : m_Children)
+ 			for (auto child : m_Children)
 				child->MarkForDestruction();
 		}
 

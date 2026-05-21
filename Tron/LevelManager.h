@@ -7,6 +7,7 @@
 
 #include "GameObject.h"
 #include "Services.h"
+#include "States.h"
 
 namespace dae
 {
@@ -32,7 +33,8 @@ namespace Tron
 	};
 
 
-	enum class LevelCategory { Menu, Game };
+	enum class LevelCategory { Menu, Game,SplashScreen,HighScoreScreen };
+
 	class LevelManager :public dae::Singleton<LevelManager>
 	{
 	public:
@@ -42,6 +44,7 @@ namespace Tron
 		void LoadLevel(LevelCategory category);
 
 		void NextLevel();
+		void GoToMenu();
 
 		TileType GetTileAt(float worldX, float worldY) const;
 		bool IsWallAt(const glm::vec3& worldPos) const;
@@ -52,9 +55,12 @@ namespace Tron
 
 		float GetOffsetY() const { return m_OffsetY; }
 
-		void RequestLevel(LevelCategory category);
-
 		dae::GameObject* GetNearestPlayer(const glm::vec3& pos) const;
+
+		void TransitionToState(std::unique_ptr<GameState> newState);
+		int GetPlaylistIndex() const { return m_LevelPlaylistIndex; }
+
+
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;
@@ -87,18 +93,16 @@ namespace Tron
 		std::vector<glm::vec3> m_EmptyLocations;
 		std::vector<TileType> m_Grid;
 
-		bool m_PendingLoad = false;
-		std::string m_PendingPath;
-		LevelCategory m_PendingCategory = LevelCategory::Menu;
-
 		std::vector<std::string> m_LevelFiles{ "Data/Level1.csv", "Data/Level2.csv", "Data/Level3.csv" };
 		int m_LevelPlaylistIndex = 0;
-
 
 		size_t m_CurrentLevelIndex{ 0 };
 
 		dae::GameObject* m_Pplayer1{};
 		dae::GameObject* m_Pplayer2{};
+		
+		std::unique_ptr<GameState> m_CurrentState = nullptr;
+		std::unique_ptr<GameState> m_PendingState = nullptr;
 	};
 }
 

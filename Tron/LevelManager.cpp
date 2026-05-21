@@ -32,13 +32,55 @@ void Tron::LevelManager::Init()
 	auto& menuScene = sceneManager.CreateScene();
 	LoadMenu(menuScene);
 
+	//scene 1-3 -> lvls
 	sceneManager.CreateScene();
 	sceneManager.CreateScene(); 
 	sceneManager.CreateScene(); 
+	sceneManager.CreateScene();
+	sceneManager.CreateScene();
 
-	sceneManager.SetActiveScene(0);
+	m_CurrentState = std::make_unique<MainMenuState>();
+	m_CurrentState->OnEnter(*this);
 
 }
+
+void Tron::LevelManager::TransitionToState(std::unique_ptr<GameState> newState)
+{
+	m_PendingState = std::move(newState);
+}
+
+void Tron::LevelManager::Update()
+{
+	
+	if (m_PendingState)
+	{
+		if (m_CurrentState) m_CurrentState->OnExit(*this);
+
+		m_CurrentState = std::move(m_PendingState); 
+
+		if (m_CurrentState) m_CurrentState->OnEnter(*this);
+	}
+
+	if (m_CurrentState)
+	{
+		auto nextState = m_CurrentState->Update(*this);
+		if (nextState)
+		{
+			
+			TransitionToState(std::move(nextState));
+		}
+	}
+}
+void Tron::LevelManager::NextLevel()
+{
+	TransitionToState(std::make_unique<LevelSplashScreenState>());
+}
+
+void Tron::LevelManager::GoToMenu()
+{
+	TransitionToState(std::make_unique<MainMenuState>());
+}
+
 void Tron::LevelManager::LoadLevel(LevelCategory category)
 {
 	auto& sceneManager = dae::SceneManager::GetInstance();
@@ -61,12 +103,15 @@ void Tron::LevelManager::LoadLevel(LevelCategory category)
 		m_CurrentLevelIndex = 0;  
 		sceneManager.SetActiveScene(0);
 		LoadMenu(sceneManager.GetActiveScene());
+
+		gameManager.SetTransitioning(false);
 	}
 	else
 	{
 		size_t nextSceneIdx = m_CurrentLevelIndex + 1;
-		if (nextSceneIdx >= sceneManager.GetSceneCount())
+		if (nextSceneIdx > 3)
 			nextSceneIdx = 1;
+
 		if (m_CurrentLevelIndex != 0)
 		{
 			m_LevelPlaylistIndex++;
@@ -82,6 +127,9 @@ void Tron::LevelManager::LoadLevel(LevelCategory category)
 
 		std::string actualFile = m_LevelFiles[m_LevelPlaylistIndex];
 		LoadGrid(actualFile, activeScene);
+
+	
+		gameManager.SetTransitioning(false);
 	}
 }
 
@@ -249,6 +297,18 @@ void Tron::LevelManager::SpawnEnemies(dae::Scene& scene)
 	for (auto& point : m_RecogniserSpawnPoints) {
 		scene.Add(Tron::GOFactory::CreateEnemy(point, Tron::AIType::Recogniser));
 	}
+
+	int round = GameManager::GetInstance().GetTotalLevelsCleared();
+
+	int extraTanks = round / 2; // extra tank every 2 lvls
+	int extraRecognisers = round / 3; // extra recogniser every 3 lvls
+
+	for (int i = 0; i < extraTanks; ++i) {
+		scene.Add(Tron::GOFactory::CreateEnemy(GetRandomPathLocation(), Tron::AIType::Tank));
+	}
+	for (int i = 0; i < extraRecognisers; ++i) {
+		scene.Add(Tron::GOFactory::CreateEnemy(GetRandomPathLocation(), Tron::AIType::Recogniser));
+	}
 }
 
 void Tron::LevelManager::SetupLevelAudio()
@@ -302,17 +362,17 @@ void Tron::LevelManager::LoadMenu(dae::Scene& scene)
 
 	CreateMenuButton(scene, "Single Player", { 400, 250, 0 }, [this]() {
 		GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
-		this->LoadLevel(LevelCategory::Game);
+		this->TransitionToState(std::make_unique<LevelSplashScreenState>());
 		});
 
 	CreateMenuButton(scene, "CO-OP", { 400, 310, 0 }, [this]() {
 		GameManager::GetInstance().SetGameMode(GameMode::COOP);
-		this->LoadLevel(LevelCategory::Game);
+		this->TransitionToState(std::make_unique<LevelSplashScreenState>());
 		});
 
 	CreateMenuButton(scene, "PVP", { 400, 370, 0 }, [this]() {
 		GameManager::GetInstance().SetGameMode(GameMode::PVP);
-		this->LoadLevel(LevelCategory::Game);
+		this->TransitionToState(std::make_unique<LevelSplashScreenState>());
 		});
 }
 
@@ -349,20 +409,6 @@ bool Tron::LevelManager::IsWallAt(const glm::vec3& worldPos) const
 	return m_Grid[row * m_Cols + column] == TileType::Wall;
 }
 
-void Tron::LevelManager::RequestLevel( LevelCategory category)
-{
-	m_PendingCategory = category;
-	m_PendingLoad = true;
-}
-
-void Tron::LevelManager::Update()
-{
-	if (m_PendingLoad)
-	{
-		m_PendingLoad = false;
-		LoadLevel(m_PendingCategory);
-	}
-}
 
 dae::GameObject* Tron::LevelManager::GetNearestPlayer(const glm::vec3& pos) const
 {

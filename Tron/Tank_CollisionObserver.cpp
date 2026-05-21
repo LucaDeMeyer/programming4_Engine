@@ -9,6 +9,7 @@
 #include "TransformComponent.h"
 #include "TronEvents.h"
 #include "Utils.h"
+#include "PlayerComponent.h"
 
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
@@ -73,6 +74,14 @@ void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)
 
                 if (shooter != GetOwner())
                 {
+
+                    if (auto* playerComp = GetOwner()->GetComponent<PlayerComponent>())
+                    {
+                        if (playerComp->IsInvulnerable()) return; 
+
+                        playerComp->TransitionTo(std::make_unique<InvulnerableState>());
+                    }
+
                     lives->DoDamage(1, shooter);
                 }
             }
@@ -108,6 +117,14 @@ void Tron::TankCollisionObserver::HandleTankCollision(dae::GameObject* other)
         {
             if (auto* lives = GetOwner()->GetComponent<LivesComponent>())
             {
+
+                if (auto* playerComp = GetOwner()->GetComponent<PlayerComponent>())
+                {
+                    if (playerComp->IsInvulnerable()) return;
+
+                    playerComp->TransitionTo(std::make_unique<InvulnerableState>());
+                }
+
                 lives->DoDamage(1, other);
             }
         }

@@ -18,8 +18,12 @@ void Tron::GameManager::Init()
 
 void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& event)
 {
+    if (m_IsTransitioningLevel) return;
+
     if (event.ID == dae::Utils::make_sdbm_hash("ActorDied"))
     {
+        if (!event.pArgs) return;
+
         auto* data = static_cast<ActorDied*>(event.pArgs.get());
 
         if (data && data->obj)
@@ -28,7 +32,6 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
 
             dae::Event winEvent(dae::Utils::make_sdbm_hash("WinCondition"));
             dae::EventQueue::GetInstance().AddEvent(std::move(winEvent));
-
         }
     }
 
@@ -38,16 +41,17 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
     }
     if (event.ID == dae::Utils::make_sdbm_hash("ScoreChangedEvent"))
     {
+        if (!event.pArgs) return;
         auto* data = static_cast<ScoreGainedARGS*>(event.pArgs.get());
         if (data->playerIndex == 0)
             m_P1Score = data->points;
         else
             m_p2Score = data->points;
-
     }
 
     if (event.ID == dae::Utils::make_sdbm_hash("Teleport"))
     {
+        if (!event.pArgs) return;
         auto* data = static_cast<Teleport*>(event.pArgs.get());
         if (data && data->obj)
         {
@@ -59,20 +63,22 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
         }
     }
 }
-
 void Tron::GameManager::RemoveEntity(dae::GameObject* entity)
 {
-    ActorType type = entity->GetComponent<GameActor>()->GetActorType();
+    if (!entity || entity->IsMarkedForDestruction()) return;
 
-    if (type == ActorType::player)
-        m_Players -= 1;
-    if (type == ActorType::enemy)
-        m_enemies -= 1;
+    auto gameActor = entity->GetComponent<GameActor>();
+    if (!gameActor) return;
 
-	m_Entities.erase(std::remove(m_Entities.begin(), m_Entities.end(), entity), m_Entities.end());
+    ActorType type = gameActor->GetActorType();
+
+    if (type == ActorType::player) m_Players -= 1;
+    if (type == ActorType::enemy)  m_enemies -= 1;
+
+    m_Entities.erase(std::remove(m_Entities.begin(), m_Entities.end(), entity), m_Entities.end());
     dae::InputManager::GetInstance().RemoveCommandsForObject(entity);
-	entity->MarkForDestruction();
 
+    entity->MarkForDestruction();
 }
 
 void Tron::GameManager::RegisterEntiy(dae::GameObject* entity)
@@ -88,50 +94,58 @@ void Tron::GameManager::RegisterEntiy(dae::GameObject* entity)
     if (type == ActorType::enemy)
         m_enemies += 1;
 }
-
 void Tron::GameManager::CheckWinCondition()
 {
-   switch (m_CurrentMode)
+    if (m_IsTransitioningLevel || m_Entities.empty()) return;
+
+    switch (m_CurrentMode)
     {
     case GameMode::singlePlayer:
-        if (m_Players == 0)
+        if (m_Players <= 0)
         {
-            LevelManager::GetInstance().RequestLevel(LevelCategory::Menu);
+            m_IsTransitioningLevel = true; 
+            LevelManager::GetInstance().GoToMenu();
             AddScore("Player 1", m_P1Score);
 
             m_P1Score = 0;
-          
+            m_LVLNR = 0;
         }
-        if (m_enemies == 0)
+        else if (m_enemies <= 0)
         {
+            m_IsTransitioningLevel = true; 
             ++m_LVLNR;
-        	LevelManager::GetInstance().RequestLevel(LevelCategory::Game);
+            LevelManager::GetInstance().NextLevel();
         }
         break;
-    case GameMode::COOP:
-        if (m_Players == 0)
-        {
-            LevelManager::GetInstance().RequestLevel(LevelCategory::Menu);
-            AddScore("Player 1", m_P1Score);
 
+    case GameMode::COOP:
+        if (m_Players <= 0)
+        {
+            m_IsTransitioningLevel = true; 
+            LevelManager::GetInstance().GoToMenu();
+            AddScore("Player 1", m_P1Score);
             AddScore("Player 2", m_p2Score);
 
             m_P1Score = 0;
             m_p2Score = 0;
-           
+            m_LVLNR = 0;
         }
-        if (m_enemies == 0)
+        else if (m_enemies <= 0)
         {
+            m_IsTransitioningLevel = true;
             ++m_LVLNR;
-        	LevelManager::GetInstance().RequestLevel( LevelCategory::Game);
+            LevelManager::GetInstance().NextLevel();
         }
         break;
+
     case GameMode::PVP:
         if (m_Players <= 1)
-            LevelManager::GetInstance().RequestLevel(LevelCategory::Menu);
+        {
+            m_IsTransitioningLevel = true;
+            LevelManager::GetInstance().GoToMenu();
+        }
         break;
     }
-  
 }
 
 void Tron::GameManager::AddScore(const std::string& name, int score)

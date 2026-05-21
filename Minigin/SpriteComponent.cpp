@@ -19,7 +19,7 @@ dae::SpriteComponent::SpriteComponent(GameObject* owner, const std::string& file
 
 void dae::SpriteComponent::Render() const
 {
-    if (!m_Texture) return;
+    if (!m_Texture || !m_IsVisible) return;
 
     int col = m_CurrentFrame % m_Cols;
     int row = m_CurrentFrame / m_Cols;
