@@ -115,5 +115,31 @@ namespace Tron
         void OnExit(LevelManager& manager) override;
         std::unique_ptr<GameState> Update(LevelManager& manager) override;
     };
+
+    class HighScoreEntryState final : public GameState
+    {
+    public:
+        void OnEnter(LevelManager& lm) override;
+        void OnExit(LevelManager& lm) override;
+        std::unique_ptr<GameState> Update(LevelManager& lm) override;
+
+    private:
+        // Tracks how many players have confirmed their name
+        int  m_ConfirmedCount{ 0 };
+        int  m_ExpectedCount{ 1 };   // 1 for single player, 2 for co-op
+        bool m_ReadyToLeave{ false };
+    };
+
+    class HighScoreScreenState final : public GameState
+    {
+    public:
+        void OnEnter(LevelManager& manager) override;
+        void OnExit(LevelManager& manager) override;
+        std::unique_ptr<GameState> Update(LevelManager& manager) override;
+
+    private:
+        bool m_ShouldLeave{ false };
+    };
+
 }
 #endif

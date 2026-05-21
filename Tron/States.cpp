@@ -10,6 +10,9 @@
 #include "PlayerComponent.h"
 #include "SpriteComponent.h"
 #include "LevelManager.h"
+#include "NameEntryCommands.h"
+#include "NameEntryComponent.h"
+#include "NameEntryDisplay.h"
 #include "SceneManager.h"
 #include "ServiceLocator.h"
 #include "TextComponent.h"
@@ -117,7 +120,7 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
     manager.LoadLevel(LevelCategory::Menu);
 }
 
-std::unique_ptr<Tron::GameState> Tron::MainMenuState::Update(LevelManager& manager)
+std::unique_ptr<Tron::GameState> Tron::MainMenuState::Update(LevelManager&)
 {
     return nullptr;
 }
@@ -144,13 +147,10 @@ void Tron::LevelSplashScreenState::OnEnter(LevelManager& manager)
 
     int upcomingIndex = manager.GetPlaylistIndex();
 
-    // If we have already cleared levels, we know LoadLevel() WILL increment 
-    // the index as soon as this splash screen is over. So we add 1 to predict it.
     if (gameManager.GetTotalLevelsCleared() > 0)
     {
         upcomingIndex++;
 
-        // Wrap around back to level 1 if we reached the end of the 3 CSV files
         if (upcomingIndex >= 3)
         {
             upcomingIndex = 0;
@@ -165,12 +165,12 @@ void Tron::LevelSplashScreenState::OnEnter(LevelManager& manager)
     m_Timer = 0.0f;
 }
 
-void Tron::LevelSplashScreenState::OnExit(LevelManager& manager)
+void Tron::LevelSplashScreenState::OnExit(LevelManager&)
 {
     dae::SceneManager::GetInstance().GetActiveScene().RemoveAll();
 }
 
-std::unique_ptr<Tron::GameState> Tron::LevelSplashScreenState::Update(LevelManager& manager)
+std::unique_ptr<Tron::GameState> Tron::LevelSplashScreenState::Update(LevelManager&)
 {
     float dt = Time::GetInstance().GetDeltaTime();
     m_Timer += dt;
@@ -187,11 +187,256 @@ void Tron::GameplayState::OnEnter(LevelManager& manager)
     manager.LoadLevel(LevelCategory::Game);
 }
 
-void Tron::GameplayState::OnExit(LevelManager& manager)
+void Tron::GameplayState::OnExit(LevelManager&)
 {
 }
 
-std::unique_ptr<Tron::GameState> Tron::GameplayState::Update(LevelManager& manager)
+std::unique_ptr<Tron::GameState> Tron::GameplayState::Update(LevelManager&)
 {
+    return nullptr;
+}
+void Tron::HighScoreEntryState::OnEnter(LevelManager&)
+{
+    auto& sceneManager = dae::SceneManager::GetInstance();
+    auto& inputManager = dae::InputManager::GetInstance();
+    auto& gameManager = GameManager::GetInstance();
+
+    inputManager.ClearAllCommands();
+    gameManager.ClearEntities();
+
+    sceneManager.SetActiveScene(4);
+    auto& scene = sceneManager.GetActiveScene();
+    scene.RemoveAll();
+
+    GameMode mode = gameManager.GetGameMode();
+    m_ExpectedCount = (mode == GameMode::COOP) ? 2 : 1;
+    m_ConfirmedCount = 0;
+    m_ReadyToLeave = false;
+
+
+    {
+        auto obj = std::make_unique<dae::GameObject>();
+        obj->GetTransform()->SetLocalPosition({ 330.f, 60.f, 0.f });
+        obj->AddComponent<dae::TextComponent>()
+            ->SetText("ENTER YOUR INITIALS")
+            ->SetFont("TRON.TTF", 22)
+            ->SetColor(0, 200, 255, 255);
+        scene.Add(std::move(obj));
+    }
+
+    {
+        auto obj = std::make_unique<dae::GameObject>();
+        obj->GetTransform()->SetLocalPosition({ 240.f, 460.f, 0.f });
+        obj->AddComponent<dae::TextComponent>()
+            ->SetText("UP/DOWN: scroll   LEFT/RIGHT: move   FIRE/A: confirm")
+            ->SetFont("TRON.TTF", 14)
+            ->SetColor(120, 120, 120, 255);
+        scene.Add(std::move(obj));
+    }
+
+   
+    auto spawnEntry = [&](int playerIndex, glm::vec3 origin, const std::string& label)
+        {
+            auto entryObj = std::make_unique<dae::GameObject>();
+            auto* raw = entryObj.get();
+
+            auto* nameEntry = raw->AddComponent<NameEntryComponent>(playerIndex);
+
+            nameEntry->SetOnConfirmed([this, &gameManager](int pIdx, const std::string& name)
+                {
+                    int score = (pIdx == 0) ? gameManager.m_P1Score : gameManager.m_p2Score;
+                    gameManager.AddScore(name, score);
+                    ++m_ConfirmedCount;
+                });
+
+          
+            auto* display = raw->AddComponent<NameEntryDisplay>(nameEntry, &scene, origin, label);
+
+            scene.Add(std::move(entryObj));
+
+            display->Init();
+
+            // ---- Keyboard (Player 1 only — arrow keys + Enter/Space) ----
+            if (playerIndex == 0)
+            {
+                inputManager.BindKeyCommand(SDLK_UP, dae::InputState::Down,
+                    std::make_unique<ScrollUpCommand>(raw, nameEntry));
+                inputManager.BindKeyCommand(SDLK_DOWN, dae::InputState::Down,
+                    std::make_unique<ScrollDownCommand>(raw, nameEntry));
+                inputManager.BindKeyCommand(SDLK_LEFT, dae::InputState::Down,
+                    std::make_unique<SlotLeftCommand>(raw, nameEntry));
+                inputManager.BindKeyCommand(SDLK_RIGHT, dae::InputState::Down,
+                    std::make_unique<SlotRightCommand>(raw, nameEntry));
+                inputManager.BindKeyCommand(SDLK_RETURN, dae::InputState::Down,
+                    std::make_unique<ConfirmNameCommand>(raw, nameEntry));
+                inputManager.BindKeyCommand(SDLK_SPACE, dae::InputState::Down,
+                    std::make_unique<ConfirmNameCommand>(raw, nameEntry));
+            }
+
+          
+            unsigned int ci = static_cast<unsigned int>(playerIndex);
+
+            inputManager.BindControllerCommand(ci,
+                dae::Controller::ControllerButton::DPadUp, dae::InputState::Down,
+                std::make_unique<ScrollUpCommand>(raw, nameEntry));
+            inputManager.BindControllerCommand(ci,
+                dae::Controller::ControllerButton::DPadDown, dae::InputState::Down,
+                std::make_unique<ScrollDownCommand>(raw, nameEntry));
+            inputManager.BindControllerCommand(ci,
+                dae::Controller::ControllerButton::DPadLeft, dae::InputState::Down,
+                std::make_unique<SlotLeftCommand>(raw, nameEntry));
+            inputManager.BindControllerCommand(ci,
+                dae::Controller::ControllerButton::DPadRight, dae::InputState::Down,
+                std::make_unique<SlotRightCommand>(raw, nameEntry));
+            inputManager.BindControllerCommand(ci,
+                dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down,
+                std::make_unique<ConfirmNameCommand>(raw, nameEntry));
+            inputManager.BindControllerCommand(ci,
+                dae::Controller::ControllerButton::ButtonA, dae::InputState::Down,
+                std::make_unique<ConfirmNameCommand>(raw, nameEntry));
+        };
+
+  
+    spawnEntry(0, { 280.f, 220.f, 0.f }, "PLAYER 1");
+
+    if (mode == GameMode::COOP)
+        spawnEntry(1, { 580.f, 220.f, 0.f }, "PLAYER 2");
+}
+
+void Tron::HighScoreEntryState::OnExit(LevelManager&)
+{
+   
+}
+
+std::unique_ptr<Tron::GameState> Tron::HighScoreEntryState::Update(LevelManager&)
+{
+    if (!m_ReadyToLeave && m_ConfirmedCount >= m_ExpectedCount)
+    {
+        m_ReadyToLeave = true;
+
+        auto& gm = GameManager::GetInstance();
+        gm.m_P1Score = 0;
+        gm.m_p2Score = 0;
+        gm.m_LVLNR = 0;
+
+        return std::make_unique<HighScoreScreenState>();
+    }
+    return nullptr;
+}
+
+void Tron::HighScoreScreenState::OnEnter(LevelManager&)
+{
+    auto& sceneManager = dae::SceneManager::GetInstance();
+    auto& inputManager = dae::InputManager::GetInstance();
+    auto& gm = GameManager::GetInstance();
+
+    inputManager.ClearAllCommands();
+
+    sceneManager.SetActiveScene(5);
+    auto& scene = sceneManager.GetActiveScene();
+    scene.RemoveAll();
+
+
+    bool* shouldLeave = &m_ShouldLeave;
+
+    auto confirmCallback = [shouldLeave]()
+        {
+            *shouldLeave = true;
+        };
+
+    inputManager.BindKeyCommand(SDLK_RETURN,
+        dae::InputState::Down,
+        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+
+    inputManager.BindKeyCommand(SDLK_SPACE,
+        dae::InputState::Down,
+        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+
+
+    inputManager.BindControllerCommand(
+        0,
+        dae::Controller::ControllerButton::ButtonA,
+        dae::InputState::Down,
+        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+
+    inputManager.BindControllerCommand(
+        0,
+        dae::Controller::ControllerButton::RightShoulder,
+        dae::InputState::Down,
+        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+   
+    {
+        auto obj = std::make_unique<dae::GameObject>();
+        obj->GetTransform()->SetLocalPosition({ 360.f, 50.f, 0.f });
+
+        obj->AddComponent<dae::TextComponent>()
+            ->SetText("HIGH SCORES")
+            ->SetFont("TRON.TTF", 28)
+            ->SetColor(0, 255, 255, 255);
+
+        scene.Add(std::move(obj));
+    }
+
+    float startY = 140.f;
+
+    const auto& scores = gm.GetHighScores();
+
+    for (size_t i = 0; i < scores.size(); ++i)
+    {
+        const auto& entry = scores[i];
+
+        auto obj = std::make_unique<dae::GameObject>();
+        obj->GetTransform()->SetLocalPosition({ 320.f, startY + i * 40.f, 0.f });
+
+        std::string text =
+            std::to_string(i + 1) + ". " +
+            entry.name + "  -  " +
+            std::to_string(entry.score);
+
+        obj->AddComponent<dae::TextComponent>()
+            ->SetText(text)
+            ->SetFont("TRON.TTF", 20)
+            ->SetColor(255, 255, 255, 255);
+
+        scene.Add(std::move(obj));
+    }
+
+    // Continue text
+    {
+        auto obj = std::make_unique<dae::GameObject>();
+        obj->GetTransform()->SetLocalPosition({ 260.f, 500.f, 0.f });
+
+        obj->AddComponent<dae::TextComponent>()
+            ->SetText("PRESS ENTER OR A TO RETURN TO MENU")
+            ->SetFont("TRON.TTF", 16)
+            ->SetColor(180, 180, 180, 255);
+
+        scene.Add(std::move(obj));
+    }
+
+
+}
+
+void Tron::HighScoreScreenState::OnExit(LevelManager&)
+{
+    dae::SceneManager::GetInstance().GetActiveScene().RemoveAll();
+}
+
+std::unique_ptr<Tron::GameState>
+Tron::HighScoreScreenState::Update(LevelManager&)
+{
+  
+
+    if (m_ShouldLeave)
+    {
+        auto& gm = GameManager::GetInstance();
+
+        gm.m_P1Score = 0;
+        gm.m_p2Score = 0;
+        gm.m_LVLNR = 0;
+
+        return std::make_unique<MainMenuState>();
+    }
+
     return nullptr;
 }

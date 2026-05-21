@@ -38,6 +38,7 @@ void Tron::LevelManager::Init()
 	sceneManager.CreateScene(); 
 	sceneManager.CreateScene();
 	sceneManager.CreateScene();
+	sceneManager.CreateScene();
 
 	m_CurrentState = std::make_unique<MainMenuState>();
 	m_CurrentState->OnEnter(*this);
@@ -387,6 +388,12 @@ void Tron::LevelManager::CreateMenuButton(dae::Scene& scene, const std::string& 
 	btnComp->SetCallback(callback);
 
 	scene.Add(std::move(btnObj));
+}
+
+
+void Tron::LevelManager::LoadHighScoreScreen()
+{
+	
 }
 
 glm::vec3 Tron::LevelManager::GetRandomPathLocation() {

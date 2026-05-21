@@ -52,7 +52,5 @@ namespace Tron
     private:
         int m_ControllerIndex;
     };
-
-
 }
 #endif

@@ -103,12 +103,10 @@ void Tron::GameManager::CheckWinCondition()
     case GameMode::singlePlayer:
         if (m_Players <= 0)
         {
-            m_IsTransitioningLevel = true; 
-            LevelManager::GetInstance().GoToMenu();
-            AddScore("Player 1", m_P1Score);
+            m_IsTransitioningLevel = true;
+            LevelManager::GetInstance().TransitionToState(std::make_unique<HighScoreEntryState>());
+             
 
-            m_P1Score = 0;
-            m_LVLNR = 0;
         }
         else if (m_enemies <= 0)
         {
@@ -121,14 +119,9 @@ void Tron::GameManager::CheckWinCondition()
     case GameMode::COOP:
         if (m_Players <= 0)
         {
-            m_IsTransitioningLevel = true; 
-            LevelManager::GetInstance().GoToMenu();
-            AddScore("Player 1", m_P1Score);
-            AddScore("Player 2", m_p2Score);
-
-            m_P1Score = 0;
-            m_p2Score = 0;
-            m_LVLNR = 0;
+            m_IsTransitioningLevel = true;
+            LevelManager::GetInstance().TransitionToState(
+                std::make_unique<HighScoreEntryState>());
         }
         else if (m_enemies <= 0)
         {

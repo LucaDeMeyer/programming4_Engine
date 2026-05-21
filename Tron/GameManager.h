@@ -52,9 +52,16 @@ namespace Tron
 		int m_P1Lives{};
 		int m_P2Lives{};
 
+		int m_LVLNR{};
+
 		int GetTotalLevelsCleared() const { return m_LVLNR; }
 
 		void SetTransitioning(bool state) { m_IsTransitioningLevel = state; }
+
+		const std::vector<HighScoreEntry>& GetHighScores() const
+		{
+			return m_HighScores;
+		}
 
 	private:
 		friend class dae::Singleton<GameManager>;
@@ -70,7 +77,7 @@ namespace Tron
 		void LoadFile();
 		int m_enemies{};
 		int m_Players{};
-		int m_LVLNR{};
+	
 		bool m_IsTransitioningLevel = false;
 		std::vector<HighScoreEntry> m_HighScores;
 		const std::string m_FileName = "highscores.txt";

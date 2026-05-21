@@ -77,7 +77,7 @@ namespace Tron
 		void CreateMenuButton(dae::Scene& scene, const std::string& text, const glm::vec3& pos, std::function<void()> callback);
 		void CreateFPSCounter(dae::Scene& scene, const glm::vec3& pos);
 		void SetupLevelAudio();
-
+		void LoadHighScoreScreen();
 
 		
 		int m_Cols;
