@@ -14,8 +14,9 @@ namespace dae
 
 namespace Tron
 {
+	struct EnemyProfile;
+	enum class AIType;
 
-    enum class AIType {Tank,Recogniser};
 
 	class AIComponent : public dae::BaseComponent
 	{
@@ -59,8 +60,8 @@ namespace Tron
 
         float m_FireCooldown = 1.5f;
         float m_LastFireTime = 0.0f;
-
         AIType m_Type;
+        const EnemyProfile* m_pProfile;
     };
 	};
 

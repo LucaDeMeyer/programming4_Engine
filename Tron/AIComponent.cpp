@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "EnemyDataBase.h"
 #include "GameTime.h"
 #include "TankCommands.h"
 #include "States.h"
@@ -15,6 +16,7 @@ Tron::AIComponent::AIComponent(dae::GameObject* owner,AIType type)
     : BaseComponent(owner),m_Type(type)
     , m_CurrentState(std::make_unique<PatrolState>())
 {
+    m_pProfile = EnemyDatabase::GetInstance().GetProfile(type);
 }
 
 void Tron::AIComponent::SetMoveCommands(
@@ -226,7 +228,7 @@ bool Tron::AIComponent::CanSeePlayer() const
         return false;
 
     float dist = sameRow ? diffX : diffY;
-    if (dist > m_TileSize * 6.f) return false;
+    if (dist > m_pProfile->visionRadius) return false;
 
     glm::vec3 check = myPos + dir * m_TileSize;
     float traveled = m_TileSize;

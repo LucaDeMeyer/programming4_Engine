@@ -50,6 +50,7 @@ static void load()
 {
 	auto& GameManager = Tron::GameManager::GetInstance();
 	GameManager.SetWindowSize(Tron::Config::GetWindowSize());
+	Tron::EnemyDatabase::GetInstance().Init();
 	auto& levelManager = Tron::LevelManager::GetInstance();
 	GameManager.Init();
 	levelManager.Init();
