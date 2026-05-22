@@ -344,6 +344,7 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
             *shouldLeave = true;
         };
 
+    // not sure if we should allow both controllers to handle this, is just a matter of adding extra command with diffrent index
     inputManager.BindKeyCommand(SDLK_RETURN,
         dae::InputState::Down,
         std::make_unique<ConfirmCommand>(nullptr, confirmCallback));

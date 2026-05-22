@@ -11,21 +11,6 @@
 
 namespace Tron
 {
-    // Renders one player's 3-letter arcade spinner.
-    // Add this to the same GameObject that has NameEntryComponent, then call
-    // Init() after the scene is set up so it can create its child text objects.
-    //
-    // Visual layout (example for Player 1, centered at x=300):
-    //
-    //   ENTER YOUR NAME
-    //       ^ ^ ^          <- "above" letters (slot+1)
-    //     [ A   A   A ]   <- active row (big, lit)
-    //       v v v          <- "below" letters (slot-1)
-    //     _________
-    //      cursor ^
-    //
-    // Uses your existing TextComponent for each glyph row.
-
     class NameEntryDisplay final : public dae::BaseComponent
     {
     public:
@@ -44,7 +29,7 @@ namespace Tron
 
         ~NameEntryDisplay() override = default;
 
-        // Call once after adding to scene to create the child text GameObjects.
+      
         void Init();
 
         void Update() override;
@@ -62,8 +47,7 @@ namespace Tron
 
         bool m_Initialized{ false };
 
-        // One text object per slot per row (above / current / below)
-        // Plus one cursor indicator per slot
+      
         struct SlotUI
         {
             dae::TextComponent* above{};
@@ -74,7 +58,7 @@ namespace Tron
         std::array<SlotUI, NameEntryComponent::NUM_SLOTS> m_Slots{};
         dae::TextComponent* m_DoneText{};
 
-        // Helper: peek at symbol N steps away from slot's current index
+      
         char PeekSymbol(int slot, int offset) const;
     };
 }

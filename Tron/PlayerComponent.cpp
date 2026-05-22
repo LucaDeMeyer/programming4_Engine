@@ -3,8 +3,8 @@
 #include "TransformComponent.h"
 #include "States.h"
 
-Tron::PlayerComponent::PlayerComponent(dae::GameObject* owner)
-    : BaseComponent(owner), m_CurrentState(std::make_unique<NormalPlayerState>())
+Tron::PlayerComponent::PlayerComponent(dae::GameObject* owner,int playerIdx)
+    : BaseComponent(owner), m_CurrentState(std::make_unique<NormalPlayerState>()),m_PlayerIndex(playerIdx)
 {
     m_SpawnLocation = owner->GetTransform()->GetLocalPosition();
 }

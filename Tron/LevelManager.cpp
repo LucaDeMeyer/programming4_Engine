@@ -22,7 +22,7 @@
 #include "TextComponent.h"
 #include "TextureComponent.h"
 #include "TronFactory.h"
-
+#include "ExplosionComponent.h"
 //TODO: stop hardcoding all OBJ locations -> should scale with window scaling
 void Tron::LevelManager::Init()
 {
@@ -227,7 +227,7 @@ void Tron::LevelManager::SpawnPlayers( dae::Scene& scene)
 
 void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, const glm::vec3& spawnPos, const std::string& texture, Tron::Team team)
 {
-	auto player = Tron::GOFactory::CreatePlayer(spawnPos, texture, team);
+	auto player = Tron::GOFactory::CreatePlayer(spawnPos, texture, team,playerIndex);
 	auto* pTankBase = player.Base.get();
 
 	if (playerIndex == 0) m_Pplayer1 = pTankBase;
@@ -262,7 +262,6 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 
 	auto& input = dae::InputManager::GetInstance();
 
-	// Keyboard fallback for Player 1
 	if (playerIndex == 0) {
 		input.RegisterMovementCommand(SDLK_W, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
 		input.RegisterMovementCommand(SDLK_S, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,100 }));
@@ -292,11 +291,24 @@ void Tron::LevelManager::SpawnEnemies(dae::Scene& scene)
 	if (GameManager::GetInstance().GetGameMode() == GameMode::PVP) return;
 
 	for (auto& point : m_TankSpawnPoints) {
-		scene.Add(Tron::GOFactory::CreateEnemy(point,Tron::AIType::Tank));
+
+		auto enemy = Tron::GOFactory::CreateEnemy(point, Tron::AIType::Tank);
+		auto Explosion = std::make_unique<dae::GameObject>();
+		Explosion->AddComponent<ExplosionComponent>();
+		Explosion->SetParent(enemy.get(), false);
+		enemy->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(Explosion->GetComponent<ExplosionComponent>());
+		scene.Add(std::move(enemy));
+		scene.Add(std::move(Explosion));
 	}
 
 	for (auto& point : m_RecogniserSpawnPoints) {
-		scene.Add(Tron::GOFactory::CreateEnemy(point, Tron::AIType::Recogniser));
+		auto enemy = Tron::GOFactory::CreateEnemy(point, Tron::AIType::Recogniser);
+		auto Explosion = std::make_unique<dae::GameObject>();
+		Explosion->AddComponent<ExplosionComponent>();
+		Explosion->SetParent(enemy.get(), false);
+		enemy->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(Explosion->GetComponent<ExplosionComponent>());
+		scene.Add(std::move(enemy));
+		scene.Add(std::move(Explosion));
 	}
 
 	int round = GameManager::GetInstance().GetTotalLevelsCleared();
@@ -391,10 +403,7 @@ void Tron::LevelManager::CreateMenuButton(dae::Scene& scene, const std::string& 
 }
 
 
-void Tron::LevelManager::LoadHighScoreScreen()
-{
-	
-}
+
 
 glm::vec3 Tron::LevelManager::GetRandomPathLocation() {
 	int index = rand() % m_EmptyLocations.size();

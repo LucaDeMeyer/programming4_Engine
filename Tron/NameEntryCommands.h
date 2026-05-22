@@ -5,7 +5,7 @@
 
 namespace Tron
 {
-    // Scroll the active letter slot up (A -> B -> C ...)
+  
     class ScrollUpCommand final : public dae::ActorCommand
     {
     public:
@@ -20,7 +20,7 @@ namespace Tron
         NameEntryComponent* m_Entry;
     };
 
-    // Scroll the active letter slot down
+   
     class ScrollDownCommand final : public dae::ActorCommand
     {
     public:
@@ -35,7 +35,7 @@ namespace Tron
         NameEntryComponent* m_Entry;
     };
 
-    // Move cursor one slot to the left
+   
     class SlotLeftCommand final : public dae::ActorCommand
     {
     public:
@@ -50,7 +50,6 @@ namespace Tron
         NameEntryComponent* m_Entry;
     };
 
-    // Move cursor one slot to the right
     class SlotRightCommand final : public dae::ActorCommand
     {
     public:
@@ -65,7 +64,7 @@ namespace Tron
         NameEntryComponent* m_Entry;
     };
 
-    // Confirm / lock in the name
+   
     class ConfirmNameCommand final : public dae::ActorCommand
     {
     public:

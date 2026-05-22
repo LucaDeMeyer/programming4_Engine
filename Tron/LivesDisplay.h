@@ -27,7 +27,7 @@ namespace Tron
 		LivesDisplay& operator=(LivesDisplay&& other) = delete;
 		LivesDisplay& operator=(const LivesDisplay& other) = delete;
 
-		void Update() override {};
+		void Update() override {}
 		void Render() const override;
 
 		void OnNotify(dae::GameObject* obj, const dae::Event& event) override;

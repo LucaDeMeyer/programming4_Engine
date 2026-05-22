@@ -10,15 +10,15 @@ namespace Tron
     class PlayerComponent : public dae::BaseComponent
     {
     public:
-        explicit PlayerComponent(dae::GameObject* owner);
+        explicit PlayerComponent(dae::GameObject* owner,int playerIdx);
 
         void Update() override;
         void Render() const override {}
 
-        // State Machine
+    
         void TransitionTo(std::unique_ptr<PlayerState> newState);
 
-        // Actions controlled by States
+      
         void SetInvulnerable(bool invulnerable) { m_IsInvulnerable = invulnerable; }
         bool IsInvulnerable() const { return m_IsInvulnerable; }
         void RespawnAtStart();
@@ -27,6 +27,7 @@ namespace Tron
         std::unique_ptr<PlayerState> m_CurrentState;
         bool m_IsInvulnerable = false;
         glm::vec3 m_SpawnLocation;
+        int m_PlayerIndex;
     };
 }
 #endif

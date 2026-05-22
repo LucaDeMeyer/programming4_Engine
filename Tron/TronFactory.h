@@ -16,6 +16,7 @@
 #include "TransformComponent.h"
 #include "ScoreComponent.h"
 #include "PlayerComponent.h"
+#include "ExplosionComponent.h"
 namespace Tron
 {
     struct PlayerAssembly
@@ -49,7 +50,7 @@ namespace Tron
             return bullet;
         }
 
-        static PlayerAssembly CreatePlayer(glm::vec3 startPos, const std::string& spriteSheet, Team team)
+        static PlayerAssembly CreatePlayer(glm::vec3 startPos, const std::string& spriteSheet, Team team,int playerIndex)
         {
 
             float spriteSize = 32.f; 
@@ -58,7 +59,7 @@ namespace Tron
 
             auto base = std::make_unique<dae::GameObject>();
             base->GetTransform()->SetLocalPosition(startPos);
-            base->AddComponent<dae::SpriteComponent>(spriteSheet, 4, 1);
+            base->AddComponent<dae::SpriteComponent>(spriteSheet, 4, 1,4);
             base->AddComponent<Tron::LivesComponent>(3);
             base->AddComponent<dae::BoxColliderComponent>(glm::vec4{ offset,offset,25,25 });
             base->AddComponent<Tron::FactionComponent>(team);
@@ -66,11 +67,11 @@ namespace Tron
             base->AddComponent<Tron::ScoreComponent>();
             base->AddComponent<Tron::GameActor>(ActorType::player);
             base->GetComponent<GameActor>()->SetScore(500);
-            base->AddComponent<PlayerComponent>();
+            base->AddComponent<PlayerComponent>(playerIndex);
 
             auto turret = std::make_unique<dae::GameObject>();
             turret->GetTransform()->SetLocalPosition({ -16, -16, 0 });
-            turret->AddComponent<dae::SpriteComponent>("Turret_Sheet.png", 10, 4);
+            turret->AddComponent<dae::SpriteComponent>("Turret_Sheet.png", 10, 4,40);
             turret->SetParent(base.get(), false);
 
             Tron::GameManager::GetInstance().RegisterEntiy(base.get());
@@ -88,9 +89,11 @@ namespace Tron
 
             enemy->AddComponent<Tron::GameActor>(ActorType::enemy);
 
+
+        
             if (type == AIType::Tank)
             {
-                enemy->AddComponent<dae::SpriteComponent>("BlueTank_SpriteSheet.png", 4, 1);
+                enemy->AddComponent<dae::SpriteComponent>("BlueTank_SpriteSheet.png", 4, 1,4);
                 enemy->AddComponent<Tron::AIComponent>(type);
 
                 auto moveUp = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ 0, -50 });
@@ -104,10 +107,11 @@ namespace Tron
 
                 enemy->GetComponent<GameActor>()->SetScore(50);
                 enemy->AddComponent<Tron::LivesComponent>(2);
+               
             }
             else
             {
-                enemy->AddComponent<dae::SpriteComponent>("Recogniser.png", 4, 1);
+                enemy->AddComponent<dae::SpriteComponent>("Recogniser.png", 4, 1,4);
 
                 enemy->AddComponent<Tron::AIComponent>(type);
 
@@ -126,6 +130,8 @@ namespace Tron
             enemy->AddComponent<dae::BoxColliderComponent>(glm::vec4{ offset,offset,25,25 });
             enemy->AddComponent<Tron::FactionComponent>(Team::Enemy);
             enemy->AddComponent<Tron::TankCollisionObserver>();
+
+    
             Tron::GameManager::GetInstance().RegisterEntiy(enemy.get());
             return enemy;
         }

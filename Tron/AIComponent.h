@@ -52,6 +52,7 @@ namespace Tron
         std::unique_ptr<MoveCommand> m_pMoveLeft;
         std::unique_ptr<MoveCommand> m_pMoveRight;
         std::unique_ptr<FireCommand> m_pFireCommand;
+
         glm::vec3 m_CurrentDirection{ 1, 0, 0 };
         float m_TileSize{ 32.0f };
         bool m_MadeDecisionThisTile = false;

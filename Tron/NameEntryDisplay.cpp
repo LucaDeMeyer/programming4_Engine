@@ -14,13 +14,7 @@ namespace Tron
 
     char NameEntryDisplay::PeekSymbol(int slot, int offset) const
     {
-        // We reach into the entry's current index by re-deriving it from GetSymbol
-        // We can't access private m_SlotIndices directly, so we use GetSymbol(slot)
-        // and walk the symbol table ourselves.
-        // To do that properly, expose a GetSlotIndex() or just keep a local shadow.
-        // Here we just call GetSymbol for centre, and manually offset.
         char centre = m_Entry->GetSymbol(slot);
-        // find index of centre
         int idx = 0;
         for (int i = 0; i < NUM_SYMBOLS; ++i) {
             if (s_Syms[i] == centre) { idx = i; break; }
@@ -112,7 +106,7 @@ namespace Tron
         {
             bool isActive = (s == activeSlot) && !m_Entry->IsDone();
 
-            // Update letter text
+           
             std::string cur(1, m_Entry->GetSymbol(s));
             std::string above(1, PeekSymbol(s, +1));
             std::string below(1, PeekSymbol(s, -1));
@@ -121,18 +115,18 @@ namespace Tron
             if (m_Slots[s].above)   m_Slots[s].above->SetText(above);
             if (m_Slots[s].below)   m_Slots[s].below->SetText(below);
 
-            // Highlight active slot
+            
             if (m_Slots[s].current)
             {
                 if (m_Entry->IsDone())
-                    m_Slots[s].current->SetColor(0, 255, 100, 255); // green when confirmed
+                    m_Slots[s].current->SetColor(0, 255, 100, 255); 
                 else if (isActive)
-                    m_Slots[s].current->SetColor(0, 200, 255, 255); // cyan when selected
+                    m_Slots[s].current->SetColor(0, 200, 255, 255); 
                 else
-                    m_Slots[s].current->SetColor(255, 255, 255, 255); // white otherwise
+                    m_Slots[s].current->SetColor(255, 255, 255, 255); 
             }
 
-            // Show/hide cursor
+         
             if (m_Slots[s].cursor)
                 m_Slots[s].cursor->SetText(isActive ? "^" : "");
         }

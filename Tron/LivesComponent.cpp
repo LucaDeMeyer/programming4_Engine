@@ -34,6 +34,8 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 		auto pl = std::make_unique<ActorDied>(GetOwner());
 		dae::Event ActorDiedEvent(dae::Utils::make_sdbm_hash("ActorDied"), std::move(pl));
 
+		m_LivesEvent.Notify(GetOwner(), ActorDiedEvent);
+
 		auto soundArgs = std::make_unique<dae::SoundARGS>(
 			dae::Utils::make_sdbm_hash("Tank_Explosion"),
 			.5f,
