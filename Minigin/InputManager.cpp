@@ -106,22 +106,23 @@ bool dae::InputManager::ProcessInput()
         ControllerButtonID id = { idx, binding.button };
 
         if (controller->IsDownThisFrame(binding.button)) {
-            if (std::find(m_ControllerMovementStack.begin(),
-                m_ControllerMovementStack.end(), id)
-                == m_ControllerMovementStack.end()) {
-                m_ControllerMovementStack.push_back(id);
+            if (std::find(m_ControllerMovementStacks[idx].begin(),
+                m_ControllerMovementStacks[idx].end(), id) == m_ControllerMovementStacks[idx].end()) {
+                m_ControllerMovementStacks[idx].push_back(id);
             }
         }
         else if (controller->IsUpThisFrame(binding.button)) {
-            std::erase(m_ControllerMovementStack, id);
+            std::erase(m_ControllerMovementStacks[idx], id);
         }
     }
-    if (!m_ControllerMovementStack.empty()) {
-        auto& [activeIdx, activeButton] = m_ControllerMovementStack.back(); 
-        for (auto& binding : m_ControllerMovementBindings) {               
-            if (binding.controllerIndex == activeIdx && binding.button == activeButton) {
-                binding.command->Execute();
-                break;
+    for (int i = 0; i < 2; ++i) {
+        if (!m_ControllerMovementStacks[i].empty()) {
+            auto& [activeIdx, activeButton] = m_ControllerMovementStacks[i].back();
+            for (auto& binding : m_ControllerMovementBindings) {
+                if (binding.controllerIndex == activeIdx && binding.button == activeButton) {
+                    binding.command->Execute();
+                    break;
+                }
             }
         }
     }
@@ -212,13 +213,21 @@ void dae::InputManager::RemoveCommands()
                 return false;
                 });
 
-            std::erase_if(m_ControllerMovementStack, [&](const ControllerButtonID& id) {
-                for (auto& binding : m_ControllerMovementBindings) {
-                    if (binding.controllerIndex == id.first && binding.button == id.second)
-                        return false;
+            std::erase_if(m_ControllerMovementBindings, [deadObject](const auto& binding) {
+                if (auto* actorCmd = dynamic_cast<dae::ActorCommand*>(binding.command.get())) {
+                    return actorCmd->GetGameObject() == deadObject;
                 }
-                return true;
+                return false;
                 });
+           
+            for (int i = 0; i < 2; ++i) {
+                std::erase_if(m_ControllerMovementStacks[i], [&](const ControllerButtonID& id) {
+                    auto it = std::find_if(m_ControllerMovementBindings.begin(), m_ControllerMovementBindings.end(),
+                        [&](const auto& b) { return b.controllerIndex == id.first && b.button == id.second; });
+                    return it == m_ControllerMovementBindings.end();
+                    });
+            }
+        
         }
 
         m_ObjectsToClear.clear();
@@ -271,6 +280,6 @@ void dae::InputManager::ClearAllCommands()
     m_MovementBindings.clear();
     m_ControllerMovementBindings.clear();
     m_MovementKeyStack.clear();
-    m_ControllerMovementStack.clear();
+    for (auto& stack : m_ControllerMovementStacks) stack.clear();
     m_ObjectsToClear.clear();
 }

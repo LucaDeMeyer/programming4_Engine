@@ -71,7 +71,7 @@ namespace dae
 
 		using ControllerButtonID = std::pair<unsigned int, Controller::ControllerButton>;
 		std::vector<ControllerMovementBinding> m_ControllerMovementBindings;
-		std::vector<ControllerButtonID>        m_ControllerMovementStack;
+		std::vector<ControllerButtonID> m_ControllerMovementStacks[2];
 
 	};
 
