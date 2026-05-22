@@ -1,14 +1,9 @@
 #include "ExplosionComponent.h"
-
-#include <iostream>
-#include <windows.h>
-
 #include "GameObject.h"
 #include "LivesComponent.h"
 #include "SpriteComponent.h"
 #include "TronEvents.h"
 #include "Utils.h"
-#include "TransformComponent.h"
 
 Tron::ExplosionComponent::ExplosionComponent(dae::GameObject* owner) : BaseComponent(owner), Observer() 
 {
