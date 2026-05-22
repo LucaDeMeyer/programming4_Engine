@@ -23,6 +23,7 @@
 #include "TextureComponent.h"
 #include "TronFactory.h"
 #include "ExplosionComponent.h"
+#include "TileMapComponent.h"
 //TODO: stop hardcoding all OBJ locations -> should scale with window scaling
 void Tron::LevelManager::Init()
 {
@@ -133,7 +134,7 @@ void Tron::LevelManager::LoadGrid( std::string& path, dae::Scene& scene)
 	SetupLevelAudio();
 }
 
-void Tron::LevelManager::ParseGrid( std::string& path, dae::Scene& scene)
+void Tron::LevelManager::ParseGrid(std::string& path, dae::Scene& scene)
 {
 	m_Grid.clear();
 	m_Rows = 0;
@@ -158,42 +159,50 @@ void Tron::LevelManager::ParseGrid( std::string& path, dae::Scene& scene)
 		if (m_Cols == 0) m_Cols = currentLineCols;
 		m_Rows++;
 	}
+	//use flyweight pattern to make the map instead of individual GOs per tile
+	auto mapObject = std::make_unique<dae::GameObject>();
+	auto tileMap = mapObject->AddComponent<TileMapComponent>(m_TileSize);
+	tileMap->LoadLevel(path);
 
 	float totalLevelWidth = m_Cols * m_TileSize;
 	float totalLevelHeight = m_Rows * m_TileSize;
-
 	auto winSize = GameManager::GetInstance().GetWindowSize();
-
 	m_OffsetX = (winSize.x - totalLevelWidth) / 2.0f;
 	m_OffsetY = (winSize.y - totalLevelHeight) / 2.0f;
+	mapObject->GetTransform()->SetLocalPosition({ m_OffsetX, m_OffsetY, 0 });
+
+	scene.Add(std::move(mapObject));
 
 	for (size_t i = 0; i < m_Grid.size(); ++i) {
 		float x = ((i % m_Cols) * m_TileSize) + m_OffsetX;
 		float y = ((i / m_Cols) * m_TileSize) + m_OffsetY;
 		glm::vec3 pos{ x, y, 1 };
 
-		auto tile = std::make_unique<dae::GameObject>();
-		tile->GetTransform()->SetLocalPosition({ x, y ,0 });
-
-		std::string texName = GetTextureForType(m_Grid[i]);
-		auto texComp = tile->AddComponent<dae::TextureComponent>();
-		texComp->SetTexture(texName);
-		texComp->SetDimensions(m_TileSize, m_TileSize);
-
 		switch (m_Grid[i]) {
 		case TileType::P1Spawn:      m_P1Spawn = pos; break;
 		case TileType::P2Spawn:      m_P2Spawn = pos; break;
-		case TileType::RecogniserSpawn: m_RecogniserSpawnPoints.push_back(pos);break;
+		case TileType::RecogniserSpawn: m_RecogniserSpawnPoints.push_back(pos); break;
 		case TileType::TankSpawn:   m_TankSpawnPoints.push_back(pos); break;
 		case TileType::CenterTile:
-			tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
-			tile->AddComponent<FactionComponent>(Team::Center);
+		{
+			auto centerTile = std::make_unique<dae::GameObject>();
+			centerTile->GetTransform()->SetLocalPosition(pos);
+			centerTile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
+			centerTile->AddComponent<FactionComponent>(Team::Center);
+			centerTile->AddComponent<dae::TextureComponent>()->SetTexture("Center_Tile.png");
 			m_CenterTile = pos;
+			scene.Add(std::move(centerTile));
 			break;
+		}
 		case TileType::Wall:
-			tile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
-			tile->AddComponent<FactionComponent>(Team::Wall);
+		{
+			auto wallTile = std::make_unique<dae::GameObject>();
+			wallTile->GetTransform()->SetLocalPosition(pos);
+			wallTile->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, m_TileSize, m_TileSize });
+			wallTile->AddComponent<FactionComponent>(Team::Wall);
+			scene.Add(std::move(wallTile));
 			break;
+		}
 		case TileType::Black:
 		case TileType::VerticalPath:
 		case TileType::Crossroad:
@@ -201,10 +210,8 @@ void Tron::LevelManager::ParseGrid( std::string& path, dae::Scene& scene)
 			m_EmptyLocations.push_back(pos);
 			break;
 		}
-		scene.Add(std::move(tile));
 	}
 }
-
 void Tron::LevelManager::SpawnPlayers( dae::Scene& scene)
 {
 	GameMode currentGameMode = GameManager::GetInstance().GetGameMode();

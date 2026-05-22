@@ -55,7 +55,7 @@ dae::TextComponent* dae::TextComponent::SetText(const std::string& text)
 
 	if (m_font) m_needsUpdate = true;
 
-	if (m_text.empty()) return nullptr;
+	if (m_text.empty() || !m_font) return nullptr;
 	const auto surf = TTF_RenderText_Blended(m_font->GetFont(), m_text.c_str(), m_text.length(), m_color);
 	if (surf == nullptr)
 	{
