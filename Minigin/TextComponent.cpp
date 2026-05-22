@@ -52,7 +52,23 @@ void dae::TextComponent::Render() const
 dae::TextComponent* dae::TextComponent::SetText(const std::string& text)
 {
 	m_text = text;
+
 	if (m_font) m_needsUpdate = true;
+
+	if (m_text.empty()) return nullptr;
+	const auto surf = TTF_RenderText_Blended(m_font->GetFont(), m_text.c_str(), m_text.length(), m_color);
+	if (surf == nullptr)
+	{
+		throw std::runtime_error(std::string("Render text failed: ") + SDL_GetError());
+	}
+	auto texture = SDL_CreateTextureFromSurface(Renderer::GetInstance().GetSDLRenderer(), surf);
+	if (texture == nullptr)
+	{
+		throw std::runtime_error(std::string("Create text texture from surface failed: ") + SDL_GetError());
+	}
+	SDL_DestroySurface(surf);
+	m_textTexture = std::make_shared<Texture2D>(texture);
+
 	return this;
 }
 

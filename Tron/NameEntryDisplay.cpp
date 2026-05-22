@@ -32,8 +32,8 @@ namespace Tron
             auto labelObj = std::make_unique<dae::GameObject>();
             labelObj->GetTransform()->SetLocalPosition({ m_Origin.x - 40.f, m_Origin.y - 80.f, m_Origin.z });
             labelObj->AddComponent<dae::TextComponent>()
-                ->SetText(m_Label)
                 ->SetFont("TRON.TTF", 20)
+                ->SetText(m_Label)
                 ->SetColor(0, 200, 255, 255);
             m_Scene->Add(std::move(labelObj));
         }

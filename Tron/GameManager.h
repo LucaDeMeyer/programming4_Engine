@@ -6,6 +6,8 @@
 #include "Singleton.h"
 #include "Observer.h"
 #include "GameObject.h"
+#include "glm/vec2.hpp"
+
 namespace Tron
 {
 	enum class GameMode
@@ -63,6 +65,9 @@ namespace Tron
 			return m_HighScores;
 		}
 
+		void SetWindowSize(glm::vec2 windowSize) { m_WindowSize = windowSize; }
+		glm::vec2 GetWindowSize() const& { return m_WindowSize; }
+
 	private:
 		friend class dae::Singleton<GameManager>;
 		GameManager() = default;
@@ -82,7 +87,7 @@ namespace Tron
 		std::vector<HighScoreEntry> m_HighScores;
 		const std::string m_FileName = "highscores.txt";
 
-
+		glm::vec2 m_WindowSize{};
 	};
 }
 #endif	

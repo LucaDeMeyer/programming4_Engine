@@ -30,7 +30,6 @@ void Tron::LevelManager::Init()
 
 	// Scene 0: Menu
 	auto& menuScene = sceneManager.CreateScene();
-	LoadMenu(menuScene);
 
 	//scene 1-3 -> lvls
 	sceneManager.CreateScene();
@@ -98,16 +97,7 @@ void Tron::LevelManager::LoadLevel(LevelCategory category)
 	m_Pplayer1 = nullptr;
 	m_Pplayer2 = nullptr;
 
-	if (category == LevelCategory::Menu)
-	{
-		m_LevelPlaylistIndex = 0; 
-		m_CurrentLevelIndex = 0;  
-		sceneManager.SetActiveScene(0);
-		LoadMenu(sceneManager.GetActiveScene());
-
-		gameManager.SetTransitioning(false);
-	}
-	else
+	if (category == LevelCategory::Game)
 	{
 		size_t nextSceneIdx = m_CurrentLevelIndex + 1;
 		if (nextSceneIdx > 3)
@@ -171,8 +161,11 @@ void Tron::LevelManager::ParseGrid( std::string& path, dae::Scene& scene)
 
 	float totalLevelWidth = m_Cols * m_TileSize;
 	float totalLevelHeight = m_Rows * m_TileSize;
-	m_OffsetX = (1024.f - totalLevelWidth) / 2.0f;
-	m_OffsetY = (576.f - totalLevelHeight) / 2.0f;
+
+	auto winSize = GameManager::GetInstance().GetWindowSize();
+
+	m_OffsetX = (winSize.x - totalLevelWidth) / 2.0f;
+	m_OffsetY = (winSize.y - totalLevelHeight) / 2.0f;
 
 	for (size_t i = 0; i < m_Grid.size(); ++i) {
 		float x = ((i % m_Cols) * m_TileSize) + m_OffsetX;
@@ -338,7 +331,7 @@ void Tron::LevelManager::CreateFPSCounter(dae::Scene& scene, const glm::vec3& po
 {
 	auto fps = std::make_unique<dae::GameObject>();
 	fps->GetTransform()->SetLocalPosition(pos);
-	fps->AddComponent<dae::TextComponent>()->SetText("FPS")->SetFont("Lingua.otf", 15)->SetColor(255, 255, 255, 255);
+	fps->AddComponent<dae::TextComponent>()->SetFont("Lingua.otf", 15)->SetColor(255, 255, 255, 255)->SetText("FPS");
 	fps->AddComponent<dae::FPSComponent>();
 	scene.Add(std::move(fps));
 }
@@ -359,52 +352,6 @@ std::string Tron::LevelManager::GetTextureForType(TileType type) {
     }
 }
 
-
-void Tron::LevelManager::LoadMenu(dae::Scene& scene)
-{
-	auto& audioService = dae::ServiceLocator::GetAudioService();
-	audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
-	audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f, dae::AudioType::Ambient);
-
-	CreateFPSCounter(scene, { 5, 15, 1 });
-
-	auto title = std::make_unique<dae::GameObject>();
-	title->GetTransform()->SetLocalPosition({ 300, 100, 0 });
-	title->AddComponent<dae::TextComponent>()->SetText("TRON - BATTLE TANKS")->SetFont("TRON.TTF", 25)->SetColor(255, 255, 255, 255);
-	scene.Add(std::move(title));
-
-	CreateMenuButton(scene, "Single Player", { 400, 250, 0 }, [this]() {
-		GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
-		this->TransitionToState(std::make_unique<LevelSplashScreenState>());
-		});
-
-	CreateMenuButton(scene, "CO-OP", { 400, 310, 0 }, [this]() {
-		GameManager::GetInstance().SetGameMode(GameMode::COOP);
-		this->TransitionToState(std::make_unique<LevelSplashScreenState>());
-		});
-
-	CreateMenuButton(scene, "PVP", { 400, 370, 0 }, [this]() {
-		GameManager::GetInstance().SetGameMode(GameMode::PVP);
-		this->TransitionToState(std::make_unique<LevelSplashScreenState>());
-		});
-}
-
-void Tron::LevelManager::CreateMenuButton(dae::Scene& scene, const std::string& text, const glm::vec3& pos, std::function<void()> callback)
-{
-	auto btnObj = std::make_unique<dae::GameObject>();
-	btnObj->GetTransform()->SetLocalPosition(pos);
-	btnObj->AddComponent<dae::TextComponent>()->SetText(text)->SetFont("TRON.TTF", 25)->SetColor(255, 255, 255, 255);
-	btnObj->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 350, 50 });
-
-	auto btnComp = btnObj->AddComponent<dae::ButtonComponent>();
-	btnComp->SetCallback(callback);
-
-	scene.Add(std::move(btnObj));
-}
-
-
-
-
 glm::vec3 Tron::LevelManager::GetRandomPathLocation() {
 	int index = rand() % m_EmptyLocations.size();
 	return m_EmptyLocations[index];
@@ -414,13 +361,15 @@ bool Tron::LevelManager::IsWallAt(const glm::vec3& worldPos) const
 {
 	float totalLevelWidth = m_Cols * m_TileSize;
 	float totalLevelHeight = m_Rows * m_TileSize;
-	float offsetX = (1024.f - totalLevelWidth) / 2.0f;
-	float offsetY = (576.f - totalLevelHeight) / 2.0f;
+
+	auto winSize = GameManager::GetInstance().GetWindowSize();
+	float offsetX = (winSize.x - totalLevelWidth) / 2.0f;
+	float offsetY = (winSize.y - totalLevelHeight) / 2.0f;
 	int column = static_cast<int>((worldPos.x - offsetX) / m_TileSize);
 	int row = static_cast<int>((worldPos.y - offsetY) / m_TileSize);
 
 	if (row < 0 || row >= m_Rows || column < 0 || column >= m_Cols)
-		return true; 
+		return true;
 
 	return m_Grid[row * m_Cols + column] == TileType::Wall;
 }

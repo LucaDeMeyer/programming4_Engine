@@ -3,6 +3,9 @@
 #include <iostream>
 
 #include "AIComponent.h"
+#include "ButtonComponent.h"
+#include "ColliderComponents.h"
+#include "FPSComponent.h"
 #include "GameManager.h"
 #include "TankCommands.h" 
 #include "GameTime.h"
@@ -117,8 +120,78 @@ void Tron::InvulnerableState::OnExit(PlayerComponent& player)
 
 void Tron::MainMenuState::OnEnter(LevelManager& manager)
 {
-    manager.LoadLevel(LevelCategory::Menu);
+    auto& sceneManager = dae::SceneManager::GetInstance();
+    auto& inputManager = dae::InputManager::GetInstance();
+    auto& gameManager = GameManager::GetInstance();
+    auto& audioService = dae::ServiceLocator::GetAudioService();
+
+    sceneManager.SetActiveScene(0);
+    auto& scene = sceneManager.GetActiveScene();
+    scene.RemoveAll();
+
+    audioService.StopAll();
+    gameManager.ClearEntities();
+    inputManager.ClearAllCommands();
+    gameManager.SetTransitioning(false);
+
+    audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
+    audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f, dae::AudioType::Ambient);
+
+    glm::vec2 winSize = gameManager.GetWindowSize();
+    float centerX = winSize.x / 2.0f;
+
+    auto fps = std::make_unique<dae::GameObject>();
+    fps->GetTransform()->SetLocalPosition({ 5.f, 15.f, 1.f });
+    fps->AddComponent<dae::TextComponent>()->SetFont("Lingua.otf", 15)->SetColor(255, 255, 255, 255)->SetText("FPS");
+    fps->AddComponent<dae::FPSComponent>();
+    scene.Add(std::move(fps));
+
+    auto title = std::make_unique<dae::GameObject>();
+    title->AddComponent<dae::TextComponent>()->SetFont("TRON.TTF", 25)->SetColor(255, 255, 255, 255)->SetText("TRON - BATTLE TANKS");
+    glm::vec2 texSize = title->GetComponent<dae::TextComponent>()->GetTexture()->GetSize();
+
+    title->GetTransform()->SetLocalPosition({ centerX - texSize.x/2, 100.f, 0.f });
+    scene.Add(std::move(title));
+
+    float startY = 250.0f;
+    float spacing = 60.0f;
+
+    CreateMenuButton(scene, "Single Player", startY, [&manager]() {
+        GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
+        manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+        });
+
+    CreateMenuButton(scene, "CO-OP", startY + spacing, [&manager]() {
+        GameManager::GetInstance().SetGameMode(GameMode::COOP);
+        manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+        });
+
+    CreateMenuButton(scene, "PVP", startY + (spacing * 2), [&manager]() {
+        GameManager::GetInstance().SetGameMode(GameMode::PVP);
+        manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+        });
 }
+
+void Tron::MainMenuState::CreateMenuButton(dae::Scene& scene, const std::string& text, float yPos, std::function<void()> callback)
+{
+    auto btnObj = std::make_unique<dae::GameObject>();
+    auto textComp = btnObj->AddComponent<dae::TextComponent>();
+    textComp->SetFont("TRON.TTF", 25)
+	->SetColor(255, 255, 255, 255)
+	->SetText(text);
+
+    glm::vec2 texSize = textComp->GetTexture()->GetSize();
+    float windowWidth = GameManager::GetInstance().GetWindowSize().x;
+    float centerX = (windowWidth / 2.0f) - (texSize.x / 2.0f);
+    btnObj->GetTransform()->SetLocalPosition({ centerX, yPos, 1 });
+
+    btnObj->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, texSize.x, texSize.y });
+
+    auto btnComp = btnObj->AddComponent<dae::ButtonComponent>();
+    btnComp->SetCallback(callback);
+    scene.Add(std::move(btnObj));
+}
+
 
 std::unique_ptr<Tron::GameState> Tron::MainMenuState::Update(LevelManager&)
 {
@@ -143,8 +216,6 @@ void Tron::LevelSplashScreenState::OnEnter(LevelManager& manager)
     splashScene.RemoveAll();
 
     auto titleObj = std::make_unique<dae::GameObject>();
-    titleObj->GetTransform()->SetLocalPosition({ 250, 240, 0 });
-
     int upcomingIndex = manager.GetPlaylistIndex();
 
     if (gameManager.GetTotalLevelsCleared() > 0)
@@ -156,10 +227,11 @@ void Tron::LevelSplashScreenState::OnEnter(LevelManager& manager)
             upcomingIndex = 0;
         }
     }
-
     std::string splashText = "GET READY FOR LEVEL " + std::to_string(upcomingIndex + 1);
-    titleObj->AddComponent<dae::TextComponent>()->SetText(splashText)->SetFont("TRON.TTF", 30)->SetColor(0, 255, 255, 255);
+    titleObj->AddComponent<dae::TextComponent>()->SetFont("TRON.TTF", 30)->SetColor(0, 255, 255, 255)->SetText(splashText);
 
+    glm::vec2 pos = { gameManager.GetWindowSize().x/2 - titleObj->GetComponent<dae::TextComponent>()->GetTexture()->GetSize().x/2,gameManager.GetWindowSize().y / 2 - titleObj->GetComponent<dae::TextComponent>()->GetTexture()->GetSize().y/2 };
+    titleObj->GetTransform()->SetLocalPosition({ pos.x,pos.y,1 });
     splashScene.Add(std::move(titleObj));
 
     m_Timer = 0.0f;
@@ -218,8 +290,8 @@ void Tron::HighScoreEntryState::OnEnter(LevelManager&)
         auto obj = std::make_unique<dae::GameObject>();
         obj->GetTransform()->SetLocalPosition({ 330.f, 60.f, 0.f });
         obj->AddComponent<dae::TextComponent>()
-            ->SetText("ENTER YOUR INITIALS")
             ->SetFont("TRON.TTF", 22)
+            ->SetText("ENTER YOUR INITIALS")
             ->SetColor(0, 200, 255, 255);
         scene.Add(std::move(obj));
     }
@@ -228,8 +300,8 @@ void Tron::HighScoreEntryState::OnEnter(LevelManager&)
         auto obj = std::make_unique<dae::GameObject>();
         obj->GetTransform()->SetLocalPosition({ 240.f, 460.f, 0.f });
         obj->AddComponent<dae::TextComponent>()
-            ->SetText("UP/DOWN: scroll   LEFT/RIGHT: move   FIRE/A: confirm")
             ->SetFont("TRON.TTF", 14)
+            ->SetText("UP/DOWN: scroll   LEFT/RIGHT: move   FIRE/A: confirm")
             ->SetColor(120, 120, 120, 255);
         scene.Add(std::move(obj));
     }
@@ -371,8 +443,8 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
         obj->GetTransform()->SetLocalPosition({ 360.f, 50.f, 0.f });
 
         obj->AddComponent<dae::TextComponent>()
-            ->SetText("HIGH SCORES")
             ->SetFont("TRON.TTF", 28)
+            ->SetText("HIGH SCORES")
             ->SetColor(0, 255, 255, 255);
 
         scene.Add(std::move(obj));
@@ -395,8 +467,8 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
             std::to_string(entry.score);
 
         obj->AddComponent<dae::TextComponent>()
-            ->SetText(text)
             ->SetFont("TRON.TTF", 20)
+            ->SetText(text)
             ->SetColor(255, 255, 255, 255);
 
         scene.Add(std::move(obj));
@@ -408,8 +480,8 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
         obj->GetTransform()->SetLocalPosition({ 260.f, 500.f, 0.f });
 
         obj->AddComponent<dae::TextComponent>()
-            ->SetText("PRESS ENTER OR A TO RETURN TO MENU")
             ->SetFont("TRON.TTF", 16)
+            ->SetText("PRESS ENTER OR A TO RETURN TO MENU")
             ->SetColor(180, 180, 180, 255);
 
         scene.Add(std::move(obj));

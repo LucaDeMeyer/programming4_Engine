@@ -66,7 +66,7 @@ namespace Tron
 		LevelManager() = default;
 
 		void LoadGrid( std::string& path,dae::Scene& scene);
-		void LoadMenu(dae::Scene& scene);
+		
 		std::string GetTextureForType(TileType type);
 
 		void ParseGrid( std::string& path, dae::Scene& scene);
@@ -74,7 +74,6 @@ namespace Tron
 		void SpawnSinglePlayer( dae::Scene& scene, int playerIndex, const glm::vec3& spawnPos, const std::string& texture, Tron::Team team);
 		void SpawnEnemies(dae::Scene& scene);
 
-		void CreateMenuButton(dae::Scene& scene, const std::string& text, const glm::vec3& pos, std::function<void()> callback);
 		void CreateFPSCounter(dae::Scene& scene, const glm::vec3& pos);
 		void SetupLevelAudio();
 

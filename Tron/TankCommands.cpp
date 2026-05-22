@@ -22,9 +22,6 @@ void MoveCommand::Execute()
 
     float deltaTime = Time::GetInstance().GetDeltaTime();
 
-   // auto moveSpeed = obj->GetComponent<GameActor>()->GetMoveSpeed();
-
-
     currentPos.x += m_Direction.x *(deltaTime );
     currentPos.y += m_Direction.y * (deltaTime);
     transform->SetLocalPosition(currentPos);

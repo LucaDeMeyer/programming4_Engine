@@ -37,6 +37,7 @@ namespace dae
 		SDL_Color GetColor();
 		TextComponent* SetColor(Uint8 r, Uint8 g, Uint8 b,Uint8 a);
 
+		Texture2D* GetTexture() { return m_textTexture.get(); }
 	private:
 		SDL_Color m_color{};
 		std::string m_text{};

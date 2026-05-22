@@ -36,9 +36,20 @@
 #include "TronServices.h"
 namespace fs = std::filesystem;
 
+namespace Tron::Config
+{
+	inline constexpr int WINDOW_WIDTH = 1240;
+	inline constexpr int WINDOW_HEIGHT = 800;
+
+	inline glm::vec2 GetWindowSize() {
+		return { static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) };
+	}
+}
+
 static void load()
 {
 	auto& GameManager = Tron::GameManager::GetInstance();
+	GameManager.SetWindowSize(Tron::Config::GetWindowSize());
 	auto& levelManager = Tron::LevelManager::GetInstance();
 	GameManager.Init();
 	levelManager.Init();
@@ -64,7 +75,7 @@ int main(int, char* []) {
 		std::make_unique<Tron::SteamAchievementService>()
 	);
 #endif
-	dae::Minigin engine(data_location);
+	dae::Minigin engine(data_location,Tron::Config::GetWindowSize());
 	engine.Run(load);
 
 	return 0;

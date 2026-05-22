@@ -2,6 +2,7 @@
 #include <string>
 #include <functional>
 #include <filesystem>
+#include "glm/vec2.hpp"
 
 namespace dae
 {
@@ -9,7 +10,7 @@ namespace dae
 	{
 		bool m_quit{};
 	public:
-		explicit Minigin(const std::filesystem::path& dataPath);
+		explicit Minigin(const std::filesystem::path& dataPath,glm::vec2 WindowSize);
 		~Minigin();
 		void Run(const std::function<void()>& load);
 		void RunOneFrame();

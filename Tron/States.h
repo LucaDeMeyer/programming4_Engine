@@ -2,6 +2,9 @@
 #define STATES_H
 #include <memory>
 
+#include "Scene.h"
+#include "glm/vec3.hpp"
+
 namespace Tron
 {
 	class LevelManager;
@@ -95,6 +98,8 @@ namespace Tron
         void OnEnter(LevelManager& manager) override;
         std::unique_ptr<GameState> Update(LevelManager& manager) override;
 	    
+    private:
+        void CreateMenuButton(dae::Scene& scene, const std::string& text, float yPos, std::function<void()> callback);
     };
 
     class LevelSplashScreenState : public GameState
