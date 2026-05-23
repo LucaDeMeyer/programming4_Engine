@@ -3,6 +3,7 @@
 #include <functional>
 #include <filesystem>
 #include "glm/vec2.hpp"
+#include "Memory/LinearAllocator.h"
 
 namespace dae
 {
@@ -14,6 +15,11 @@ namespace dae
 		~Minigin();
 		void Run(const std::function<void()>& load);
 		void RunOneFrame();
+
+		static LinearAllocator& GetFrameAllocator() {
+			static LinearAllocator frameAllocator(2 * 1024 * 1024);
+			return frameAllocator;
+		}
 
 		Minigin(const Minigin& other) = delete;
 		Minigin(Minigin&& other) = delete;

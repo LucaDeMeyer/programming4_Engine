@@ -6,16 +6,17 @@
 #include "GameObject.h"
 #include "ColliderComponents.h"
 #include "LevelManager.h"
+#include "Minigin.h"
 #include "TransformComponent.h"
 #include "TronEvents.h"
 #include "Utils.h"
 #include "PlayerComponent.h"
-
+#include "Memory/MemoryOverrides.h"
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
     if (event.ID != dae::Utils::make_sdbm_hash("CollisionEvent")) return;
 
-    auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs.get());
+    auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs);
     if (!collisionData) return;
 
     auto* myCollider = GetOwner()->GetComponent<dae::ColliderComponent>();
@@ -44,12 +45,8 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
     if (faction && faction->GetTeam() == Team::Center && !otherObject->IsMarkedForDestruction())
     {
       
-        auto payload = std::make_unique<::Teleport>(GetOwner());
-
-        dae::EventQueue::GetInstance().AddEvent(dae::Event(
-            dae::Utils::make_sdbm_hash("Teleport"),
-            std::move(payload)
-        ));
+        auto payload = new (dae::Minigin::GetFrameAllocator())Teleport(GetOwner());
+        dae::EventQueue::GetInstance().AddEvent(dae::Event(dae::Utils::make_sdbm_hash("Teleport"),payload));
     }
 }
 

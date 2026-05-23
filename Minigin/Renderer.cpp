@@ -55,7 +55,7 @@ void dae::Renderer::Render() const
 	SDL_RenderClear(m_renderer);
 
 	SceneManager::GetInstance().Render();
-	ServiceLocator::GetWeaponService().Render();
+	ServiceLocator::GetMemoryPoolService().Render();
 	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
 }

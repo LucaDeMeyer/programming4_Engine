@@ -234,7 +234,7 @@ void dae::AudioService::OnNotify(GameObject*, const Event& event)
     if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
     {
         if (!event.pArgs) return;
-        auto* args = static_cast<SoundARGS*>(event.pArgs.get());
+        auto* args = static_cast<SoundARGS*>(event.pArgs);
         if (args) Play(args->soundHash, args->volume, args->type);
     }
 }
@@ -287,7 +287,7 @@ void dae::LoggingAudioService::OnNotify(GameObject*, const Event& event)
     if (event.ID == Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"))
     {
         std::cout << "Firing audio event\n";
-        auto* args = static_cast<SoundARGS*>(event.pArgs.get());
+        auto* args = static_cast<SoundARGS*>(event.pArgs);
         if (args) Play(args->soundHash, args->volume, args->type);
     }
 }

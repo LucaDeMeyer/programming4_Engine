@@ -33,7 +33,7 @@ void LivesDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
     if (event.ID == dae::Utils::make_sdbm_hash("LivesChangedEvent"))
     {
-        if (auto* payload = static_cast<LivesChangedARGS*>(event.pArgs.get()))
+        if (auto* payload = static_cast<LivesChangedARGS*>(event.pArgs))
         {
             m_Lives = payload->currentLives;
         }
@@ -41,7 +41,7 @@ void LivesDisplay::OnNotify(dae::GameObject* obj, const dae::Event& event)
 
     if (event.ID == dae::Utils::make_sdbm_hash("PlayerDiedEvent"))
     {
-	    if (auto* payload = static_cast<PlayerDiedARGS*>(event.pArgs.get()))
+	    if (auto* payload = static_cast<PlayerDiedARGS*>(event.pArgs))
 	    {
             m_Lives = 0;
 	    }

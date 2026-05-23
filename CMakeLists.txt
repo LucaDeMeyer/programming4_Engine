@@ -46,6 +46,7 @@ add_library(${TARGET_NAME} STATIC
   Minigin/ButtonComponent.h
   Minigin/AudioService.cpp
   Minigin/Utils.h
+  Minigin/Memory/MemoryOverrides.cpp
 )
 
 # enable c++20 features

@@ -136,12 +136,11 @@ void dae::Minigin::RunOneFrame()
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
 	ServiceLocator::GetPlatform().Update();
-	ServiceLocator::GetWeaponService().Update();
+	ServiceLocator::GetMemoryPoolService().Update();
 	CollisionManager::GetInstance().Update();
 	EventQueue::GetInstance().Process();
 	Renderer::GetInstance().Render();
-
-
+	GetFrameAllocator().Reset();
 
 	auto sleep_time = frame_start_time + std::chrono::milliseconds(ms_per_frame) - std::chrono::high_resolution_clock::now();
 

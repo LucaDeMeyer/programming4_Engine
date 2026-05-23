@@ -9,7 +9,7 @@ void Tron::AchievementManager::OnNotify(dae::GameObject*, const dae::Event& even
 {
     if (event.ID == dae::Utils::make_sdbm_hash("ScoreChangedEvent"))
     {
-        if (auto* payload = static_cast<ScoreGainedARGS*>(event.pArgs.get()))
+        if (auto* payload = static_cast<ScoreGainedARGS*>(event.pArgs))
         {
             m_CurrentScore = payload->points;
             CheckUnlockCondition();

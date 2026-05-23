@@ -16,7 +16,7 @@ void Tron::ExplosionComponent::OnNotify(dae::GameObject* obj, const dae::Event& 
 
 	if (event.ID == dae::Utils::make_sdbm_hash("LivesChangedEvent"))
 	{
-		auto* data = static_cast<LivesChangedARGS*>(event.pArgs.get());
+		auto* data = static_cast<LivesChangedARGS*>(event.pArgs);
 		if (data->currentLives > 0)
 		{
 			m_Sprite->SetVisible(true);

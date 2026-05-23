@@ -1,10 +1,11 @@
 #ifndef GAME_ACTOR_COMP_H
 #define GAME_ACTOR_COMP_H
 #include "BaseComponent.h"
+#include "Minigin.h"
 #include "Subject.h"
 #include "TronEvents.h"
 #include "Utils.h"
-
+#include "Memory/MemoryOverrides.h"
 namespace Tron {
 
     enum class ActorType
@@ -32,7 +33,7 @@ namespace Tron {
         void SetScore(int _score) { m_Score = _score; }
 
         void InvokeDeath() {
-            auto payload = std::make_unique<ActorDied>(GetOwner());
+            auto payload = new(dae::Minigin::GetFrameAllocator())ActorDied(GetOwner());
             dae::Event deathEvent(dae::Utils::make_sdbm_hash("ActorDied"), std::move(payload));
 
             m_Event.Notify(GetOwner(), deathEvent);

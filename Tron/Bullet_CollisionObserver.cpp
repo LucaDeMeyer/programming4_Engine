@@ -6,10 +6,11 @@
 #include "GameObject.h"
 #include "ColliderComponents.h"
 #include "FactionComponent.h"
+#include "Minigin.h"
 #include "Services.h"
 #include "Tank_Bullet.h"
 #include "Utils.h"
-
+#include "Memory/MemoryOverrides.h"
 void Tron::BulletObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
     if (event.ID != dae::Utils::make_sdbm_hash("CollisionEvent")) return;
@@ -18,7 +19,7 @@ void Tron::BulletObserver::OnNotify(dae::GameObject* obj, const dae::Event& even
     auto* bullet = GetOwner();
     if (!bullet) return;
 
-    auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs.get());
+    auto* collisionData = static_cast<dae::CollisionARGS*>(event.pArgs);
     auto* myCollider = bullet->GetComponent<dae::BoxColliderComponent>();
  
     dae::BoxColliderComponent* otherCollider = nullptr;
@@ -67,10 +68,9 @@ void Tron::BulletObserver::OnNotify(dae::GameObject* obj, const dae::Event& even
 
 void Tron::BulletObserver::DestroyBullet()
 {
-    auto soundArgs = std::make_unique<dae::SoundARGS>(
-        dae::Utils::make_sdbm_hash("Bullet_Explosion"), .5f, dae::AudioType::FX
-    );
-    dae::EventQueue::GetInstance().AddEvent(dae::Event(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs)));
+    auto soundArgs = new(dae::Minigin::GetFrameAllocator())dae::SoundARGS(
+        dae::Utils::make_sdbm_hash("Bullet_Explosion"), .5f, dae::AudioType::FX);
+    dae::EventQueue::GetInstance().AddEvent(dae::Event(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), soundArgs));
 
     GetOwner()->MarkForDestruction();
 }

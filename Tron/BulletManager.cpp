@@ -6,11 +6,12 @@
 #include "GameTime.h"
 #include "LevelManager.h"
 #include "LivesComponent.h"
+#include "Minigin.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "glm/vec4.hpp"
 #include "PlayerComponent.h"
-
+#include "Memory/MemoryOverrides.h"
 void Tron::BulletManager::Init()
 {
     auto& rm = dae::ResourceManager::GetInstance();
@@ -48,8 +49,6 @@ void Tron::BulletManager::Update()
         bool bulletDestroyed = false;
 
         glm::vec3 checkPos = { bullet->position.x + 4.0f, bullet->position.y + 4.0f, 0 };
-
-
 
         if (levelManager.IsWallAt(checkPos))
         {
@@ -111,10 +110,8 @@ void Tron::BulletManager::Update()
                             continue; 
                         }
 
-                        auto soundArgs = std::make_unique<dae::SoundARGS>(
-                            dae::Utils::make_sdbm_hash("Bullet_Explosion"), .5f, dae::AudioType::FX
-                        );
-                        dae::EventQueue::GetInstance().AddEvent(dae::Event(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs)));
+                        auto* soundArgs = new (dae::Minigin::GetFrameAllocator()) dae::SoundARGS(dae::Utils::make_sdbm_hash("Bullet_Explosion"), .5f, dae::AudioType::FX);
+                        dae::EventQueue::GetInstance().AddEvent(dae::Event(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), soundArgs));
 
                         entity->GetComponent<LivesComponent>()->DoDamage(1,bullet->shooter);
 
@@ -157,4 +154,14 @@ bool Tron::BulletManager::IsOverlapping(const glm::vec4& box1, const glm::vec4& 
         box1.x + box1.z > box2.x &&
         box1.y < box2.y + box2.w &&
         box1.y + box1.w > box2.y);
+}
+
+void Tron::BulletManager::ClearAll()
+{
+    for (auto* bullet : m_ActiveBullets)
+    {
+        bullet->~BulletData();
+        m_Allocator.Release(bullet);
+    }
+    m_ActiveBullets.clear();
 }

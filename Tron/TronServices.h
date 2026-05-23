@@ -21,12 +21,12 @@ namespace Tron
     class LevelManagerService final : public dae::IPlatformService
     {
     public:
-        void Init() override { /*Tron::LevelManager::GetInstance().Init();*/ }
+        void Init() override {}
         void Update() override { Tron::LevelManager::GetInstance().Update(); }
         void Shutdown() override {}
     };
 
-    class BulletPoolService final : public dae::IWeaponService
+    class BulletPoolService final : public dae::IMemoryPoolService
     {
     public:
         void Update() override { Tron::BulletManager::GetInstance().Update(); }
@@ -38,6 +38,8 @@ namespace Tron
         }
 
         void Render() const override { Tron::BulletManager::GetInstance().Render(); }
+
+        void ClearAll() override { Tron::BulletManager::GetInstance().ClearAll(); }
     };
 }
 #endif

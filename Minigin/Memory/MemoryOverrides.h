@@ -1,5 +1,5 @@
 #ifndef MEMORY_OVERRIDES_H
-#define MEMORY_OVERRIDE_H
+#define MEMORY_OVERRIDES_H
 #include <stddef.h> 
 
 namespace dae {

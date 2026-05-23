@@ -38,7 +38,7 @@ namespace Tron
 
         void Update();
         void Render() const;
-
+        void ClearAll();
     private:
         friend class dae::Singleton<BulletManager>;
         BulletManager() = default;

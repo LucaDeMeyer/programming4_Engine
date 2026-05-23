@@ -69,8 +69,8 @@ namespace Tron
             base->AddComponent<Tron::GameActor>(ActorType::player);
             base->GetComponent<GameActor>()->SetScore(500);
             base->AddComponent<PlayerComponent>(playerIndex);
-
             base->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(base->GetComponent<PlayerComponent>());
+
             auto turret = std::make_unique<dae::GameObject>();
             turret->GetTransform()->SetLocalPosition({ -16, -16, 0 });
             turret->AddComponent<dae::SpriteComponent>("Turret_Sheet.png", 10, 4, 40);
@@ -89,8 +89,6 @@ namespace Tron
             auto enemy = std::make_unique<dae::GameObject>();
             enemy->GetTransform()->SetLocalPosition(startPos);
             enemy->AddComponent<Tron::GameActor>(ActorType::enemy);
-
-
 
             const auto* profile = EnemyDatabase::GetInstance().GetProfile(type);
 

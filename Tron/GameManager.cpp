@@ -24,7 +24,7 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
     {
         if (!event.pArgs) return;
 
-        auto* data = static_cast<ActorDied*>(event.pArgs.get());
+        auto* data = static_cast<ActorDied*>(event.pArgs);
 
         if (data && data->obj)
         {
@@ -42,7 +42,7 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
     if (event.ID == dae::Utils::make_sdbm_hash("ScoreChangedEvent"))
     {
         if (!event.pArgs) return;
-        auto* data = static_cast<ScoreGainedARGS*>(event.pArgs.get());
+        auto* data = static_cast<ScoreGainedARGS*>(event.pArgs);
         if (data->playerIndex == 0)
             m_P1Score = data->points;
         else
@@ -52,7 +52,7 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
     if (event.ID == dae::Utils::make_sdbm_hash("Teleport"))
     {
         if (!event.pArgs) return;
-        auto* data = static_cast<Teleport*>(event.pArgs.get());
+        auto* data = static_cast<Teleport*>(event.pArgs);
         if (data && data->obj)
         {
             glm::vec3 newPos = LevelManager::GetInstance().GetRandomPathLocation();

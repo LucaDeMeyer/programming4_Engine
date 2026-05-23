@@ -10,8 +10,9 @@
 #include "SpriteComponent.h"
 #include "TronFactory.h"
 #include "EventQueue.h"
-
-
+#include "Minigin.h"
+#include "Memory/MemoryOverrides.h"
+#include "LevelManager.h"
 using namespace Tron;
 void MoveCommand::Execute()
 {
@@ -72,18 +73,12 @@ void FireCommand::Execute()
         else if (frame == 2) velocity = { bulletSpeed, 0};
         else if (frame == 3) velocity = { 0, -bulletSpeed };
     }
-  //  auto bullet = GOFactory::CreateBullet(pos, velocity, team,obj);
+ 
+    dae::ServiceLocator::GetMemoryPoolService().FireWeapon(pos, velocity, static_cast<int>(team), obj);
 
-    //dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
-
-    dae::ServiceLocator::GetWeaponService().FireWeapon(pos, velocity, static_cast<int>(team), obj);
-
-    auto soundArgs = std::make_unique<dae::SoundARGS>(
-        dae::Utils::make_sdbm_hash("tank_fire"), 
-        1.0f,                                    
-        dae::AudioType::FX                       
-    );
-    dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs));
+    auto soundArgs = new(dae::Minigin::GetFrameAllocator())dae::SoundARGS(dae::Utils::make_sdbm_hash("tank_fire"),
+        .5f, dae::AudioType::FX);
+    dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), soundArgs);
     dae::EventQueue::GetInstance().AddEvent(std::move(audioEvent));
 }
 
@@ -127,18 +122,68 @@ void PlayerFireCommand::Execute()
         center.z
     };
 
-  //  auto bullet = GOFactory::CreateBullet(spawnPos, velocity, team, base);
-  //  dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
+    dae::ServiceLocator::GetMemoryPoolService().FireWeapon(spawnPos, velocity, static_cast<int>(team), base);
 
-    dae::ServiceLocator::GetWeaponService().FireWeapon(spawnPos, velocity, static_cast<int>(team), base);
-
-    auto soundArgs = std::make_unique<dae::SoundARGS>(
-        dae::Utils::make_sdbm_hash("tank_fire"),
-        1.0f,
-        dae::AudioType::FX
-    );
-    dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), std::move(soundArgs));
+    auto soundArgs = new(dae::Minigin::GetFrameAllocator())dae::SoundARGS(dae::Utils::make_sdbm_hash("tank_fire"),
+        .5f,dae::AudioType::FX);
+    dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), soundArgs);
     dae::EventQueue::GetInstance().AddEvent(std::move(audioEvent));
+}
+
+void Tron::PlayerMoveCommand::Execute()
+{
+    auto obj = GetGameObject();
+    if (!obj || obj->IsMarkedForDestruction()) return;
+
+    auto transform = obj->GetTransform();
+    auto currentPos = transform->GetLocalPosition();
+    transform->SetPreviousPosition(currentPos);
+
+    float deltaTime = Time::GetInstance().GetDeltaTime();
+
+    float tileSize = 32.0f;
+    auto& levelManager = Tron::LevelManager::GetInstance();
+    float offsetX = levelManager.GetOffsetX();
+    float offsetY = levelManager.GetOffsetY();
+
+    float snapThreshold = 10.0f; 
+
+    if (std::abs(m_Direction.x) > 0)
+    {
+        float exactY = std::round((currentPos.y - offsetY) / tileSize) * tileSize + offsetY;
+
+        if (std::abs(currentPos.y - exactY) < snapThreshold)
+        {
+            currentPos.y = exactY;
+        }
+    }
+   
+    else if (std::abs(m_Direction.y) > 0)
+    {
+        float exactX = std::round((currentPos.x - offsetX) / tileSize) * tileSize + offsetX;
+
+        if (std::abs(currentPos.x - exactX) < snapThreshold)
+        {
+            currentPos.x = exactX;
+        }
+    }
+
+    currentPos.x += m_Direction.x * deltaTime;
+    currentPos.y += m_Direction.y * deltaTime;
+
+    transform->SetLocalPosition(currentPos);
+    UpdateSpriteDirection();
+}
+
+void Tron::PlayerMoveCommand::UpdateSpriteDirection()
+{
+    if (auto sprite = GetGameObject()->GetComponent<dae::SpriteComponent>())
+    {
+        if (m_Direction.y < 0)      sprite->SetFrame(3); // Up
+        else if (m_Direction.x > 0) sprite->SetFrame(2); // Right
+        else if (m_Direction.y > 0) sprite->SetFrame(1); // Down
+        else if (m_Direction.x < 0) sprite->SetFrame(0); // Left
+    }
 }
 
 void AimCommand::Execute()

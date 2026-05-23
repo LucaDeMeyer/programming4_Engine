@@ -43,6 +43,20 @@ namespace Tron
     private:
         dae::GameObject* m_Turret;
     };
+
+    class PlayerMoveCommand final : public dae::ActorCommand
+    {
+    public:
+        PlayerMoveCommand(dae::GameObject* obj, const glm::vec2& direction)
+            : dae::ActorCommand(obj), m_Direction(direction) {}
+        ~PlayerMoveCommand() override = default;
+
+        void Execute() override;
+
+    private:
+        glm::vec2 m_Direction;
+        void UpdateSpriteDirection();
+    };
     class AimCommand final : public dae::ActorCommand
     {
     public:

@@ -6,6 +6,7 @@
 #include "Singleton.h"
 #include "Observer.h"
 #include "GameObject.h"
+#include "ServiceLocator.h"
 #include "glm/vec2.hpp"
 
 namespace Tron
@@ -45,6 +46,7 @@ namespace Tron
 			m_Entities.clear();
 			m_Players = 0;
 			m_enemies = 0;
+			dae::ServiceLocator::GetMemoryPoolService().ClearAll();
 		}
 
 		void AddScore(const std::string& name, int score);

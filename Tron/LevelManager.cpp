@@ -263,20 +263,20 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 	auto& input = dae::InputManager::GetInstance();
 
 	if (playerIndex == 0) {
-		input.RegisterMovementCommand(SDLK_W, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
-		input.RegisterMovementCommand(SDLK_S, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,100 }));
-		input.RegisterMovementCommand(SDLK_A, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ -100,0 }));
-		input.RegisterMovementCommand(SDLK_D, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 100,0 }));
+		input.RegisterMovementCommand(SDLK_W, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
+		input.RegisterMovementCommand(SDLK_S, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,100 }));
+		input.RegisterMovementCommand(SDLK_A, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ -100,0 }));
+		input.RegisterMovementCommand(SDLK_D, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 100,0 }));
 		input.BindKeyCommand(SDLK_SPACE, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
 		input.BindKeyCommand(SDLK_C, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2));
 		input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1)); // -1 for Keyboard
 	}
 
 	input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), playerIndex));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadUp, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadDown, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 0,100 }));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadLeft, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ -100,0 }));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadRight, std::make_unique<Tron::MoveCommand>(pTankBase, glm::vec2{ 100,0 }));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadUp, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadDown, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,100 }));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadLeft, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ -100,0 }));
+	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadRight, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 100,0 }));
 	input.BindControllerCommand(playerIndex, dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
 	input.BindControllerCommand(playerIndex, dae::Controller::ControllerButton::ButtonB, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2)); // Debug damage
 
@@ -328,6 +328,7 @@ void Tron::LevelManager::SetupLevelAudio()
 {
 	auto& audioService = dae::ServiceLocator::GetAudioService();
 	audioService.LoadSound(dae::Utils::make_sdbm_hash("tank_fire"), "Data/Tank_Fire.wav");
+
 	audioService.LoadSound(dae::Utils::make_sdbm_hash("Bullet_Explosion"), "Data/Bullet_Explosion.wav");
 	audioService.LoadSound(dae::Utils::make_sdbm_hash("Tank_Explosion"), "Data/Tank_Explosion.wav");
 	audioService.LoadSound(dae::Utils::make_sdbm_hash("Level_Theme"), "Data/Level_Temp_Music.wav");

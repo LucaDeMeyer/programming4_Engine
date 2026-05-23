@@ -12,10 +12,10 @@ struct EventARGS
 
 struct Event {
 	const unsigned int ID;
-	std::unique_ptr<EventARGS> pArgs;
+	EventARGS* pArgs;
 
-	explicit Event(unsigned int _id, std::unique_ptr<EventARGS> payload = nullptr)
-		: ID(_id), pArgs(std::move(payload)) {
+	explicit Event(unsigned int _id, EventARGS* payload = nullptr)
+		: ID(_id), pArgs(payload) {
 	}
 };
 
