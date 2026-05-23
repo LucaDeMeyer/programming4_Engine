@@ -4,10 +4,11 @@
 #include "States.h"
 #include <memory>
 #include "glm/vec3.hpp"
+#include "Observer.h"
 
 namespace Tron
 {
-    class PlayerComponent : public dae::BaseComponent
+    class PlayerComponent : public dae::BaseComponent, public dae::Observer 
     {
     public:
         explicit PlayerComponent(dae::GameObject* owner,int playerIdx);
@@ -22,6 +23,8 @@ namespace Tron
         void SetInvulnerable(bool invulnerable) { m_IsInvulnerable = invulnerable; }
         bool IsInvulnerable() const { return m_IsInvulnerable; }
         void RespawnAtStart();
+
+        void OnNotify(dae::GameObject* obj, const dae::Event& event) override;
 
     private:
         std::unique_ptr<PlayerState> m_CurrentState;

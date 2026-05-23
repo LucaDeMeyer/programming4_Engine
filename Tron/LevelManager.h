@@ -39,14 +39,13 @@ namespace Tron
 	{
 	public:
 		void Init();
-		void Update() ;
+		void Update();
 
 		void LoadLevel(LevelCategory category);
 
 		void NextLevel();
 		void GoToMenu();
 
-		TileType GetTileAt(float worldX, float worldY) const;
 		bool IsWallAt(const glm::vec3& worldPos) const;
 
 		glm::vec3 GetRandomPathLocation();

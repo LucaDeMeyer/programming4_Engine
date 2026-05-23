@@ -1,4 +1,6 @@
 #include "TankCommands.h"
+
+#include "BulletManager.h"
 #include "TransformComponent.h"
 #include "GameTime.h"
 #include "InputManager.h"
@@ -70,9 +72,11 @@ void FireCommand::Execute()
         else if (frame == 2) velocity = { bulletSpeed, 0};
         else if (frame == 3) velocity = { 0, -bulletSpeed };
     }
-    auto bullet = GOFactory::CreateBullet(pos, velocity, team,obj);
+  //  auto bullet = GOFactory::CreateBullet(pos, velocity, team,obj);
 
-    dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
+    //dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
+
+    dae::ServiceLocator::GetWeaponService().FireWeapon(pos, velocity, static_cast<int>(team), obj);
 
     auto soundArgs = std::make_unique<dae::SoundARGS>(
         dae::Utils::make_sdbm_hash("tank_fire"), 
@@ -123,8 +127,10 @@ void PlayerFireCommand::Execute()
         center.z
     };
 
-    auto bullet = GOFactory::CreateBullet(spawnPos, velocity, team, base);
-    dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
+  //  auto bullet = GOFactory::CreateBullet(spawnPos, velocity, team, base);
+  //  dae::SceneManager::GetInstance().GetActiveScene().Add(std::move(bullet));
+
+    dae::ServiceLocator::GetWeaponService().FireWeapon(spawnPos, velocity, static_cast<int>(team), base);
 
     auto soundArgs = std::make_unique<dae::SoundARGS>(
         dae::Utils::make_sdbm_hash("tank_fire"),

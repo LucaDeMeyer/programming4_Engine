@@ -8,6 +8,7 @@
 #include <backends/imgui_impl_sdlrenderer3.h>
 
 #include "SceneManager.h"
+#include "ServiceLocator.h"
 #include "Texture2D.h"
 
 void dae::Renderer::Init(SDL_Window* window)
@@ -54,7 +55,7 @@ void dae::Renderer::Render() const
 	SDL_RenderClear(m_renderer);
 
 	SceneManager::GetInstance().Render();
-
+	ServiceLocator::GetWeaponService().Render();
 	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
 }

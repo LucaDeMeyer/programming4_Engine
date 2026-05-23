@@ -32,6 +32,7 @@
 #include <filesystem>
 #include "TronFactory.h"
 #include "AchievmentManager.h"
+#include "BulletManager.h"
 #include "ServiceLocator.h"
 #include "TronServices.h"
 namespace fs = std::filesystem;
@@ -54,10 +55,12 @@ static void load()
 	auto& levelManager = Tron::LevelManager::GetInstance();
 	GameManager.Init();
 	levelManager.Init();
+	auto& BulletManager = Tron::BulletManager::GetInstance();
+	BulletManager.Init();
 
 	dae::ServiceLocator::RegisterPlatform(std::make_unique<Tron::LevelManagerService>());
 
-	
+	dae::ServiceLocator::RegisterWeaponService(std::make_unique<Tron::BulletPoolService>());
 }
 
 int main(int, char* []) {

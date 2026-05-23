@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "TransformComponent.h"
 #include "States.h"
+#include "Utils.h"
 
 Tron::PlayerComponent::PlayerComponent(dae::GameObject* owner,int playerIdx)
     : BaseComponent(owner), m_CurrentState(std::make_unique<NormalPlayerState>()),m_PlayerIndex(playerIdx)
@@ -30,4 +31,14 @@ void Tron::PlayerComponent::TransitionTo(std::unique_ptr<PlayerState> newState)
 void Tron::PlayerComponent::RespawnAtStart()
 {
     GetOwner()->GetTransform()->SetLocalPosition(m_SpawnLocation);
+}
+
+void Tron::PlayerComponent::OnNotify(dae::GameObject* obj, const dae::Event& event)
+{
+    if (obj != GetOwner()) return;
+
+    if (event.ID == dae::Utils::make_sdbm_hash("LivesChangedEvent"))
+    {
+        TransitionTo(std::make_unique<InvulnerableState>());
+    }
 }

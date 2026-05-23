@@ -70,6 +70,7 @@ namespace Tron
             base->GetComponent<GameActor>()->SetScore(500);
             base->AddComponent<PlayerComponent>(playerIndex);
 
+            base->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(base->GetComponent<PlayerComponent>());
             auto turret = std::make_unique<dae::GameObject>();
             turret->GetTransform()->SetLocalPosition({ -16, -16, 0 });
             turret->AddComponent<dae::SpriteComponent>("Turret_Sheet.png", 10, 4, 40);
@@ -103,7 +104,6 @@ namespace Tron
             auto moveLeft = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ -speed, 0 });
             auto moveRight = std::make_unique<Tron::MoveCommand>(enemy.get(), glm::vec2{ speed, 0 });
             enemy->GetComponent<AIComponent>()->SetMoveCommands(std::move(moveUp), std::move(moveDown), std::move(moveLeft), std::move(moveRight));
-
 
             if (type == AIType::Tank)
             {

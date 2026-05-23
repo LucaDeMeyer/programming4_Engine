@@ -68,6 +68,8 @@ namespace Tron
 		void SetWindowSize(glm::vec2 windowSize) { m_WindowSize = windowSize; }
 		glm::vec2 GetWindowSize() const& { return m_WindowSize; }
 
+		std::vector<dae::GameObject*> GetEntities() { return m_Entities; }
+
 	private:
 		friend class dae::Singleton<GameManager>;
 		GameManager() = default;

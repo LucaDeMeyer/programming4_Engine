@@ -1,8 +1,13 @@
 #ifndef SERVICES_H
 #define SERVICES_H
 #include <string>
+
+#include "glm/vec3.hpp"
+#include "glm/vec2.hpp"
 namespace dae
 {
+    class GameObject; 
+
     class IPlatformService {
     public:
         virtual ~IPlatformService() = default;
@@ -37,9 +42,6 @@ namespace dae
     class IAudioService
     {
     public:
-
-       
-
     	virtual ~IAudioService() = default;
         virtual bool Init() = 0;
         virtual void Play(unsigned int soundHash,float volume, AudioType type) = 0;
@@ -59,6 +61,23 @@ namespace dae
         void Stop(unsigned int, AudioType) override {}
         void StopAll() override{}
         void LoadSound(unsigned int , const std::string& ) override{}
+    };
+
+    class IWeaponService
+    {
+    public:
+        virtual ~IWeaponService() = default;
+        virtual void FireWeapon(glm::vec3 startPos, glm::vec2 velocity, int teamID, GameObject* shooter) = 0;
+        virtual void Update() = 0;
+        virtual void Render() const = 0;
+    };
+
+    class NullWeaponService final : public IWeaponService
+    {
+    public:
+        void FireWeapon(glm::vec3, glm::vec2, int, GameObject*) override {}
+        void Update() override {}
+        void Render() const override {}
     };
 }
 
