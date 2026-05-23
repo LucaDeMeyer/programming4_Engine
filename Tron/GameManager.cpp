@@ -135,7 +135,16 @@ void Tron::GameManager::CheckWinCondition()
         if (m_Players <= 1)
         {
             m_IsTransitioningLevel = true;
-            LevelManager::GetInstance().GoToMenu();
+            m_LVLNR++;
+
+            if (m_P1Score >= 1000 || m_p2Score >= 1000 || m_LVLNR >= 3)
+            {
+                LevelManager::GetInstance().GoToMenu();
+            }
+            else
+            {
+                LevelManager::GetInstance().NextLevel();
+            }
         }
         break;
     }

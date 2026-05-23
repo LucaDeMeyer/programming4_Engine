@@ -99,7 +99,18 @@ namespace Tron
         std::unique_ptr<GameState> Update(LevelManager& manager) override;
 	    
     private:
-        void CreateMenuButton(dae::Scene& scene, const std::string& text, float yPos, std::function<void()> callback);
+        struct MenuOption
+        {
+            dae::GameObject* buttonObj;
+            std::function<void()> callback;
+        };
+
+        std::vector<MenuOption> m_Options;
+        int m_SelectedIndex = 0;
+
+        dae::GameObject* CreateMenuButton(dae::Scene& scene, const std::string& text, float yPos, std::function<void()> callback);
+
+        void UpdateVisuals();
     };
 
     class LevelSplashScreenState : public GameState

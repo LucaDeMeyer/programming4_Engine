@@ -67,6 +67,13 @@ namespace Tron
 			return m_HighScores;
 		}
 
+		void ResetGameStats()
+		{
+			m_P1Score = 0;
+			m_p2Score = 0;
+			m_LVLNR = 0;
+			
+		}
 		void SetWindowSize(glm::vec2 windowSize) { m_WindowSize = windowSize; }
 		glm::vec2 GetWindowSize() const& { return m_WindowSize; }
 

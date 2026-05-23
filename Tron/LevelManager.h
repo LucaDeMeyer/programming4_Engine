@@ -60,6 +60,14 @@ namespace Tron
 		int GetPlaylistIndex() const { return m_LevelPlaylistIndex; }
 
 
+
+		void ResetLevelIndices()
+		{
+			m_CurrentLevelIndex = 0;
+			m_LevelPlaylistIndex = 0;
+		}
+
+
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;

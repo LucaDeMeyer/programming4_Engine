@@ -125,14 +125,18 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
     auto& gameManager = GameManager::GetInstance();
     auto& audioService = dae::ServiceLocator::GetAudioService();
 
+    sceneManager.GetActiveScene().RemoveAll();
+
     sceneManager.SetActiveScene(0);
     auto& scene = sceneManager.GetActiveScene();
     scene.RemoveAll();
 
-    audioService.StopAll();
+    manager.ResetLevelIndices();
+    gameManager.ResetGameStats();
     gameManager.ClearEntities();
     inputManager.ClearAllCommands();
     gameManager.SetTransitioning(false);
+    audioService.StopAll();
 
     audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
     audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f, dae::AudioType::Ambient);
@@ -156,29 +160,83 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
     float startY = 250.0f;
     float spacing = 60.0f;
 
-    CreateMenuButton(scene, "Single Player", startY, [&manager]() {
-        GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
-        manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+    m_Options.clear();
+    m_SelectedIndex = 0;
+
+    m_Options.push_back({
+         CreateMenuButton(scene, "Single Player", startY, [&manager]() {
+             GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
+             manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+         }),
+         [&manager]() { 
+             GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
+             manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+         }
         });
 
-    CreateMenuButton(scene, "CO-OP", startY + spacing, [&manager]() {
-        GameManager::GetInstance().SetGameMode(GameMode::COOP);
-        manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+    m_Options.push_back({
+    	CreateMenuButton(scene, "CO-OP", startY + spacing, [&manager]() {
+            GameManager::GetInstance().SetGameMode(GameMode::COOP);
+            manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+        }),
+        [&manager]() {
+            GameManager::GetInstance().SetGameMode(GameMode::COOP);
+            manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+        }
         });
 
-    CreateMenuButton(scene, "PVP", startY + (spacing * 2), [&manager]() {
-        GameManager::GetInstance().SetGameMode(GameMode::PVP);
-        manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+    m_Options.push_back({
+        CreateMenuButton(scene, "PVP", startY + (spacing * 2), [&manager]() {
+            GameManager::GetInstance().SetGameMode(GameMode::PVP);
+            manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+        }),
+        [&manager]() {
+            GameManager::GetInstance().SetGameMode(GameMode::PVP);
+            manager.TransitionToState(std::make_unique<LevelSplashScreenState>());
+        }
         });
+
+    UpdateVisuals();
+
+    auto navUp = [this]() {
+        m_SelectedIndex--;
+        if (m_SelectedIndex < 0) m_SelectedIndex = static_cast<int>(m_Options.size()) - 1;
+        UpdateVisuals();
+        };
+
+    auto navDown = [this]() {
+        m_SelectedIndex++;
+        if (m_SelectedIndex >= static_cast<int>(m_Options.size())) m_SelectedIndex = 0;
+        UpdateVisuals();
+        };
+
+    auto executeSelected = [this]() {
+        if (m_SelectedIndex >= 0 && m_SelectedIndex < m_Options.size()) {
+            m_Options[m_SelectedIndex].callback();
+        }
+        };
+
+    inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::DPadUp, dae::InputState::Down,
+        std::make_unique<ConfirmCommand>(nullptr, navUp));
+
+    inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::DPadDown, dae::InputState::Down,
+        std::make_unique<ConfirmCommand>(nullptr, navDown));
+
+    inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down,
+        std::make_unique<ConfirmCommand>(nullptr, executeSelected));
+
+    inputManager.BindKeyCommand(SDLK_UP, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, navUp));
+    inputManager.BindKeyCommand(SDLK_DOWN, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, navDown));
+    inputManager.BindKeyCommand(SDLK_RETURN, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, executeSelected));
 }
-
-void Tron::MainMenuState::CreateMenuButton(dae::Scene& scene, const std::string& text, float yPos, std::function<void()> callback)
+dae::GameObject* Tron::MainMenuState::CreateMenuButton(dae::Scene& scene, const std::string& text, float yPos, std::function<void()> callback)
 {
     auto btnObj = std::make_unique<dae::GameObject>();
     auto textComp = btnObj->AddComponent<dae::TextComponent>();
+
     textComp->SetFont("TRON.TTF", 25)
-	->SetColor(255, 255, 255, 255)
-	->SetText(text);
+        ->SetColor(120, 120, 120, 255)
+        ->SetText(text);
 
     glm::vec2 texSize = textComp->GetTexture()->GetSize();
     float windowWidth = GameManager::GetInstance().GetWindowSize().x;
@@ -189,9 +247,30 @@ void Tron::MainMenuState::CreateMenuButton(dae::Scene& scene, const std::string&
 
     auto btnComp = btnObj->AddComponent<dae::ButtonComponent>();
     btnComp->SetCallback(callback);
+
+    auto* rawPtr = btnObj.get();
     scene.Add(std::move(btnObj));
+
+    return rawPtr; 
 }
 
+void Tron::MainMenuState::UpdateVisuals()
+{
+    for (int i = 0; i < m_Options.size(); ++i)
+    {
+        auto* textComp = m_Options[i].buttonObj->GetComponent<dae::TextComponent>();
+        if (!textComp) continue;
+
+        if (i == m_SelectedIndex)
+        {
+            textComp->SetColor(0, 255, 255, 255);
+        }
+        else
+        {
+            textComp->SetColor(120, 120, 120, 255);
+        }
+    }
+}
 
 std::unique_ptr<Tron::GameState> Tron::MainMenuState::Update(LevelManager&)
 {
