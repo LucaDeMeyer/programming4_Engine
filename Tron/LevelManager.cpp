@@ -229,7 +229,10 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 {
 	auto player = Tron::GOFactory::CreatePlayer(spawnPos, texture, team,playerIndex);
 	auto* pTankBase = player.Base.get();
-
+	auto Explosion = std::make_unique<dae::GameObject>();
+	Explosion->AddComponent<ExplosionComponent>();
+	Explosion->SetParent(pTankBase, false);
+	pTankBase->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(Explosion->GetComponent<ExplosionComponent>());
 	if (playerIndex == 0) m_Pplayer1 = pTankBase;
 	else m_Pplayer2 = pTankBase;
 
@@ -284,6 +287,7 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 	scene.Add(std::move(player.Turret));
 	scene.Add(std::move(livesDisplay));
 	scene.Add(std::move(scoreDisplay));
+	scene.Add(std::move(Explosion));
 }
 
 void Tron::LevelManager::SpawnEnemies(dae::Scene& scene)

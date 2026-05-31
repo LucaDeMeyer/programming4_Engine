@@ -18,6 +18,14 @@ namespace Tron
 		PVP
 	};
 
+	enum class TransitionType
+	{
+		None,
+		NextLevel,
+		HighScore,
+		Menu
+	};
+
 	struct HighScoreEntry
 	{
 		std::string name;
@@ -38,7 +46,7 @@ namespace Tron
 		GameMode GetGameMode() { return m_CurrentMode; }
 		void RegisterEntiy(dae::GameObject* entity);
 		void OnNotify(dae::GameObject* pEntity, const dae::Event& event) override;
-		void Update(){}
+		void Update();
 
 		void ClearEntities()
 		{
@@ -99,6 +107,10 @@ namespace Tron
 		const std::string m_FileName = "highscores.txt";
 
 		glm::vec2 m_WindowSize{};
+
+		float m_TransitionTimer{ 0.0f };
+		const float m_TransitionDelay{ 1.5f }; 
+		TransitionType m_PendingTransition{ TransitionType::None };
 	};
 }
 #endif	

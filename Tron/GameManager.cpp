@@ -10,6 +10,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "GameTime.h"
+
 void Tron::GameManager::Init()
 {
     dae::EventQueue::GetInstance().GetNotifier()->AddObserver(&Tron::GameManager::GetInstance());
@@ -96,38 +98,21 @@ void Tron::GameManager::RegisterEntiy(dae::GameObject* entity)
 }
 void Tron::GameManager::CheckWinCondition()
 {
-    if (m_IsTransitioningLevel || m_Entities.empty()) return;
-
+    if (m_IsTransitioningLevel || m_Entities.empty() || m_PendingTransition != TransitionType::None) return;
     switch (m_CurrentMode)
     {
     case GameMode::singlePlayer:
-        if (m_Players <= 0)
-        {
-            m_IsTransitioningLevel = true;
-            LevelManager::GetInstance().TransitionToState(std::make_unique<HighScoreEntryState>());
-             
-
-        }
-        else if (m_enemies <= 0)
-        {
-            m_IsTransitioningLevel = true; 
-            ++m_LVLNR;
-            LevelManager::GetInstance().NextLevel();
-        }
-        break;
-
     case GameMode::COOP:
         if (m_Players <= 0)
         {
             m_IsTransitioningLevel = true;
-            LevelManager::GetInstance().TransitionToState(
-                std::make_unique<HighScoreEntryState>());
+            m_PendingTransition = TransitionType::HighScore;
         }
         else if (m_enemies <= 0)
         {
             m_IsTransitioningLevel = true;
             ++m_LVLNR;
-            LevelManager::GetInstance().NextLevel();
+            m_PendingTransition = TransitionType::NextLevel;
         }
         break;
 
@@ -135,18 +120,47 @@ void Tron::GameManager::CheckWinCondition()
         if (m_Players <= 1)
         {
             m_IsTransitioningLevel = true;
-            m_LVLNR++;
-
+            ++m_LVLNR;
             if (m_P1Score >= 1000 || m_p2Score >= 1000 || m_LVLNR >= 3)
             {
-                LevelManager::GetInstance().GoToMenu();
+                m_PendingTransition = TransitionType::Menu;
             }
             else
             {
-                LevelManager::GetInstance().NextLevel();
+                m_PendingTransition = TransitionType::NextLevel;
             }
         }
         break;
+    }
+}
+
+void Tron::GameManager::Update()
+{
+    if (m_PendingTransition != TransitionType::None)
+    {
+        m_TransitionTimer += Time::GetInstance().GetDeltaTime();
+
+        if (m_TransitionTimer >= m_TransitionDelay)
+        {
+           
+            auto& lm = LevelManager::GetInstance();
+
+            switch (m_PendingTransition)
+            {
+            case TransitionType::HighScore:
+                lm.TransitionToState(std::make_unique<HighScoreEntryState>());
+                break;
+            case TransitionType::NextLevel:
+                lm.NextLevel();
+                break;
+            case TransitionType::Menu:
+                lm.GoToMenu();
+                break;
+            }
+
+            m_PendingTransition = TransitionType::None;
+            m_TransitionTimer = 0.0f;
+        }
     }
 }
 

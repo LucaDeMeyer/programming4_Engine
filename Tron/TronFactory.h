@@ -71,6 +71,7 @@ namespace Tron
             base->AddComponent<PlayerComponent>(playerIndex);
             base->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(base->GetComponent<PlayerComponent>());
 
+
             auto turret = std::make_unique<dae::GameObject>();
             turret->GetTransform()->SetLocalPosition({ -16, -16, 0 });
             turret->AddComponent<dae::SpriteComponent>("Turret_Sheet.png", 10, 4, 40);

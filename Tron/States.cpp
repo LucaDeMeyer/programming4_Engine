@@ -344,6 +344,8 @@ void Tron::GameplayState::OnExit(LevelManager&)
 
 std::unique_ptr<Tron::GameState> Tron::GameplayState::Update(LevelManager&)
 {
+
+    GameManager::GetInstance().Update();
     return nullptr;
 }
 void Tron::HighScoreEntryState::OnEnter(LevelManager&)
