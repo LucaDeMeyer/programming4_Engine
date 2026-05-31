@@ -84,21 +84,18 @@ namespace Tron
 		void CreateFPSCounter(dae::Scene& scene, const glm::vec3& pos);
 		void SetupLevelAudio();
 
-		int m_Cols;
-		int m_Rows;
-		float m_TileSize{32.f};
-		float m_OffsetX;
-		float m_OffsetY;
-		glm::vec3 m_P1Spawn;
-		glm::vec3 m_P2Spawn;
 		std::vector<glm::vec3> m_TankSpawnPoints;
 		std::vector<glm::vec3> m_RecogniserSpawnPoints;
-		glm::vec3 m_CenterTile;
 		std::vector<glm::vec3> m_EmptyLocations;
-		std::vector<TileType> m_Grid;
 
 		std::vector<std::string> m_LevelFiles{ "Data/Level1.csv", "Data/Level2.csv", "Data/Level3.csv" };
-		int m_LevelPlaylistIndex = 0;
+
+		std::vector<TileType> m_Grid;
+
+		glm::vec3 m_P1Spawn;
+		glm::vec3 m_P2Spawn;
+
+		glm::vec3 m_CenterTile;
 
 		size_t m_CurrentLevelIndex{ 0 };
 
@@ -107,6 +104,14 @@ namespace Tron
 		
 		std::unique_ptr<GameState> m_CurrentState = nullptr;
 		std::unique_ptr<GameState> m_PendingState = nullptr;
+
+
+		int m_LevelPlaylistIndex = 0;
+		int m_Cols;
+		int m_Rows;
+		float m_TileSize{ 32.f };
+		float m_OffsetX;
+		float m_OffsetY;
 	};
 }
 

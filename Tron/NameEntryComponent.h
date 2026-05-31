@@ -41,12 +41,14 @@ namespace Tron
     private:
         static char IndexToChar(int idx);
 
+        std::function<void(int, const std::string&)> m_OnConfirmed;
+
         int  m_PlayerIndex{};
         int  m_ActiveSlot{ 0 };
         int  m_SlotIndices[NUM_SLOTS]{ 0, 0, 0 }; 
         bool m_Done{ false };
 
-        std::function<void(int, const std::string&)> m_OnConfirmed;
+       
     };
 }
 

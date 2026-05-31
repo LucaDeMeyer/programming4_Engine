@@ -18,13 +18,13 @@ namespace Tron
 	struct BulletData
 	{
         glm::vec3 position;
-        glm::vec2 velocity;
-        Team team;
-        dae::GameObject* shooter;
         int maxBounces;
+        glm::vec2 velocity;
+        dae::GameObject* shooter;
+        Team team;
 
         BulletData(glm::vec3 pos, glm::vec2 vel, Team t, dae::GameObject* s)
-            : position(pos), velocity(vel), team(t), shooter(s), maxBounces(5) {
+            : position(pos), maxBounces(5), velocity(vel), shooter(s), team(t) {
         }
     };
 

@@ -35,6 +35,16 @@
 #include "BulletManager.h"
 #include "ServiceLocator.h"
 #include "TronServices.h"
+
+
+/*
+ * TODO: 
+ * clean up project -> move files to seperate folders
+ * particle manager
+ * clean up Cmake
+ * maybe profile cache misses and hits
+ * add player aiming with arrow keys
+ */
 namespace fs = std::filesystem;
 
 namespace Tron::Config

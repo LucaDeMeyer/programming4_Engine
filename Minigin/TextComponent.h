@@ -39,12 +39,12 @@ namespace dae
 
 		Texture2D* GetTexture() { return m_textTexture.get(); }
 	private:
-		SDL_Color m_color{};
 		std::string m_text{};
 		std::shared_ptr<Font> m_font;
-		bool m_needsUpdate{ false };
 		std::shared_ptr<Texture2D> m_textTexture;
 		glm::vec2 m_Offset{};
+		SDL_Color m_color{};
+		bool m_needsUpdate{ false };
 	};
 }
 

@@ -27,10 +27,12 @@ namespace Tron
         void OnNotify(dae::GameObject* obj, const dae::Event& event) override;
 
     private:
-        std::unique_ptr<PlayerState> m_CurrentState;
-        bool m_IsInvulnerable = false;
         glm::vec3 m_SpawnLocation;
         int m_PlayerIndex;
+        std::unique_ptr<PlayerState> m_CurrentState;
+       
+        bool m_IsInvulnerable = false;
+
     };
 }
 #endif

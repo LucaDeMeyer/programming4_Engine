@@ -35,11 +35,11 @@ namespace dae
 		void SetPositionDirty();
 
 	private:
-
+		glm::mat4 m_worldMatrix{ 1.0f };
 		glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_worldPosition{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_PreviousPos{ 0,0,0 };
-		glm::mat4 m_worldMatrix{ 1.0f };
+		
 		float m_localRotation{ 0.0f };                
 		bool m_IsDirty = true;
 	};

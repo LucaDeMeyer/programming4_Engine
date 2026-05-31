@@ -31,9 +31,6 @@ public:
     void Update() override{}
     void RenderUI() override{};
 private:
-    int m_Cols;
-    int m_Rows;
-    float m_TileSize;
     std::vector<TileType> m_Grid;
 
     std::shared_ptr<dae::Texture2D> m_WallTex;
@@ -42,5 +39,8 @@ private:
     std::shared_ptr<dae::Texture2D> m_PathCTex;
     std::shared_ptr<dae::Texture2D> m_BlackTex;
 
+    float m_TileSize;
+    int m_Cols;
+    int m_Rows;
 };
 #endif

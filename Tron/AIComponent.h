@@ -53,15 +53,16 @@ namespace Tron
         std::unique_ptr<MoveCommand> m_pMoveLeft;
         std::unique_ptr<MoveCommand> m_pMoveRight;
         std::unique_ptr<FireCommand> m_pFireCommand;
+        const EnemyProfile* m_pProfile;
 
         glm::vec3 m_CurrentDirection{ 1, 0, 0 };
         float m_TileSize{ 32.0f };
-        bool m_MadeDecisionThisTile = false;
 
         float m_FireCooldown = 1.5f;
         float m_LastFireTime = 0.0f;
         AIType m_Type;
-        const EnemyProfile* m_pProfile;
+
+        bool m_MadeDecisionThisTile = false;
     };
 	};
 

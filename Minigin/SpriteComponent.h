@@ -32,11 +32,10 @@ namespace dae
         float m_FrameWidth{ 0 };
         float m_FrameHeight{ 0 };
 
-        bool m_IsVisible{ true };
-
         float m_AnimationTimer{ 0.0f };
         float m_FrameDuration{ 0.0f };
         int m_TotalFrames;
+        bool m_IsVisible{ true };
         bool m_Loop{ false };
         bool m_IsPlaying{ false };
     };

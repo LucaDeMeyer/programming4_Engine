@@ -91,26 +91,31 @@ namespace Tron
 		friend class dae::Singleton<GameManager>;
 		GameManager() = default;
 
-		GameMode m_CurrentMode{ GameMode::singlePlayer };
-		std::vector<dae::GameObject*> m_Entities{}; 
 
 		void RemoveEntity(dae::GameObject* entity);
 		void CheckWinCondition();
 
 		void SaveToFile();
 		void LoadFile();
-		int m_enemies{};
-		int m_Players{};
-	
-		bool m_IsTransitioningLevel = false;
+
+		GameMode m_CurrentMode{ GameMode::singlePlayer };
+		std::vector<dae::GameObject*> m_Entities{}; 
+
 		std::vector<HighScoreEntry> m_HighScores;
 		const std::string m_FileName = "highscores.txt";
 
+		int m_enemies{};
+		int m_Players{};
+	
+		
+		
 		glm::vec2 m_WindowSize{};
 
 		float m_TransitionTimer{ 0.0f };
 		const float m_TransitionDelay{ 1.5f }; 
 		TransitionType m_PendingTransition{ TransitionType::None };
+
+		bool m_IsTransitioningLevel = false;
 	};
 }
 #endif	

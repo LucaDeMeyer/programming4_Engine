@@ -1,3 +1,5 @@
+#ifndef UTILS_H
+#define UTILS_H
 namespace dae::Utils	
 {
 	template <int length> struct sdbm_hash
@@ -22,3 +24,4 @@ namespace dae::Utils
 		return sdbm_hash<N - 1>::calculate(text);
 	}
 }
+#endif
