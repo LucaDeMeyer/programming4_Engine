@@ -66,5 +66,19 @@ namespace Tron
     private:
         int m_ControllerIndex;
     };
+
+    class PlayerAimCommand : public dae::ActorCommand
+    {
+    public:
+        PlayerAimCommand(dae::GameObject* obj, dae::GameObject* turret,glm::vec2 aimDirection)
+            :dae::ActorCommand(obj), m_Turret(turret),m_Direction(aimDirection) {
+        }
+        ~PlayerAimCommand() override = default;
+        void Execute() override;
+
+    private:
+        dae::GameObject* m_Turret;
+        glm::vec2 m_Direction;
+    };
 }
 #endif

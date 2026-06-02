@@ -67,7 +67,8 @@ namespace Tron
 			m_LevelPlaylistIndex = 0;
 		}
 
-
+		dae::GameObject* GetP1() const { return m_Pplayer1; }
+		dae::GameObject* GetP2() const { return m_Pplayer2; }
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;

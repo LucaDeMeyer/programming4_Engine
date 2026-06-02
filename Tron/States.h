@@ -157,5 +157,16 @@ namespace Tron
         bool m_ShouldLeave{ false };
     };
 
+    class PvpWinnerScreenState final : public GameState
+    {
+    public:
+        void OnEnter(LevelManager& manager) override;
+        void OnExit(LevelManager& manager) override;
+        std::unique_ptr<GameState> Update(LevelManager& manager) override;
+
+    private:
+        bool m_ShouldLeave = false;
+    };
+
 }
 #endif

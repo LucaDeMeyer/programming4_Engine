@@ -23,7 +23,8 @@ namespace Tron
 		None,
 		NextLevel,
 		HighScore,
-		Menu
+		Menu,
+		PvpWinner
 	};
 
 	struct HighScoreEntry

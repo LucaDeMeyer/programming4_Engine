@@ -594,3 +594,79 @@ Tron::HighScoreScreenState::Update(LevelManager&)
 
     return nullptr;
 }
+
+void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
+{
+    auto& sceneManager = dae::SceneManager::GetInstance();
+    auto& inputManager = dae::InputManager::GetInstance();
+    auto& gameManager = GameManager::GetInstance();
+
+    inputManager.ClearAllCommands();
+
+    // Setup Scene
+    sceneManager.SetActiveScene(4); // Or whichever scene index you use for UI
+    auto& scene = sceneManager.GetActiveScene();
+    scene.RemoveAll();
+
+    std::string winnerText = "DRAW!";
+
+    auto* p1 = manager.GetP1();
+    auto* p2 = manager.GetP2();
+
+    bool p1Alive = p1 && !p1->IsMarkedForDestruction();
+    bool p2Alive = p2 && !p2->IsMarkedForDestruction();
+
+    if (p1Alive && !p2Alive) winnerText = "PLAYER 1 WINS!";
+    else if (p2Alive && !p1Alive) winnerText = "PLAYER 2 WINS!";
+
+    // --- Display Winner Text ---
+    auto titleObj = std::make_unique<dae::GameObject>();
+    auto textComp = titleObj->AddComponent<dae::TextComponent>();
+    textComp->SetFont("TRON.TTF", 40)
+        ->SetColor(0, 255, 255, 255)
+        ->SetText(winnerText);
+
+    glm::vec2 texSize = textComp->GetTexture()->GetSize();
+    float windowWidth = gameManager.GetWindowSize().x;
+    float windowHeight = gameManager.GetWindowSize().y;
+    titleObj->GetTransform()->SetLocalPosition({ (windowWidth / 2.0f) - (texSize.x / 2.0f), (windowHeight / 2.0f) - 50.f, 1 });
+    scene.Add(std::move(titleObj));
+
+    // --- Display Continue Prompt ---
+    auto promptObj = std::make_unique<dae::GameObject>();
+    promptObj->GetTransform()->SetLocalPosition({ (windowWidth / 2.0f) - 180.f, (windowHeight / 2.0f) + 50.f, 1 });
+    promptObj->AddComponent<dae::TextComponent>()
+        ->SetFont("TRON.TTF", 16)
+        ->SetText("PRESS ENTER OR A TO RETURN TO MENU")
+        ->SetColor(180, 180, 180, 255);
+    scene.Add(std::move(promptObj));
+
+    // --- Bind Inputs ---
+    bool* shouldLeave = &m_ShouldLeave;
+    auto confirmCallback = [shouldLeave]() { *shouldLeave = true; };
+
+    inputManager.BindKeyCommand(SDLK_RETURN, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+    inputManager.BindKeyCommand(SDLK_SPACE, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+    inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+    inputManager.BindControllerCommand(1, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback)); // Let P2 click it too
+}
+
+void Tron::PvpWinnerScreenState::OnExit(LevelManager&)
+{
+    dae::SceneManager::GetInstance().GetActiveScene().RemoveAll();
+}
+
+std::unique_ptr<Tron::GameState> Tron::PvpWinnerScreenState::Update(LevelManager&)
+{
+    if (m_ShouldLeave)
+    {
+        // Reset the game stats and head back to the main menu
+        auto& gm = GameManager::GetInstance();
+        gm.m_P1Score = 0;
+        gm.m_p2Score = 0;
+        gm.m_LVLNR = 0;
+
+        return std::make_unique<MainMenuState>();
+    }
+    return nullptr;
+}

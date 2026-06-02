@@ -248,3 +248,36 @@ void AimCommand::Execute()
         }
     }
 }
+
+void PlayerAimCommand::Execute()
+{
+    if (!m_Turret || m_Turret->IsMarkedForDestruction()) return;
+
+    if (m_Direction.x == 0 && m_Direction.y == 0) return;
+
+    float targetAngleRadians = std::atan2(m_Direction.y, m_Direction.x);
+    float angleDegrees = targetAngleRadians * (180.0f / 3.1415926535f);
+
+    int targetFrame = 0;
+
+    if (angleDegrees >= 0.0f && angleDegrees <= 90.0f) {
+        targetFrame = 30 + static_cast<int>(std::round(angleDegrees / 9.0f));
+        if (targetFrame > 39) targetFrame = 39;
+    }
+    else if (angleDegrees > 90.0f && angleDegrees <= 180.0f) {
+        targetFrame = 20 + static_cast<int>(std::round((angleDegrees - 90.0f) / 9.0f));
+        if (targetFrame > 29) targetFrame = 29;
+    }
+    else if (angleDegrees < 0.0f && angleDegrees >= -90.0f) {
+        targetFrame = 0 + static_cast<int>(std::round(std::abs(angleDegrees) / 9.0f));
+        if (targetFrame > 9) targetFrame = 9;
+    }
+    else if (angleDegrees < -90.0f && angleDegrees >= -180.0f) {
+        targetFrame = 10 + static_cast<int>(std::round((std::abs(angleDegrees) - 90.0f) / 9.0f));
+        if (targetFrame > 19) targetFrame = 19;
+    }
+
+    if (auto sprite = m_Turret->GetComponent<dae::SpriteComponent>()) {
+        sprite->SetFrame(targetFrame);
+    }
+}

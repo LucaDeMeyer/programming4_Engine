@@ -44,6 +44,7 @@
  * clean up Cmake
  * maybe profile cache misses and hits
  * add player aiming with arrow keys
+ * winner screen during PVP battles after each round / current score X
  */
 namespace fs = std::filesystem;
 

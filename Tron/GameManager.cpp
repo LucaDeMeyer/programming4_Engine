@@ -123,7 +123,7 @@ void Tron::GameManager::CheckWinCondition()
             ++m_LVLNR;
             if (m_P1Score >= 1000 || m_p2Score >= 1000 || m_LVLNR >= 3)
             {
-                m_PendingTransition = TransitionType::Menu;
+                m_PendingTransition = TransitionType::PvpWinner;
             }
             else
             {
@@ -155,6 +155,9 @@ void Tron::GameManager::Update()
                 break;
             case TransitionType::Menu:
                 lm.GoToMenu();
+                break;
+            case TransitionType::PvpWinner:
+                lm.TransitionToState(std::make_unique<PvpWinnerScreenState>());
                 break;
             }
 

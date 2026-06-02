@@ -272,7 +272,14 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 		input.RegisterMovementCommand(SDLK_D, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 100,0 }));
 		input.BindKeyCommand(SDLK_SPACE, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
 		input.BindKeyCommand(SDLK_C, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2));
-		input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1)); // -1 for Keyboard
+
+
+		input.BindKeyCommand(SDLK_UP, dae::InputState::Pressed, std::make_unique<Tron::PlayerAimCommand>(pTankBase,player.Turret.get(), glm::vec2{ 0,-1 }));
+		input.BindKeyCommand(SDLK_DOWN, dae::InputState::Pressed, std::make_unique<Tron::PlayerAimCommand>(pTankBase,player.Turret.get(), glm::vec2{ 0,1 }));
+		input.BindKeyCommand(SDLK_LEFT, dae::InputState::Pressed, std::make_unique<Tron::PlayerAimCommand>(pTankBase,player.Turret.get(), glm::vec2{ -1,0 }));
+		input.BindKeyCommand(SDLK_RIGHT, dae::InputState::Pressed, std::make_unique<Tron::PlayerAimCommand>(pTankBase,player.Turret.get(), glm::vec2{ 1,0 }));
+
+		//input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1)); // -1 for Keyboard
 	}
 
 	input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), playerIndex));
