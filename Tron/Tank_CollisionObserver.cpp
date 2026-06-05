@@ -2,7 +2,6 @@
 #include "AIComponent.h"
 #include "FactionComponent.h"
 #include "LivesComponent.h"
-#include "Tank_Bullet.h"
 #include "GameObject.h"
 #include "ColliderComponents.h"
 #include "LevelManager.h"
@@ -31,8 +30,6 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
     if (!otherCollider) return;
     dae::GameObject* otherObject = otherCollider->GetOwner();
 
-    if (otherObject->GetComponent<TankBullet>())
-		HandleBulletCollisions(otherObject);
 
 
 	HandleWallCollision(otherObject,myCollider);
@@ -47,42 +44,6 @@ void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Even
       
         auto payload = new (dae::Minigin::GetFrameAllocator())Teleport(GetOwner());
         dae::EventQueue::GetInstance().AddEvent(dae::Event(dae::Utils::make_sdbm_hash("Teleport"),payload));
-    }
-}
-
-void Tron::TankCollisionObserver::HandleBulletCollisions(dae::GameObject* other)
-{
-    auto* myFaction = GetOwner()->GetComponent<FactionComponent>();
-    auto* bulletFaction = other->GetComponent<FactionComponent>();
-
-    if (myFaction && bulletFaction)
-    {
-        Team me = myFaction->GetTeam();
-        Team bulletTeam = bulletFaction->GetTeam();
-        if (bulletTeam != me)
-        {
-            if (auto* lives = GetOwner()->GetComponent<LivesComponent>())
-            {
-                dae::GameObject* shooter = nullptr;
-                if (auto* bulletComp = other->GetComponent<TankBullet>())
-                {
-                    shooter = bulletComp->GetShooter();
-                }
-
-                if (shooter != GetOwner())
-                {
-
-                    if (auto* playerComp = GetOwner()->GetComponent<PlayerComponent>())
-                    {
-                        if (playerComp->IsInvulnerable()) return; 
-
-                        playerComp->TransitionTo(std::make_unique<InvulnerableState>());
-                    }
-
-                    lives->DoDamage(1, shooter);
-                }
-            }
-        }
     }
 }
 

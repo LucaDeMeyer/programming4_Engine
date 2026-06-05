@@ -297,13 +297,11 @@ set(TRON_SOURCES
     Tron/TileMapComponent.cpp
     Tron/NameEntryCommands.h
     Tron/TankCommands.cpp
-    Tron/Bullet_CollisionObserver.cpp
     Tron/Tank_CollisionObserver.cpp
     Tron/LivesDisplay.cpp
     Tron/NameEntryComponent.cpp
     Tron/NameEntryDisplay.cpp
     Tron/ScoreDisplay.cpp
-    Tron/Tank_Bullet.cpp
 )
 
 

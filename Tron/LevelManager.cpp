@@ -23,7 +23,6 @@
 #include "TextComponent.h"
 #include "TextureComponent.h"
 #include "TronFactory.h"
-#include "ExplosionComponent.h"
 #include "ParticleManager.h"
 
 #include "TileMapComponent.h"

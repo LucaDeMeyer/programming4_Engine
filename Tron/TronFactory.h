@@ -1,7 +1,6 @@
 #ifndef TRON_FACTORY_H
 #define TRON_FACTORY_H
 #include "AIComponent.h"
-#include "Bullet_CollisionObserver.h"
 #include "ColliderComponents.h"
 #include "EnemyDataBase.h"
 #include "FactionComponent.h"
@@ -10,14 +9,13 @@
 #include "GameObject.h"
 #include "LivesComponent.h"
 #include "SpriteComponent.h"
-#include "Tank_Bullet.h"
 #include "Tank_CollisionObserver.h"
 #include "TextureComponent.h"
 #include "glm/vec3.hpp"
 #include "TransformComponent.h"
 #include "ScoreComponent.h"
 #include "PlayerComponent.h"
-#include "ExplosionComponent.h"
+
 namespace Tron
 {
     struct PlayerAssembly
@@ -29,27 +27,6 @@ namespace Tron
     class GOFactory
     {
     public:
-
-        static std::unique_ptr<dae::GameObject> CreateBullet(glm::vec3 startPos, glm::vec2 velocity, Team team, dae::GameObject* shooter)
-        {
-            startPos.x += 12.0f;
-            startPos.y += 12.0f; // offset to have bullet spawn in center, half of tank sprite - half of bullet sprite
-
-            auto bullet = std::make_unique<dae::GameObject>();
-            bullet->GetTransform()->SetLocalPosition(startPos);
-            if (team == Team::Player1 || team == Team::Player2)
-                bullet->AddComponent<dae::TextureComponent>()->SetTexture("Tank_Bullet.png");
-            else
-                bullet->AddComponent<dae::TextureComponent>()->SetTexture("Bullet_Enemy.png");
-
-            bullet->AddComponent<dae::BoxColliderComponent>(glm::vec4{ 0, 0, 8, 8 });
-            bullet->AddComponent<Tron::BulletObserver>();
-            bullet->AddComponent<Tron::TankBullet>(shooter, velocity);
-            bullet->AddComponent<Tron::FactionComponent>(team);
-            bullet->AddComponent<Tron::GameActor>(ActorType::bullet);
-            Tron::GameManager::GetInstance().RegisterEntiy(bullet.get());
-            return bullet;
-        }
 
         static PlayerAssembly CreatePlayer(glm::vec3 startPos, const std::string& spriteSheet, Team team, int playerIndex)
         {
