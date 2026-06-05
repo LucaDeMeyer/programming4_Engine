@@ -283,21 +283,21 @@ endfunction()
 
 set(TRON_SOURCES
     Tron/main.cpp
-    Tron/GameManager.cpp
-    Tron/LevelManager.cpp
+    Tron/Managers/GameManager.cpp
+    Tron/Managers/LevelManager.cpp
     Tron/TronServices.cpp
-    Tron/States.cpp
-    Tron/BulletManager.cpp
-    Tron/ParticleManager.cpp
-    Tron/AchievmentManager.cpp
+    Tron/FSM/States.cpp
+    Tron/Managers/BulletManager.cpp
+    Tron/Managers/ParticleManager.cpp
+    Tron/Managers/AchievmentManager.cpp
     Tron/Components/AIComponent.cpp
     Tron/Components/LivesComponent.cpp
     Tron/Components/PlayerComponent.cpp
     Tron/Components/ScoreComponent.cpp
     Tron/Components/TileMapComponent.cpp
-    Tron/NameEntryCommands.h
-    Tron/TankCommands.cpp
-    Tron/Tank_CollisionObserver.cpp
+    Tron/Commands/NameEntryCommands.h
+    Tron/Commands/TankCommands.cpp
+    Tron/Observer/Tank_CollisionObserver.cpp
     Tron/Components/LivesDisplay.cpp
     Tron/Components/NameEntryComponent.cpp
     Tron/Components/NameEntryDisplay.cpp

@@ -12,20 +12,20 @@
 #include "ButtonComponent.h"
 #include "ColliderComponents.h"
 #include "Controller.h"
-#include "Components/FactionComponent.h"
+#include "../Components/FactionComponent.h"
 #include "FPSComponent.h"
 #include "InputManager.h"
-#include "Components/LivesDisplay.h"
-#include "Components/ScoreDisplay.h"
+#include "../Components/LivesDisplay.h"
+#include "../Components/ScoreDisplay.h"
 #include "ServiceLocator.h"
 #include "SpriteComponent.h"
-#include "TankCommands.h"
+#include "../Commands/TankCommands.h"
 #include "TextComponent.h"
 #include "TextureComponent.h"
-#include "TronFactory.h"
+#include "../TronFactory.h"
 #include "ParticleManager.h"
 
-#include "Components/TileMapComponent.h"
+#include "../Components/TileMapComponent.h"
 //TODO: stop hardcoding all OBJ locations -> should scale with window scaling
 void Tron::LevelManager::Init()
 {

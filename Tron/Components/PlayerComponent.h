@@ -1,7 +1,7 @@
 #ifndef PLAYER_COMP_H
 #define PLAYER_COMP_H
 #include "BaseComponent.h"
-#include "../States.h"
+#include "../FSM/States.h"
 #include <memory>
 #include "glm/vec3.hpp"
 #include "Observer.h"

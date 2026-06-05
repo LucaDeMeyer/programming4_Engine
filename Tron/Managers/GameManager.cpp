@@ -1,11 +1,11 @@
 #include "GameManager.h"
 #include <iostream>
 #include "EventQueue.h"
-#include "Components/GameActorComponent.h"
+#include "../Components/GameActorComponent.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "LevelManager.h"
-#include "TronEvents.h"
+#include "../TronEvents.h"
 #include "TransformComponent.h"
 #include <filesystem>
 #include <fstream>

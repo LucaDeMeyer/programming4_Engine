@@ -2,7 +2,7 @@
 #define GAME_MANAGER_H
 #include <vector>
 
-#include "Components/GameActorComponent.h"
+#include "../Components/GameActorComponent.h"
 #include "Singleton.h"
 #include "Observer.h"
 #include "GameObject.h"

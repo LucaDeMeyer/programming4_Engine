@@ -1,6 +1,6 @@
 #ifndef BULLET_MANAGER_H
 #define BULLET_MANAGER_H
-#include "Components/FactionComponent.h"
+#include "../Components/FactionComponent.h"
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "Memory/PoolAllocator.h"

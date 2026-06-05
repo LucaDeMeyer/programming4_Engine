@@ -1,7 +1,7 @@
 
 #include "AchievmentManager.h"
 #include "GameObject.h"
-#include "TronEvents.h"
+#include "../TronEvents.h"
 #include "ServiceLocator.h" 
 #include "Utils.h"
 
