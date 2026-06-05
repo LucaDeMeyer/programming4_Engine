@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include "GameTime.h"
+#include "ParticleManager.h"
 
 void Tron::GameManager::Init()
 {
@@ -30,6 +31,12 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
 
         if (data && data->obj)
         {
+            auto pos = data->obj->GetTransform()->GetWorldPosition();
+            pos.x += 16.0f; 
+            pos.y += 16.0f;
+
+            ParticleManager::GetInstance().SpawnExplosion(pos, 0.15f);
+
             RemoveEntity(data->obj);
 
             dae::Event winEvent(dae::Utils::make_sdbm_hash("WinCondition"));
@@ -160,7 +167,6 @@ void Tron::GameManager::Update()
                 lm.TransitionToState(std::make_unique<PvpWinnerScreenState>());
                 break;
             }
-
             m_PendingTransition = TransitionType::None;
             m_TransitionTimer = 0.0f;
         }

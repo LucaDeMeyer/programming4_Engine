@@ -33,6 +33,7 @@
 #include "TronFactory.h"
 #include "AchievmentManager.h"
 #include "BulletManager.h"
+#include "ParticleManager.h"
 #include "ServiceLocator.h"
 #include "TronServices.h"
 
@@ -40,10 +41,10 @@
 /*
  * TODO: 
  * clean up project -> move files to seperate folders
- * particle manager
+ * particle manager X
  * clean up Cmake
- * maybe profile cache misses and hits
- * add player aiming with arrow keys
+ * maybe profile cache misses and hits => tracy profiler?
+ * add player aiming with arrow keys x
  * winner screen during PVP battles after each round / current score X
  */
 namespace fs = std::filesystem;
@@ -68,10 +69,11 @@ static void load()
 	levelManager.Init();
 	auto& BulletManager = Tron::BulletManager::GetInstance();
 	BulletManager.Init();
+	auto& ParticleManager = Tron::ParticleManager::GetInstance();
+	ParticleManager.Init();
 
-	dae::ServiceLocator::RegisterPlatform(std::make_unique<Tron::LevelManagerService>());
+	dae::ServiceLocator::RegisterGameService(std::make_unique<Tron::TronGameLoopService>());
 
-	dae::ServiceLocator::RegisterWeaponService(std::make_unique<Tron::BulletPoolService>());
 }
 
 int main(int, char* []) {

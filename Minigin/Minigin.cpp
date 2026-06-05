@@ -136,7 +136,7 @@ void dae::Minigin::RunOneFrame()
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
 	ServiceLocator::GetPlatform().Update();
-	ServiceLocator::GetMemoryPoolService().Update();
+	ServiceLocator::GetGameService().Update();
 	CollisionManager::GetInstance().Update();
 	EventQueue::GetInstance().Process();
 	Renderer::GetInstance().Render();

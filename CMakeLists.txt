@@ -282,7 +282,7 @@ function(add_minigin_app APP_NAME APP_SOURCES)
 endfunction()
 
 add_minigin_app(Tron
-"Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/BulletManager.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp;Tron/ScoreComponent.cpp;Tron/AchievmentManager.cpp;Tron/TronServices.cpp;Tron/LevelManager.cpp;Tron/Bullet_CollisionObserver.cpp;Tron/GameManager.cpp;Tron/AIComponent.cpp;Tron/ExplosionComponent.cpp;Tron/States.cpp;Tron/PlayerComponent.cpp;Tron/NameEntryDisplay.cpp;Tron/NameEntryComponent.cpp;Tron/NameEntryCommands.h")
+"Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/BulletManager.cpp;Tron/ParticleManager.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp;Tron/ScoreComponent.cpp;Tron/AchievmentManager.cpp;Tron/TronServices.cpp;Tron/LevelManager.cpp;Tron/Bullet_CollisionObserver.cpp;Tron/GameManager.cpp;Tron/AIComponent.cpp;Tron/ExplosionComponent.cpp;Tron/States.cpp;Tron/PlayerComponent.cpp;Tron/NameEntryDisplay.cpp;Tron/NameEntryComponent.cpp;Tron/NameEntryCommands.h")
 
 
 if(WIN32)

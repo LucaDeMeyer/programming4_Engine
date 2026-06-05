@@ -2,6 +2,7 @@
 #define TRON_SERVICES_H
 #include "BulletManager.h"
 #include "LevelManager.h"
+#include "ParticleManager.h"
 #include "Services.h"
 
 namespace Tron
@@ -18,28 +19,21 @@ namespace Tron
         void Shutdown() override;
     };
 
-    class LevelManagerService final : public dae::IPlatformService
+    class TronGameLoopService final : public dae::IGameService
     {
     public:
-        void Init() override {}
-        void Update() override { Tron::LevelManager::GetInstance().Update(); }
-        void Shutdown() override {}
-    };
-
-    class BulletPoolService final : public dae::IMemoryPoolService
-    {
-    public:
-        void Update() override { Tron::BulletManager::GetInstance().Update(); }
-        void FireWeapon(glm::vec3 startPos, glm::vec2 velocity, int teamID, dae::GameObject* shooter) override
+        void Update() override
         {
-            Tron::Team actualTeam = static_cast<Tron::Team>(teamID);
-
-            Tron::BulletManager::GetInstance().FireBullet(startPos, velocity, actualTeam, shooter);
+            Tron::LevelManager::GetInstance().Update();
+            Tron::BulletManager::GetInstance().Update();
+            Tron::ParticleManager::GetInstance().Update();
         }
 
-        void Render() const override { Tron::BulletManager::GetInstance().Render(); }
-
-        void ClearAll() override { Tron::BulletManager::GetInstance().ClearAll(); }
+        void Render() const override
+        {
+            Tron::BulletManager::GetInstance().Render();
+            Tron::ParticleManager::GetInstance().Render();
+        }
     };
 }
 #endif

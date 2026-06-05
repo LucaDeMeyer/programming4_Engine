@@ -7,6 +7,7 @@
 #include "LevelManager.h"
 #include "LivesComponent.h"
 #include "Minigin.h"
+#include "ParticleManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "glm/vec4.hpp"
@@ -114,7 +115,7 @@ void Tron::BulletManager::Update()
                         dae::EventQueue::GetInstance().AddEvent(dae::Event(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), soundArgs));
 
                         entity->GetComponent<LivesComponent>()->DoDamage(1,bullet->shooter);
-
+                        ParticleManager::GetInstance().SpawnAttachedExplosion(entity, bullet->position, 0.05f);
                         bulletDestroyed = true;
                         break; 
                     }

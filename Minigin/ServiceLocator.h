@@ -26,12 +26,13 @@ namespace dae
                : std::make_unique<NullAudioService>();
        }
 
-       static IMemoryPoolService& GetMemoryPoolService() { return *m_weaponService; }
-        static void RegisterWeaponService(std::unique_ptr<IMemoryPoolService> service)
-        {
-            m_weaponService = service ? std::move(service)
-                : std::make_unique<NullMemoryPoolService>();
-        }
+       static IGameService& GetGameService() { return *m_GameService; }
+
+       static void RegisterGameService(std::unique_ptr<IGameService> service)
+       {
+           m_GameService = service ? std::move(service) : std::make_unique<NullGameService>();
+       }
+     
     private:
         ServiceLocator() = delete;
 
@@ -41,8 +42,8 @@ namespace dae
             = std::make_unique<NullPlatformService>();
         static inline std::unique_ptr<IAudioService> m_AudioService
             = std::make_unique<NullAudioService>();
-        static inline std::unique_ptr<IMemoryPoolService> m_weaponService
-            = std::make_unique<NullMemoryPoolService>();
+        static inline std::unique_ptr<IGameService> m_GameService
+    	= std::make_unique<NullGameService>();
     };
 }
 #endif

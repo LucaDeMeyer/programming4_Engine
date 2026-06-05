@@ -163,6 +163,8 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
     m_Options.clear();
     m_SelectedIndex = 0;
 
+
+
     m_Options.push_back({
          CreateMenuButton(scene, "Single Player", startY, [&manager]() {
              GameManager::GetInstance().SetGameMode(GameMode::singlePlayer);
@@ -306,6 +308,9 @@ void Tron::LevelSplashScreenState::OnEnter(LevelManager& manager)
             upcomingIndex = 0;
         }
     }
+
+  
+
     std::string splashText = "GET READY FOR LEVEL " + std::to_string(upcomingIndex + 1);
     titleObj->AddComponent<dae::TextComponent>()->SetFont("TRON.TTF", 30)->SetColor(0, 255, 255, 255)->SetText(splashText);
 
@@ -387,7 +392,8 @@ void Tron::HighScoreEntryState::OnEnter(LevelManager&)
         scene.Add(std::move(obj));
     }
 
-   
+
+
     auto spawnEntry = [&](int playerIndex, glm::vec3 origin, const std::string& label)
         {
             auto entryObj = std::make_unique<dae::GameObject>();
@@ -531,6 +537,8 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
         scene.Add(std::move(obj));
     }
 
+
+
     float startY = 140.f;
 
     const auto& scores = gm.GetHighScores();
@@ -603,8 +611,7 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
 
     inputManager.ClearAllCommands();
 
-    // Setup Scene
-    sceneManager.SetActiveScene(4); // Or whichever scene index you use for UI
+    sceneManager.SetActiveScene(4); 
     auto& scene = sceneManager.GetActiveScene();
     scene.RemoveAll();
 
@@ -619,7 +626,6 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
     if (p1Alive && !p2Alive) winnerText = "PLAYER 1 WINS!";
     else if (p2Alive && !p1Alive) winnerText = "PLAYER 2 WINS!";
 
-    // --- Display Winner Text ---
     auto titleObj = std::make_unique<dae::GameObject>();
     auto textComp = titleObj->AddComponent<dae::TextComponent>();
     textComp->SetFont("TRON.TTF", 40)
@@ -641,7 +647,6 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
         ->SetColor(180, 180, 180, 255);
     scene.Add(std::move(promptObj));
 
-    // --- Bind Inputs ---
     bool* shouldLeave = &m_ShouldLeave;
     auto confirmCallback = [shouldLeave]() { *shouldLeave = true; };
 
@@ -660,7 +665,6 @@ std::unique_ptr<Tron::GameState> Tron::PvpWinnerScreenState::Update(LevelManager
 {
     if (m_ShouldLeave)
     {
-        // Reset the game stats and head back to the main menu
         auto& gm = GameManager::GetInstance();
         gm.m_P1Score = 0;
         gm.m_p2Score = 0;

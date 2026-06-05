@@ -63,24 +63,19 @@ namespace dae
         void LoadSound(unsigned int , const std::string& ) override{}
     };
 
-    class IMemoryPoolService
-    {
+    class IGameService {
     public:
-        virtual ~IMemoryPoolService() = default;
-        virtual void FireWeapon(glm::vec3 startPos, glm::vec2 velocity, int teamID, GameObject* shooter) = 0;
+        virtual ~IGameService() = default;
         virtual void Update() = 0;
         virtual void Render() const = 0;
-        virtual void ClearAll() = 0;
     };
 
-    class NullMemoryPoolService final : public IMemoryPoolService
-    {
+    class NullGameService final : public IGameService {
     public:
-        void FireWeapon(glm::vec3, glm::vec2, int, GameObject*) override {}
         void Update() override {}
         void Render() const override {}
-        void ClearAll() override{}
     };
+  
 }
 
 #endif

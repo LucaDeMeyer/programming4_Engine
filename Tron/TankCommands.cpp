@@ -73,9 +73,8 @@ void FireCommand::Execute()
         else if (frame == 2) velocity = { bulletSpeed, 0};
         else if (frame == 3) velocity = { 0, -bulletSpeed };
     }
- 
-    dae::ServiceLocator::GetMemoryPoolService().FireWeapon(pos, velocity, static_cast<int>(team), obj);
 
+    Tron::BulletManager::GetInstance().FireBullet(pos, velocity, team, obj);
     auto soundArgs = new(dae::Minigin::GetFrameAllocator())dae::SoundARGS(dae::Utils::make_sdbm_hash("tank_fire"),
         .5f, dae::AudioType::FX);
     dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), soundArgs);
@@ -122,8 +121,7 @@ void PlayerFireCommand::Execute()
         center.z
     };
 
-    dae::ServiceLocator::GetMemoryPoolService().FireWeapon(spawnPos, velocity, static_cast<int>(team), base);
-
+    Tron::BulletManager::GetInstance().FireBullet(spawnPos, velocity, team, base);
     auto soundArgs = new(dae::Minigin::GetFrameAllocator())dae::SoundARGS(dae::Utils::make_sdbm_hash("tank_fire"),
         .5f,dae::AudioType::FX);
     dae::Event audioEvent(dae::Utils::make_sdbm_hash("ENGINE_PLAY_AUDIO"), soundArgs);
