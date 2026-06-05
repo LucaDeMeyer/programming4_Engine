@@ -61,8 +61,8 @@ namespace Tron
 
 		int m_P1Score{};
 		int m_p2Score{};
-		int m_P1Lives{};
-		int m_P2Lives{};
+		int m_P1Lives{3};
+		int m_P2Lives{3};
 
 		int m_LVLNR{};
 
@@ -80,6 +80,8 @@ namespace Tron
 			m_P1Score = 0;
 			m_p2Score = 0;
 			m_LVLNR = 0;
+			m_P1Lives = 3;
+			m_P2Lives = 3;
 			
 		}
 		void SetWindowSize(glm::vec2 windowSize) { m_WindowSize = windowSize; }

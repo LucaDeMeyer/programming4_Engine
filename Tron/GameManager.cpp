@@ -58,6 +58,15 @@ void Tron::GameManager::OnNotify(dae::GameObject* pEntity, const dae::Event& eve
             m_p2Score = data->points;
     }
 
+    if (event.ID == dae::Utils::make_sdbm_hash("LivesChangedEvent"))
+    {
+        if (!event.pArgs) return;
+        auto* data = static_cast<LivesChangedARGS*>(event.pArgs);
+        if (data->playerID == 0)
+            m_P1Lives = data->currentLives;
+        else
+            m_P2Lives = data->currentLives;
+    }
     if (event.ID == dae::Utils::make_sdbm_hash("Teleport"))
     {
         if (!event.pArgs) return;

@@ -214,7 +214,7 @@ set(ACTIVE_PROJECT "Tron")
 
 function(add_minigin_app APP_NAME APP_SOURCES)
     # 1. Create the executable and link the engine and ImGui
-    add_executable(${APP_NAME} ${APP_SOURCES})
+   add_executable(${APP_NAME} ${APP_SOURCES})
     target_link_libraries(${APP_NAME} PRIVATE ${TARGET_NAME} imgui)
     target_include_directories(${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Minigin ${imgui_SOURCE_DIR})
 
@@ -281,9 +281,33 @@ function(add_minigin_app APP_NAME APP_SOURCES)
     endif()
 endfunction()
 
-add_minigin_app(Tron
-"Tron/main.cpp;Tron/TileMapComponent.cpp;Tron/BulletManager.cpp;Tron/ParticleManager.cpp;Tron/TankCommands.cpp;Tron/LivesComponent.cpp;Tron/LivesDisplay.cpp;Tron/Tank_CollisionObserver.cpp;Tron/Tank_Bullet.cpp;Tron/ScoreDisplay.cpp;Tron/ScoreComponent.cpp;Tron/AchievmentManager.cpp;Tron/TronServices.cpp;Tron/LevelManager.cpp;Tron/Bullet_CollisionObserver.cpp;Tron/GameManager.cpp;Tron/AIComponent.cpp;Tron/ExplosionComponent.cpp;Tron/States.cpp;Tron/PlayerComponent.cpp;Tron/NameEntryDisplay.cpp;Tron/NameEntryComponent.cpp;Tron/NameEntryCommands.h")
+set(TRON_SOURCES
+    Tron/main.cpp
+    Tron/GameManager.cpp
+    Tron/LevelManager.cpp
+    Tron/TronServices.cpp
+    Tron/States.cpp
+    Tron/BulletManager.cpp
+    Tron/ParticleManager.cpp
+    Tron/AchievmentManager.cpp
+    Tron/AIComponent.cpp
+    Tron/LivesComponent.cpp
+    Tron/PlayerComponent.cpp
+    Tron/ScoreComponent.cpp
+    Tron/TileMapComponent.cpp
+    Tron/NameEntryCommands.h
+    Tron/TankCommands.cpp
+    Tron/Bullet_CollisionObserver.cpp
+    Tron/Tank_CollisionObserver.cpp
+    Tron/LivesDisplay.cpp
+    Tron/NameEntryComponent.cpp
+    Tron/NameEntryDisplay.cpp
+    Tron/ScoreDisplay.cpp
+    Tron/Tank_Bullet.cpp
+)
 
+
+add_minigin_app(Tron "${TRON_SOURCES}")
 
 if(WIN32)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ACTIVE_PROJECT})

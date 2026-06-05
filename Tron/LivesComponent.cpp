@@ -52,7 +52,7 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 	}
 	else
 	{
-		auto payload = new (dae::Minigin::GetFrameAllocator())LivesChangedARGS(m_Lives);
+		auto payload = new (dae::Minigin::GetFrameAllocator())LivesChangedARGS(m_Lives,playerID);
 		dae::Event livesChangedEvent(dae::Utils::make_sdbm_hash("LivesChangedEvent"), payload);
 		m_LivesEvent.Notify(GetOwner(), livesChangedEvent);
 	}
@@ -60,11 +60,11 @@ void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 
 void LivesComponent::SetHealth(int newLives)
 {
-	if (m_Lives + newLives > m_MaxLives)
+	if (newLives > m_MaxLives)
 		m_Lives = m_MaxLives;
 	else
 		m_Lives = newLives;
-	auto payload = new (dae::Minigin::GetFrameAllocator())LivesChangedARGS(m_Lives);
+	auto payload = new (dae::Minigin::GetFrameAllocator())LivesChangedARGS(m_Lives, playerID);
 	dae::Event livesChangedEvent(dae::Utils::make_sdbm_hash("LivesChangedEvent"), payload);
 	m_LivesEvent.Notify(GetOwner(), livesChangedEvent);
 }

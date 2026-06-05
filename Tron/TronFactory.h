@@ -112,7 +112,7 @@ namespace Tron
 
             enemy->GetComponent<GameActor>()->SetScore(profile->pointValue);
             enemy->AddComponent<Tron::LivesComponent>(profile->maxLives);
-
+            enemy->GetComponent<LivesComponent>()->SetPlayerID(3);
             enemy->AddComponent<dae::BoxColliderComponent>(glm::vec4{ offset, offset, 25, 25 });
             enemy->AddComponent<Tron::FactionComponent>(Team::Enemy);
             enemy->AddComponent<Tron::TankCollisionObserver>();

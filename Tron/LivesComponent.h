@@ -29,11 +29,14 @@ namespace Tron
         int GetLives() { return m_Lives; }
         dae::Subject& GetLivesEvent() { return m_LivesEvent; }
 
+        void SetPlayerID(int id) { playerID = id; }
+        int GetPlayerIndex() const { return playerID; }
     private:
         dae::Subject m_LivesEvent;
 
         int m_Lives;
         int m_MaxLives;
+        int playerID = 0;
     };
 }
 

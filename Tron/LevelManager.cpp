@@ -247,6 +247,7 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 	auto livesComp = livesDisplay->AddComponent<Tron::LivesDisplay>(pTankBase->GetComponent<Tron::LivesComponent>()->GetLives());
 	livesComp->SetTexture("Player_Lives.png");
 	pTankBase->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(livesComp);
+	pTankBase->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(&GameManager::GetInstance());
 
 	auto scoreDisplay = std::make_unique<dae::GameObject>();
 	scoreDisplay->GetTransform()->SetLocalPosition({ scoreXOffset, 5, 0 });
@@ -263,6 +264,12 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 		int previousScore = (playerIndex == 0) ? GameManager::GetInstance().m_P1Score : GameManager::GetInstance().m_p2Score;
 		scoreComp->AddScore(previousScore);
 		scoreComp->SetPlayerIndex(playerIndex);
+	}
+
+	if (auto livesComp = pTankBase->GetComponent<LivesComponent>()) {
+		int previousScore = (playerIndex == 0) ? GameManager::GetInstance().m_P1Lives : GameManager::GetInstance().m_P2Lives;
+		livesComp->SetPlayerID(playerIndex);
+		livesComp->SetHealth(previousScore);
 	}
 
 	auto& input = dae::InputManager::GetInstance();

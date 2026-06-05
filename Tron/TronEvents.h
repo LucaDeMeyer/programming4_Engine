@@ -5,7 +5,8 @@
 struct LivesChangedARGS : public dae::EventARGS
 {
 	int currentLives;
-	LivesChangedARGS(int _currentLives) : currentLives(_currentLives){}
+	int playerID;
+	LivesChangedARGS(int _currentLives,int _playerID) : currentLives(_currentLives),playerID(_playerID){}
 };
 
 struct PlayerDiedARGS : public dae::EventARGS
