@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "AIComponent.h"
+#include "BulletManager.h"
 #include "ButtonComponent.h"
 #include "ColliderComponents.h"
 #include "FPSComponent.h"
@@ -16,6 +17,7 @@
 #include "NameEntryCommands.h"
 #include "NameEntryComponent.h"
 #include "NameEntryDisplay.h"
+#include "ParticleManager.h"
 #include "SceneManager.h"
 #include "ServiceLocator.h"
 #include "TextComponent.h"
@@ -137,6 +139,10 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
     inputManager.ClearAllCommands();
     gameManager.SetTransitioning(false);
     audioService.StopAll();
+
+
+    Tron::BulletManager::GetInstance().ClearAll();
+    Tron::ParticleManager::GetInstance().ClearAll();
 
     audioService.LoadSound(dae::Utils::make_sdbm_hash("Theme_Music"), "Data/TronMenu_Theme.wav");
     audioService.Play(dae::Utils::make_sdbm_hash("Theme_Music"), 1.0f, dae::AudioType::Ambient);
@@ -296,6 +302,10 @@ void Tron::LevelSplashScreenState::OnEnter(LevelManager& manager)
     auto& splashScene = sceneManager.GetActiveScene();
     splashScene.RemoveAll();
 
+
+    Tron::BulletManager::GetInstance().ClearAll();
+    Tron::ParticleManager::GetInstance().ClearAll();
+
     auto titleObj = std::make_unique<dae::GameObject>();
     int upcomingIndex = manager.GetPlaylistIndex();
 
@@ -365,6 +375,10 @@ void Tron::HighScoreEntryState::OnEnter(LevelManager&)
     sceneManager.SetActiveScene(4);
     auto& scene = sceneManager.GetActiveScene();
     scene.RemoveAll();
+
+
+    Tron::BulletManager::GetInstance().ClearAll();
+    Tron::ParticleManager::GetInstance().ClearAll();
 
     GameMode mode = gameManager.GetGameMode();
     m_ExpectedCount = (mode == GameMode::COOP) ? 2 : 1;
@@ -496,6 +510,9 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
     scene.RemoveAll();
 
 
+    Tron::BulletManager::GetInstance().ClearAll();
+    Tron::ParticleManager::GetInstance().ClearAll();
+
     bool* shouldLeave = &m_ShouldLeave;
 
     auto confirmCallback = [shouldLeave]()
@@ -614,6 +631,10 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
     sceneManager.SetActiveScene(4); 
     auto& scene = sceneManager.GetActiveScene();
     scene.RemoveAll();
+
+
+    Tron::BulletManager::GetInstance().ClearAll();
+    Tron::ParticleManager::GetInstance().ClearAll();
 
     std::string winnerText = "DRAW!";
 

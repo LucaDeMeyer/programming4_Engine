@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "AchievmentManager.h"
+#include "BulletManager.h"
 #include "ButtonComponent.h"
 #include "ColliderComponents.h"
 #include "Controller.h"
@@ -23,6 +24,7 @@
 #include "TextureComponent.h"
 #include "TronFactory.h"
 #include "ExplosionComponent.h"
+#include "ParticleManager.h"
 
 #include "TileMapComponent.h"
 //TODO: stop hardcoding all OBJ locations -> should scale with window scaling
@@ -95,6 +97,10 @@ void Tron::LevelManager::LoadLevel(LevelCategory category)
 	gameManager.ClearEntities();
 	inputManager.ClearAllCommands();
 	sceneManager.GetActiveScene().RemoveAll();
+
+
+	Tron::BulletManager::GetInstance().ClearAll();
+	Tron::ParticleManager::GetInstance().ClearAll();
 
 	m_Pplayer1 = nullptr;
 	m_Pplayer2 = nullptr;
