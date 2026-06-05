@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "AIComponent.h"
+#include "Components/AIComponent.h"
 #include "BulletManager.h"
 #include "ButtonComponent.h"
 #include "ColliderComponents.h"
@@ -11,12 +11,12 @@
 #include "TankCommands.h" 
 #include "GameTime.h"
 #include "InputManager.h"
-#include "PlayerComponent.h"
+#include "Components/PlayerComponent.h"
 #include "SpriteComponent.h"
 #include "LevelManager.h"
 #include "NameEntryCommands.h"
-#include "NameEntryComponent.h"
-#include "NameEntryDisplay.h"
+#include "Components/NameEntryComponent.h"
+#include "Components/NameEntryDisplay.h"
 #include "ParticleManager.h"
 #include "SceneManager.h"
 #include "ServiceLocator.h"

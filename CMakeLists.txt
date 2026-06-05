@@ -290,18 +290,18 @@ set(TRON_SOURCES
     Tron/BulletManager.cpp
     Tron/ParticleManager.cpp
     Tron/AchievmentManager.cpp
-    Tron/AIComponent.cpp
-    Tron/LivesComponent.cpp
-    Tron/PlayerComponent.cpp
-    Tron/ScoreComponent.cpp
-    Tron/TileMapComponent.cpp
+    Tron/Components/AIComponent.cpp
+    Tron/Components/LivesComponent.cpp
+    Tron/Components/PlayerComponent.cpp
+    Tron/Components/ScoreComponent.cpp
+    Tron/Components/TileMapComponent.cpp
     Tron/NameEntryCommands.h
     Tron/TankCommands.cpp
     Tron/Tank_CollisionObserver.cpp
-    Tron/LivesDisplay.cpp
-    Tron/NameEntryComponent.cpp
-    Tron/NameEntryDisplay.cpp
-    Tron/ScoreDisplay.cpp
+    Tron/Components/LivesDisplay.cpp
+    Tron/Components/NameEntryComponent.cpp
+    Tron/Components/NameEntryDisplay.cpp
+    Tron/Components/ScoreDisplay.cpp
 )
 
 

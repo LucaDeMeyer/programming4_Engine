@@ -30,7 +30,6 @@ namespace Tron
 		void OnNotify(dae::GameObject* obj, const dae::Event& event) override;
 
 	private:
-		void HandleBulletCollisions(dae::GameObject* other);
 		void HandleWallCollision(dae::GameObject* other, dae::ColliderComponent* triggerdCollider);
 		void HandleTankCollision(dae::GameObject* other);
 	

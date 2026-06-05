@@ -3,7 +3,7 @@
 #include "BaseComponent.h"
 #include "Minigin.h"
 #include "Subject.h"
-#include "TronEvents.h"
+#include "../TronEvents.h"
 #include "Utils.h"
 #include "Memory/MemoryOverrides.h"
 namespace Tron {

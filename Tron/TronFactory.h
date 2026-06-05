@@ -1,20 +1,20 @@
 #ifndef TRON_FACTORY_H
 #define TRON_FACTORY_H
-#include "AIComponent.h"
+#include "Components/AIComponent.h"
 #include "ColliderComponents.h"
 #include "EnemyDataBase.h"
-#include "FactionComponent.h"
-#include "GameActorComponent.h"
+#include "Components/FactionComponent.h"
+#include "Components/GameActorComponent.h"
 #include "GameManager.h"
 #include "GameObject.h"
-#include "LivesComponent.h"
+#include "Components/LivesComponent.h"
 #include "SpriteComponent.h"
 #include "Tank_CollisionObserver.h"
 #include "TextureComponent.h"
 #include "glm/vec3.hpp"
 #include "TransformComponent.h"
-#include "ScoreComponent.h"
-#include "PlayerComponent.h"
+#include "Components/ScoreComponent.h"
+#include "Components/PlayerComponent.h"
 
 namespace Tron
 {

@@ -1,7 +1,7 @@
 #include "Tank_CollisionObserver.h"
-#include "AIComponent.h"
-#include "FactionComponent.h"
-#include "LivesComponent.h"
+#include "Components/AIComponent.h"
+#include "Components/FactionComponent.h"
+#include "Components/LivesComponent.h"
 #include "GameObject.h"
 #include "ColliderComponents.h"
 #include "LevelManager.h"
@@ -9,7 +9,7 @@
 #include "TransformComponent.h"
 #include "TronEvents.h"
 #include "Utils.h"
-#include "PlayerComponent.h"
+#include "Components/PlayerComponent.h"
 #include "Memory/MemoryOverrides.h"
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {

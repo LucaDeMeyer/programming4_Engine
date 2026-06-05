@@ -5,13 +5,13 @@
 #include "GameManager.h"
 #include "GameTime.h"
 #include "LevelManager.h"
-#include "LivesComponent.h"
+#include "Components/LivesComponent.h"
 #include "Minigin.h"
 #include "ParticleManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "glm/vec4.hpp"
-#include "PlayerComponent.h"
+#include "Components/PlayerComponent.h"
 #include "Memory/MemoryOverrides.h"
 void Tron::BulletManager::Init()
 {

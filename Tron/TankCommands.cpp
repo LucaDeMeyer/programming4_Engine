@@ -4,7 +4,7 @@
 #include "TransformComponent.h"
 #include "GameTime.h"
 #include "InputManager.h"
-#include "LivesComponent.h"
+#include "Components/LivesComponent.h"
 #include "SceneManager.h"
 #include "ServiceLocator.h"
 #include "SpriteComponent.h"

@@ -1,7 +1,7 @@
 #include "GameManager.h"
 #include <iostream>
 #include "EventQueue.h"
-#include "GameActorComponent.h"
+#include "Components/GameActorComponent.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "LevelManager.h"
