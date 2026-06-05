@@ -5,7 +5,7 @@
 #include "GameObject.h"
 #include "InputManager.h"
 #include "LevelManager.h"
-#include "../TronEvents.h"
+#include "TronEvents.h"
 #include "TransformComponent.h"
 #include <filesystem>
 #include <fstream>

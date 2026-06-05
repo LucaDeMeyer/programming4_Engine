@@ -5,7 +5,7 @@
 #include "InputManager.h"
 #include "LivesComponent.h"
 #include "SpriteComponent.h"
-#include "../TronFactory.h"
+#include "TronFactory.h"
 #include "EventQueue.h"
 #include "Minigin.h"
 #include "MemoryOverrides.h"

@@ -7,7 +7,7 @@
 #include "LevelManager.h"
 #include "Minigin.h"
 #include "TransformComponent.h"
-#include "../TronEvents.h"
+#include "TronEvents.h"
 #include "Utils.h"
 #include "PlayerComponent.h"
 #include "MemoryOverrides.h"

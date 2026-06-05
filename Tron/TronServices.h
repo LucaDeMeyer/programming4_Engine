@@ -1,8 +1,8 @@
 #ifndef TRON_SERVICES_H
 #define TRON_SERVICES_H
-#include "Managers/BulletManager.h"
-#include "Managers/LevelManager.h"
-#include "Managers/ParticleManager.h"
+#include "BulletManager.h"
+#include "LevelManager.h"
+#include "ParticleManager.h"
 #include "Services.h"
 
 namespace Tron

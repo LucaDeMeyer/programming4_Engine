@@ -5,7 +5,6 @@
 #include <vld.h>
 #endif
 #include "Minigin.h"
-#include "TextObject.h"
 #include "InputManager.h"
 #include "LevelManager.h"
 #include "TronFactory.h"

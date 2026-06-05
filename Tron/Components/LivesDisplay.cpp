@@ -3,7 +3,7 @@
 #include "TransformComponent.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
-#include "../TronEvents.h" 
+#include "TronEvents.h" 
 #include "Utils.h"
 using namespace Tron;
 void LivesDisplay::SetTexture(const std::string& filename)

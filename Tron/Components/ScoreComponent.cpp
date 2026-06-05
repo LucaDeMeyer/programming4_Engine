@@ -1,6 +1,6 @@
 #include "ScoreComponent.h"
 
-#include "../TronEvents.h"
+#include "TronEvents.h"
 #include <iostream>
 
 #include "Minigin.h"

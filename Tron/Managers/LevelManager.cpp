@@ -22,11 +22,10 @@
 #include "TankCommands.h"
 #include "TextComponent.h"
 #include "TextureComponent.h"
-#include "../TronFactory.h"
+#include "TronFactory.h"
 #include "ParticleManager.h"
+#include "TileMapComponent.h"
 
-#include "../Components/TileMapComponent.h"
-//TODO: stop hardcoding all OBJ locations -> should scale with window scaling
 void Tron::LevelManager::Init()
 {
 	auto& sceneManager = dae::SceneManager::GetInstance();
@@ -237,9 +236,6 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 	auto player = Tron::GOFactory::CreatePlayer(spawnPos, texture, team,playerIndex);
 	auto* pTankBase = player.Base.get();
 	auto Explosion = std::make_unique<dae::GameObject>();
-	//Explosion->AddComponent<ExplosionComponent>();
-	//Explosion->SetParent(pTankBase, false);
-	//pTankBase->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(Explosion->GetComponent<ExplosionComponent>());
 	if (playerIndex == 0) m_Pplayer1 = pTankBase;
 	else m_Pplayer2 = pTankBase;
 
@@ -318,22 +314,13 @@ void Tron::LevelManager::SpawnEnemies(dae::Scene& scene)
 	for (auto& point : m_TankSpawnPoints) {
 
 		auto enemy = Tron::GOFactory::CreateEnemy(point, Tron::AIType::Tank);
-		//auto Explosion = std::make_unique<dae::GameObject>();
-		//Explosion->AddComponent<ExplosionComponent>();
-		//Explosion->SetParent(enemy.get(), false);
-		//enemy->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(Explosion->GetComponent<ExplosionComponent>());
 		scene.Add(std::move(enemy));
-		//scene.Add(std::move(Explosion));
 	}
 
 	for (auto& point : m_RecogniserSpawnPoints) {
 		auto enemy = Tron::GOFactory::CreateEnemy(point, Tron::AIType::Recogniser);
 		auto Explosion = std::make_unique<dae::GameObject>();
-		//Explosion->AddComponent<ExplosionComponent>();
-		//Explosion->SetParent(enemy.get(), false);
-		//enemy->GetComponent<LivesComponent>()->GetLivesEvent().AddObserver(Explosion->GetComponent<ExplosionComponent>());
 		scene.Add(std::move(enemy));
-		//scene.Add(std::move(Explosion));
 	}
 
 	int round = GameManager::GetInstance().GetTotalLevelsCleared();

@@ -19,7 +19,6 @@ add_library(${TARGET_NAME} STATIC
     Minigin/Core/Minigin.cpp
     Minigin/Core/GameObject.cpp
     Minigin/Core/Scene.cpp
-    Minigin/Core/Transform.cpp
     Minigin/Core/GameTime.h
     Minigin/Core/Singleton.h
     Minigin/Core/Utils.h
@@ -44,12 +43,10 @@ add_library(${TARGET_NAME} STATIC
     Minigin/Graphics/Renderer.cpp
     Minigin/Graphics/Texture2D.cpp
     Minigin/Graphics/Font.cpp
-    Minigin/Graphics/TextObject.cpp
 
     Minigin/Events/EventQueue.cpp
     Minigin/Events/Subject.cpp
     Minigin/Events/Controller.cpp
-    Minigin/Events/ActorCommands.cpp
     Minigin/Events/Event.h
     Minigin/Events/Observer.h
     Minigin/Events/Command.h
@@ -237,7 +234,7 @@ function(add_minigin_app APP_NAME APP_SOURCES)
     target_link_libraries(${APP_NAME} PRIVATE ${TARGET_NAME} imgui)
     target_include_directories(${APP_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Minigin
-    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/Tron
     ${CMAKE_SOURCE_DIR}/${APP_NAME}/Components
     ${CMAKE_SOURCE_DIR}/${APP_NAME}/Managers  
     ${CMAKE_SOURCE_DIR}/${APP_NAME}/Commands

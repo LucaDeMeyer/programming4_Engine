@@ -1,7 +1,7 @@
 #include "ScoreDisplay.h"
 #include "GameObject.h"
 #include "TextComponent.h"
-#include "../TronEvents.h"
+#include "TronEvents.h"
 #include "Utils.h"
 
 Tron::ScoreDisplay::ScoreDisplay(dae::GameObject* owner): BaseComponent(owner), Observer()

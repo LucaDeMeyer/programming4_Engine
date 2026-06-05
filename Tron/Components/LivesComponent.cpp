@@ -2,7 +2,7 @@
 #include "EventQueue.h"
 #include "FactionComponent.h"
 #include "GameActorComponent.h"
-#include "../TronEvents.h"
+#include "TronEvents.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "ScoreComponent.h"
