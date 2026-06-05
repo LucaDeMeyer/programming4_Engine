@@ -1,7 +1,7 @@
 #ifndef NAME_ENTRY_COMMAND_H
 #define NAME_ENTRY_COMMAND_H
 #include "Command.h"
-#include "../Components/NameEntryComponent.h"
+#include "NameEntryComponent.h"
 
 namespace Tron
 {

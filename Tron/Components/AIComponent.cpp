@@ -1,16 +1,13 @@
-#include "AIComponent.h"
-#include "GameObject.h"
-#include "TransformComponent.h"
-#include "Command.h"
-#include "../Managers/LevelManager.h"
-#include <iostream>
 #include <vector>
 #include <algorithm>
 
+#include "AIComponent.h"
+#include "GameObject.h"
+#include "TransformComponent.h"
+#include "LevelManager.h"
 #include "../EnemyDataBase.h"
 #include "GameTime.h"
-#include "../Commands/TankCommands.h"
-#include "../FSM/States.h"
+
 
 Tron::AIComponent::AIComponent(dae::GameObject* owner,AIType type)
     : BaseComponent(owner),m_Type(type)

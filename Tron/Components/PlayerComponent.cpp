@@ -1,7 +1,7 @@
 #include "PlayerComponent.h"
 #include "GameObject.h"
 #include "TransformComponent.h"
-#include "../FSM/States.h"
+#include "States.h"
 #include "Utils.h"
 
 Tron::PlayerComponent::PlayerComponent(dae::GameObject* owner,int playerIdx)

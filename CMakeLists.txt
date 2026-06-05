@@ -16,37 +16,49 @@ endif()
 
 # list source files here
 add_library(${TARGET_NAME} STATIC
-  Minigin/Font.cpp
-  Minigin/GameObject.cpp
-  Minigin/InputManager.cpp
-  Minigin/Minigin.cpp
-  Minigin/Renderer.cpp
-  Minigin/ResourceManager.cpp
-  Minigin/Scene.cpp
-  Minigin/SceneManager.cpp
-  Minigin/TextObject.cpp
-  Minigin/Texture2D.cpp
-  Minigin/Transform.cpp
-  Minigin/GameTime.h
-  Minigin/TransformComponent.cpp
-  Minigin/TextureComponent.cpp
-  Minigin/TextComponent.cpp
-  Minigin/FPSComponent.cpp
-  Minigin/RotationComponent.cpp
-  Minigin/ActorCommands.cpp
-  Minigin/Controller.cpp
-  Minigin/MovementComponent.cpp
-  Minigin/Subject.cpp
-  Minigin/ColliderComponents.cpp
-  Minigin/CollisionManager.cpp
-  Minigin/EventQueue.cpp
-  Minigin/SpriteComponent.cpp
-  Minigin/Services.h
-  Minigin/ServiceLocator.h
-  Minigin/ButtonComponent.h
-  Minigin/AudioService.cpp
-  Minigin/Utils.h
-  Minigin/Memory/MemoryOverrides.cpp
+    Minigin/Core/Minigin.cpp
+    Minigin/Core/GameObject.cpp
+    Minigin/Core/Scene.cpp
+    Minigin/Core/Transform.cpp
+    Minigin/Core/GameTime.h
+    Minigin/Core/Singleton.h
+    Minigin/Core/Utils.h
+
+    Minigin/Managers/CollisionManager.cpp
+    Minigin/Managers/InputManager.cpp
+    Minigin/Managers/ResourceManager.cpp
+    Minigin/Managers/SceneManager.cpp
+
+    Minigin/Components/ColliderComponents.cpp
+    Minigin/Components/FPSComponent.cpp
+    Minigin/Components/MovementComponent.cpp
+    Minigin/Components/RotationComponent.cpp
+    Minigin/Components/SpriteComponent.cpp
+    Minigin/Components/TextComponent.cpp
+    Minigin/Components/TextureComponent.cpp
+    Minigin/Components/TransformComponent.cpp
+    Minigin/Components/BaseComponent.h
+    Minigin/Components/ButtonComponent.h
+    Minigin/Components/ImguiComponent.h
+
+    Minigin/Graphics/Renderer.cpp
+    Minigin/Graphics/Texture2D.cpp
+    Minigin/Graphics/Font.cpp
+    Minigin/Graphics/TextObject.cpp
+
+    Minigin/Events/EventQueue.cpp
+    Minigin/Events/Subject.cpp
+    Minigin/Events/Controller.cpp
+    Minigin/Events/ActorCommands.cpp
+    Minigin/Events/Event.h
+    Minigin/Events/Observer.h
+    Minigin/Events/Command.h
+
+    Minigin/Services/AudioService.cpp
+    Minigin/Services/ServiceLocator.h
+    Minigin/Services/Services.h
+
+    Minigin/Memory/MemoryOverrides.cpp
 )
 
 # enable c++20 features
@@ -185,6 +197,13 @@ target_compile_features(imgui PUBLIC cxx_std_20)
 
 target_include_directories("${TARGET_NAME}" PUBLIC
   ${CMAKE_SOURCE_DIR}/Minigin/
+  ${CMAKE_SOURCE_DIR}/Minigin/Components
+  ${CMAKE_SOURCE_DIR}/Minigin/Core
+  ${CMAKE_SOURCE_DIR}/Minigin/Managers
+  ${CMAKE_SOURCE_DIR}/Minigin/Graphics
+  ${CMAKE_SOURCE_DIR}/Minigin/Events
+  ${CMAKE_SOURCE_DIR}/Minigin/Services
+  ${CMAKE_SOURCE_DIR}/Minigin/Memory
   ${VLD_INCLUDE_DIR}
   ${imgui_SOURCE_DIR}
 )
@@ -216,7 +235,15 @@ function(add_minigin_app APP_NAME APP_SOURCES)
     # 1. Create the executable and link the engine and ImGui
    add_executable(${APP_NAME} ${APP_SOURCES})
     target_link_libraries(${APP_NAME} PRIVATE ${TARGET_NAME} imgui)
-    target_include_directories(${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Minigin ${imgui_SOURCE_DIR})
+    target_include_directories(${APP_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/Minigin
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/${APP_NAME}/Components
+    ${CMAKE_SOURCE_DIR}/${APP_NAME}/Managers  
+    ${CMAKE_SOURCE_DIR}/${APP_NAME}/Commands
+    ${CMAKE_SOURCE_DIR}/${APP_NAME}/Observer
+    ${CMAKE_SOURCE_DIR}/${APP_NAME}/FSM
+    ${imgui_SOURCE_DIR})
 
     # 2. Platform-Specific Post-Build Steps
    if(EMSCRIPTEN)

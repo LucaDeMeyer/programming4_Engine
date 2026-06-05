@@ -1,18 +1,15 @@
 #include "TankCommands.h"
-
-#include "../Managers/BulletManager.h"
+#include "BulletManager.h"
 #include "TransformComponent.h"
 #include "GameTime.h"
 #include "InputManager.h"
-#include "../Components/LivesComponent.h"
-#include "SceneManager.h"
-#include "ServiceLocator.h"
+#include "LivesComponent.h"
 #include "SpriteComponent.h"
 #include "../TronFactory.h"
 #include "EventQueue.h"
 #include "Minigin.h"
-#include "Memory/MemoryOverrides.h"
-#include "../Managers/LevelManager.h"
+#include "MemoryOverrides.h"
+#include "LevelManager.h"
 using namespace Tron;
 void MoveCommand::Execute()
 {

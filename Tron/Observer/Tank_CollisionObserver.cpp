@@ -1,16 +1,16 @@
 #include "Tank_CollisionObserver.h"
-#include "../Components/AIComponent.h"
-#include "../Components/FactionComponent.h"
-#include "../Components/LivesComponent.h"
+#include "AIComponent.h"
+#include "FactionComponent.h"
+#include "LivesComponent.h"
 #include "GameObject.h"
 #include "ColliderComponents.h"
-#include "../Managers/LevelManager.h"
+#include "LevelManager.h"
 #include "Minigin.h"
 #include "TransformComponent.h"
 #include "../TronEvents.h"
 #include "Utils.h"
-#include "../Components/PlayerComponent.h"
-#include "Memory/MemoryOverrides.h"
+#include "PlayerComponent.h"
+#include "MemoryOverrides.h"
 void Tron::TankCollisionObserver::OnNotify(dae::GameObject* obj, const dae::Event& event)
 {
     if (event.ID != dae::Utils::make_sdbm_hash("CollisionEvent")) return;

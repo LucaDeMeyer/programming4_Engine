@@ -5,7 +5,7 @@
 
 #include "Minigin.h"
 #include "Utils.h"
-#include "Memory/MemoryOverrides.h"
+#include "MemoryOverrides.h"
 void Tron::ScoreComponent::AddScore(int score)
 {
     m_Score += score;

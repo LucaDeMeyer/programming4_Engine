@@ -1,45 +1,23 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-
-#include "ActorCommands.h"
-#include "ColliderComponents.h"
-#include "Components/FactionComponent.h"
-#include "FPSComponent.h"
-#include "InputManager.h"
-#include "Managers/LevelManager.h"
-#include "Components/LivesComponent.h"
-#include "Components/LivesDisplay.h"
-#include "MovementComponent.h"
-#include "RotationComponent.h"
-#include "Components/ScoreDisplay.h"
-#include "Commands/TankCommands.h"
-#include "Observer/Tank_CollisionObserver.h"
-#include "TextComponent.h"
-#include "TextureComponent.h"
-#include "Components/TileMapComponent.h"
-#include "TransformComponent.h"
-
+#include <filesystem>
 #if _DEBUG && __has_include(<vld.h>)
 #include <vld.h>
 #endif
-
 #include "Minigin.h"
-#include "SceneManager.h"
-#include "ResourceManager.h"
 #include "TextObject.h"
-#include "Scene.h"
-#include <filesystem>
+#include "InputManager.h"
+#include "LevelManager.h"
 #include "TronFactory.h"
-#include "Managers/AchievmentManager.h"
-#include "Managers/BulletManager.h"
-#include "Managers/ParticleManager.h"
+#include "BulletManager.h"
+#include "ParticleManager.h"
 #include "ServiceLocator.h"
 #include "TronServices.h"
 
 
 /*
  * TODO: 
- * clean up project -> move files to seperate folders
+ * clean up project -> move files to seperate folders X
  * particle manager X
  * clean up Cmake
  * maybe profile cache misses and hits => tracy profiler?

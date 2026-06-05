@@ -7,7 +7,7 @@
 
 #include "GameObject.h"
 #include "Services.h"
-#include "../FSM/States.h"
+#include "States.h"
 
 namespace dae
 {

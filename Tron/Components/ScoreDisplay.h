@@ -2,7 +2,7 @@
 #define SCORE_DISPLAY_H
 #include "BaseComponent.h"
 #include "Observer.h"
-#include "EventQueue.h"
+
 
 namespace dae
 {

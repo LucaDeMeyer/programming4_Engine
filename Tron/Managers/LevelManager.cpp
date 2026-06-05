@@ -9,17 +9,17 @@
 
 #include "AchievmentManager.h"
 #include "BulletManager.h"
-#include "ButtonComponent.h"
+
 #include "ColliderComponents.h"
 #include "Controller.h"
-#include "../Components/FactionComponent.h"
+#include "FactionComponent.h"
 #include "FPSComponent.h"
 #include "InputManager.h"
-#include "../Components/LivesDisplay.h"
-#include "../Components/ScoreDisplay.h"
+#include "LivesDisplay.h"
+#include "ScoreDisplay.h"
 #include "ServiceLocator.h"
-#include "SpriteComponent.h"
-#include "../Commands/TankCommands.h"
+
+#include "TankCommands.h"
 #include "TextComponent.h"
 #include "TextureComponent.h"
 #include "../TronFactory.h"

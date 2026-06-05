@@ -1,5 +1,4 @@
 #include "ScoreDisplay.h"
-#include <iostream>
 #include "GameObject.h"
 #include "TextComponent.h"
 #include "../TronEvents.h"

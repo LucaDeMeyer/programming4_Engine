@@ -7,7 +7,7 @@
 #include "InputManager.h"
 #include "ScoreComponent.h"
 #include "Services.h"
-#include "Memory/MemoryOverrides.h"
+#include "MemoryOverrides.h"
 using namespace Tron;
 void LivesComponent::DoDamage(int Damage, dae::GameObject* shooter)
 {

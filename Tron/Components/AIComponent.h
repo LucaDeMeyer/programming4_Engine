@@ -3,9 +3,9 @@
 #include <memory>
 
 #include "BaseComponent.h"
-#include "../FSM/States.h"
+#include "States.h"
 #include "glm/vec3.hpp"
-#include "../Commands/TankCommands.h"
+#include "TankCommands.h"
 
 namespace dae
 {

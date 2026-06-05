@@ -5,14 +5,14 @@
 #include "GameManager.h"
 #include "GameTime.h"
 #include "LevelManager.h"
-#include "../Components/LivesComponent.h"
+#include "LivesComponent.h"
 #include "Minigin.h"
 #include "ParticleManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "glm/vec4.hpp"
-#include "../Components/PlayerComponent.h"
-#include "Memory/MemoryOverrides.h"
+#include "PlayerComponent.h"
+#include "MemoryOverrides.h"
 void Tron::BulletManager::Init()
 {
     auto& rm = dae::ResourceManager::GetInstance();

@@ -2,7 +2,7 @@
 #define LIVES_DISPLAY_H
 #include <memory>
 #include <string>
-#include <vector>
+
 
 #include "BaseComponent.h"
 #include "Observer.h"

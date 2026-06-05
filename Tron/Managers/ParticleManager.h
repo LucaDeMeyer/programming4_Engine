@@ -1,7 +1,7 @@
 #ifndef PARTICLE_MANAGER_H
 #define PARTICLE_MANAGER_H
 #include "glm/vec3.hpp"
-#include "Memory/PoolAllocator.h"
+#include "PoolAllocator.h"
 #include "Singleton.h"
 #include "Texture2D.h"
 #include "GameObject.h" 
