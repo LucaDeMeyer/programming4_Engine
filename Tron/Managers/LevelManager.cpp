@@ -385,8 +385,8 @@ bool Tron::LevelManager::IsWallAt(const glm::vec3& worldPos) const
 	auto winSize = GameManager::GetInstance().GetWindowSize();
 	float offsetX = (winSize.x - totalLevelWidth) / 2.0f;
 	float offsetY = (winSize.y - totalLevelHeight) / 2.0f;
-	int column = static_cast<int>((worldPos.x - offsetX) / m_TileSize);
-	int row = static_cast<int>((worldPos.y - offsetY) / m_TileSize);
+	int column = static_cast<int>((worldPos.x - offsetX + .5f) / m_TileSize);
+	int row = static_cast<int>((worldPos.y - offsetY + .5f) / m_TileSize);
 
 	if (row < 0 || row >= m_Rows || column < 0 || column >= m_Cols)
 		return true;

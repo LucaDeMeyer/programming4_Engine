@@ -26,7 +26,7 @@
  */
 namespace fs = std::filesystem;
 
-namespace Tron::Config
+namespace Tron::Config // this might not be the best solution
 {
 	inline constexpr int WINDOW_WIDTH = 1240;
 	inline constexpr int WINDOW_HEIGHT = 800;

@@ -49,9 +49,13 @@ void Tron::BulletManager::Update()
         glm::vec4 bulletBox = { bullet->position.x, bullet->position.y, 8.0f, 8.0f };
         bool bulletDestroyed = false;
 
-        glm::vec3 checkPos = { bullet->position.x + 4.0f, bullet->position.y + 4.0f, 0 };
+        bool hitWall = levelManager.IsWallAt({ bullet->position.x + 1.f, bullet->position.y + 1.f, 0 }) ||
+            levelManager.IsWallAt({ bullet->position.x + 7.f, bullet->position.y + 1.f, 0 }) ||
+            levelManager.IsWallAt({ bullet->position.x + 1.f, bullet->position.y + 7.f, 0 }) ||
+            levelManager.IsWallAt({ bullet->position.x + 7.f, bullet->position.y + 7.f, 0 });
 
-        if (levelManager.IsWallAt(checkPos))
+
+        if (hitWall)
         {
             if (bullet->maxBounces > 0)
             {
@@ -59,8 +63,12 @@ void Tron::BulletManager::Update()
                 float offsetX = levelManager.GetOffsetX();
                 float offsetY = levelManager.GetOffsetY();
 
-                float wallX = std::floor((checkPos.x - offsetX) / tileSize) * tileSize + offsetX;
-                float wallY = std::floor((checkPos.y - offsetY) / tileSize) * tileSize + offsetY;
+                // Use bullet center to find which tile we hit
+                float centerX = bullet->position.x + 4.f;
+                float centerY = bullet->position.y + 4.f;
+
+                float wallX = std::floor((centerX - offsetX) / tileSize) * tileSize + offsetX;
+                float wallY = std::floor((centerY - offsetY) / tileSize) * tileSize + offsetY;
                 glm::vec4 wallBox = { wallX, wallY, tileSize, tileSize };
 
                 float overlapX = std::min(bulletBox.x + bulletBox.z, wallBox.x + wallBox.z) - std::max(bulletBox.x, wallBox.x);
@@ -69,26 +77,18 @@ void Tron::BulletManager::Update()
                 if (overlapX < overlapY)
                 {
                     bullet->velocity.x *= -1;
-
-                    if (bullet->velocity.x > 0)
-                        bullet->position.x += overlapX; 
-                    else
-                        bullet->position.x -= overlapX;
+                    bullet->position.x += (bullet->velocity.x > 0) ? overlapX : -overlapX;
                 }
                 else
                 {
                     bullet->velocity.y *= -1;
-                    if (bullet->velocity.y > 0)
-                        bullet->position.y += overlapY; 
-                    else
-                        bullet->position.y -= overlapY;
+                    bullet->position.y += (bullet->velocity.y > 0) ? overlapY : -overlapY;
                 }
 
                 bullet->maxBounces -= 1;
             }
             else
             {
-
                 bulletDestroyed = true;
             }
         }
