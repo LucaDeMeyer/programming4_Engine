@@ -38,6 +38,7 @@ namespace dae
 			std::unique_ptr<Command> command);
 
 		void ClearAllCommands();
+		int GetConnectedControllerCount() const;
 
 	private:
 

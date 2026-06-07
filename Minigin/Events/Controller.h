@@ -35,6 +35,7 @@ namespace dae
         bool IsUpThisFrame(ControllerButton button) const;
         bool IsPressed(ControllerButton button) const;
         glm::vec2 GetRightThumbstick() const;
+        bool IsConnected() const;
     private:
         class ControllerImpl;
         std::unique_ptr<ControllerImpl> m_pImpl;

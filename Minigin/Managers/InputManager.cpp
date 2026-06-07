@@ -283,3 +283,15 @@ void dae::InputManager::ClearAllCommands()
     for (auto& stack : m_ControllerMovementStacks) stack.clear();
     m_ObjectsToClear.clear();
 }
+
+
+int dae::InputManager::GetConnectedControllerCount() const
+{
+    int count = 0;
+    for (const auto& controller : m_Controllers) {
+        if (controller && controller->IsConnected()) {
+            count++;
+        }
+    }
+    return count;
+}

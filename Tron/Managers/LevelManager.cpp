@@ -276,13 +276,23 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 
 	auto& input = dae::InputManager::GetInstance();
 
+	int numControllers = input.GetConnectedControllerCount();
+	int controllerIndex = playerIndex;
+
+	GameMode currentGameMode = GameManager::GetInstance().GetGameMode();
+	if ((currentGameMode == GameMode::COOP || currentGameMode == GameMode::PVP) && numControllers == 1)
+	{
+		if (playerIndex == 0) controllerIndex = -1; 
+		if (playerIndex == 1) controllerIndex = 0;
+	}
+
 	if (playerIndex == 0) {
 		input.RegisterMovementCommand(SDLK_W, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
 		input.RegisterMovementCommand(SDLK_S, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,100 }));
 		input.RegisterMovementCommand(SDLK_A, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ -100,0 }));
 		input.RegisterMovementCommand(SDLK_D, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 100,0 }));
 		input.BindKeyCommand(SDLK_SPACE, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
-		input.BindKeyCommand(SDLK_C, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2));
+	
 
 
 		input.BindKeyCommand(SDLK_UP, dae::InputState::Pressed, std::make_unique<Tron::PlayerAimCommand>(pTankBase,player.Turret.get(), glm::vec2{ 0,-1 }));
@@ -295,13 +305,15 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 		//input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1)); // -1 for Keyboard
 	}
 
-	input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), playerIndex));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadUp, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadDown, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,100 }));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadLeft, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ -100,0 }));
-	input.RegisterControllerMovementCommand(playerIndex, dae::Controller::ControllerButton::DPadRight, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 100,0 }));
-	input.BindControllerCommand(playerIndex, dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
-	input.BindControllerCommand(playerIndex, dae::Controller::ControllerButton::ButtonB, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2)); // Debug damage
+	if (controllerIndex != -1) {
+		input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), controllerIndex));
+		input.RegisterControllerMovementCommand(controllerIndex, dae::Controller::ControllerButton::DPadUp, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,-100 }));
+		input.RegisterControllerMovementCommand(controllerIndex, dae::Controller::ControllerButton::DPadDown, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 0,100 }));
+		input.RegisterControllerMovementCommand(controllerIndex, dae::Controller::ControllerButton::DPadLeft, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ -100,0 }));
+		input.RegisterControllerMovementCommand(controllerIndex, dae::Controller::ControllerButton::DPadRight, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 100,0 }));
+		input.BindControllerCommand(controllerIndex, dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
+		input.BindControllerCommand(controllerIndex, dae::Controller::ControllerButton::ButtonB, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2)); // Debug damage
+	}
 
 	scene.Add(std::move(player.Base));
 	scene.Add(std::move(player.Turret));

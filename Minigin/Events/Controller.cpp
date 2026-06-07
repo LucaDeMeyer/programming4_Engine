@@ -44,6 +44,12 @@ public:
         return { x, -y };
     }
 
+    bool IsConnected() const {
+        XINPUT_STATE state;
+        ZeroMemory(&state, sizeof(XINPUT_STATE));
+        return XInputGetState(m_ControllerIndex, &state) == ERROR_SUCCESS;
+    }
+
 private:
     unsigned int m_ControllerIndex;
     XINPUT_STATE m_PreviousState{};
@@ -124,6 +130,18 @@ public:
         // SDL is already positive-DOWN, so we do NOT invert it!
         return { x, y };
     }
+
+    bool IsConnected() const {
+        if (m_Gamepad) return true;
+
+        // If not opened yet, check if it exists in the hardware list
+        int count = 0;
+        SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
+        bool connected = (gamepads != nullptr && static_cast<int>(m_ControllerIndex) < count);
+        if (gamepads) SDL_free(gamepads);
+
+        return connected;
+    }
 private:
     SDL_Gamepad* m_Gamepad = nullptr;
     unsigned int m_ControllerIndex;
@@ -145,3 +163,4 @@ bool Controller::IsDownThisFrame(ControllerButton button) const { return m_pImpl
 bool Controller::IsUpThisFrame(ControllerButton button) const { return m_pImpl->IsUpThisFrame(static_cast<unsigned int>(button)); }
 bool Controller::IsPressed(ControllerButton button) const { return m_pImpl->IsPressed(static_cast<unsigned int>(button)); }
 glm::vec2 Controller::GetRightThumbstick() const { return m_pImpl->GetRightThumbstick(); }
+bool Controller::IsConnected() const { return m_pImpl->IsConnected(); }
