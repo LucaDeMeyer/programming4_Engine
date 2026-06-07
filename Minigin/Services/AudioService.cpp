@@ -170,7 +170,7 @@ private:
 
     void Play(unsigned int soundHash, float volume, AudioType type)
     {
-        if (m_IsMuted) return;
+     
 
         auto it = m_LoadedSounds.find(soundHash);
         if (it == m_LoadedSounds.end())
@@ -187,9 +187,16 @@ private:
             SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
             MIX_PlayTrack(m_AmbientTrack, props);
             m_TrackHistory[m_AmbientTrack] = soundHash;
+
+            if (m_IsMuted)
+            {
+                MIX_PauseTrack(m_AmbientTrack);
+            }
         }
         else if (type == AudioType::FX)
         {
+            if (m_IsMuted) return;
+
             MIX_Track* track = m_SFXTracks[m_CurrentTrackIndex];
             m_CurrentTrackIndex = (m_CurrentTrackIndex + 1) % static_cast<int>(m_SFXTracks.size());
             MIX_SetTrackAudio(track, it->second);
