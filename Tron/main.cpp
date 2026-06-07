@@ -22,7 +22,7 @@
  * maybe profile cache misses and hits => tracy profiler?
  * add player aiming with arrow keys x
  * winner screen during PVP battles after each round / current score X
- * FIX BULLET-WALL Collisions
+ * FIX BULLET-WALL Collisions X
  */
 namespace fs = std::filesystem;
 

@@ -90,7 +90,7 @@ void Tron::BulletManager::Update()
             else
             {
                 bulletDestroyed = true;
-            }
+            } 
         }
       
         if (!bulletDestroyed)

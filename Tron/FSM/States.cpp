@@ -147,7 +147,7 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
     float centerX = winSize.x / 2.0f;
 
     auto fps = std::make_unique<dae::GameObject>();
-    fps->GetTransform()->SetLocalPosition({ 5.f, 15.f, 1.f });
+    fps->GetTransform()->SetLocalPosition({ winSize.x * 0.01f, winSize.y * 0.02f, 1.f });
     fps->AddComponent<dae::TextComponent>()->SetFont("Lingua.otf", 15)->SetColor(255, 255, 255, 255)->SetText("FPS");
     fps->AddComponent<dae::FPSComponent>();
     scene.Add(std::move(fps));
@@ -156,11 +156,11 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
     title->AddComponent<dae::TextComponent>()->SetFont("TRON.TTF", 25)->SetColor(255, 255, 255, 255)->SetText("TRON - BATTLE TANKS");
     glm::vec2 texSize = title->GetComponent<dae::TextComponent>()->GetTexture()->GetSize();
 
-    title->GetTransform()->SetLocalPosition({ centerX - texSize.x/2, 100.f, 0.f });
+    title->GetTransform()->SetLocalPosition({ centerX - (texSize.x / 2.0f), winSize.y * 0.15f, 0.f });
     scene.Add(std::move(title));
 
-    float startY = 250.0f;
-    float spacing = 60.0f;
+    float startY = winSize.y * 0.35f;
+    float spacing = winSize.y * 0.10f;
 
     m_Options.clear();
     m_SelectedIndex = 0;
@@ -382,23 +382,29 @@ void Tron::HighScoreEntryState::OnEnter(LevelManager&)
     m_ReadyToLeave = false;
 
 
+    auto winSize = gameManager.GetWindowSize();
+
     {
         auto obj = std::make_unique<dae::GameObject>();
-        obj->GetTransform()->SetLocalPosition({ 330.f, 60.f, 0.f });
-        obj->AddComponent<dae::TextComponent>()
+        auto textComp = obj->AddComponent<dae::TextComponent>()
             ->SetFont("TRON.TTF", 22)
             ->SetText("ENTER YOUR INITIALS")
             ->SetColor(0, 200, 255, 255);
+
+        glm::vec2 texSize = textComp->GetTexture()->GetSize();
+        obj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), winSize.y * 0.1f, 0.f });
         scene.Add(std::move(obj));
     }
 
     {
         auto obj = std::make_unique<dae::GameObject>();
-        obj->GetTransform()->SetLocalPosition({ 240.f, 460.f, 0.f });
-        obj->AddComponent<dae::TextComponent>()
+        auto textComp = obj->AddComponent<dae::TextComponent>()
             ->SetFont("TRON.TTF", 14)
             ->SetText("UP/DOWN: scroll   LEFT/RIGHT: move   FIRE/A: confirm")
             ->SetColor(120, 120, 120, 255);
+
+        glm::vec2 texSize = textComp->GetTexture()->GetSize();
+        obj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), winSize.y * 0.8f, 0.f });
         scene.Add(std::move(obj));
     }
 
@@ -466,10 +472,13 @@ void Tron::HighScoreEntryState::OnEnter(LevelManager&)
         };
 
   
-    spawnEntry(0, { 280.f, 220.f, 0.f }, "PLAYER 1");
-
-    if (mode == GameMode::COOP)
-        spawnEntry(1, { 580.f, 220.f, 0.f }, "PLAYER 2");
+    if (mode == GameMode::COOP) {
+        spawnEntry(0, { winSize.x * 0.3f, winSize.y * 0.4f, 0.f }, "PLAYER 1");
+        spawnEntry(1, { winSize.x * 0.6f, winSize.y * 0.4f, 0.f }, "PLAYER 2");
+    }
+    else {
+        spawnEntry(0, { winSize.x * 0.45f, winSize.y * 0.4f, 0.f }, "PLAYER 1");
+    }
 }
 
 void Tron::HighScoreEntryState::OnExit(LevelManager&)
@@ -538,54 +547,50 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
         dae::InputState::Down,
         std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
    
+    auto winSize = gm.GetWindowSize();
+
     {
         auto obj = std::make_unique<dae::GameObject>();
-        obj->GetTransform()->SetLocalPosition({ 360.f, 50.f, 0.f });
-
-        obj->AddComponent<dae::TextComponent>()
+        auto textComp = obj->AddComponent<dae::TextComponent>()
             ->SetFont("TRON.TTF", 28)
             ->SetText("HIGH SCORES")
             ->SetColor(0, 255, 255, 255);
 
+        glm::vec2 texSize = textComp->GetTexture()->GetSize();
+        obj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), winSize.y * 0.1f, 0.f });
         scene.Add(std::move(obj));
     }
 
 
-
-    float startY = 140.f;
+    float startY = winSize.y * 0.25f;
+    float spacing = winSize.y * 0.05f;
 
     const auto& scores = gm.GetHighScores();
 
     for (size_t i = 0; i < scores.size(); ++i)
     {
         const auto& entry = scores[i];
+        std::string text = std::to_string(i + 1) + ". " + entry.name + "  -  " + std::to_string(entry.score);
 
         auto obj = std::make_unique<dae::GameObject>();
-        obj->GetTransform()->SetLocalPosition({ 320.f, startY + i * 40.f, 0.f });
-
-        std::string text =
-            std::to_string(i + 1) + ". " +
-            entry.name + "  -  " +
-            std::to_string(entry.score);
-
-        obj->AddComponent<dae::TextComponent>()
+        auto textComp = obj->AddComponent<dae::TextComponent>()
             ->SetFont("TRON.TTF", 20)
             ->SetText(text)
             ->SetColor(255, 255, 255, 255);
 
+        glm::vec2 texSize = textComp->GetTexture()->GetSize();
+        obj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), startY + (i * spacing), 0.f });
         scene.Add(std::move(obj));
     }
-
-    // Continue text
     {
         auto obj = std::make_unique<dae::GameObject>();
-        obj->GetTransform()->SetLocalPosition({ 260.f, 500.f, 0.f });
-
-        obj->AddComponent<dae::TextComponent>()
+        auto textComp = obj->AddComponent<dae::TextComponent>()
             ->SetFont("TRON.TTF", 16)
             ->SetText("PRESS ENTER OR A TO RETURN TO MENU")
             ->SetColor(180, 180, 180, 255);
 
+        glm::vec2 texSize = textComp->GetTexture()->GetSize();
+        obj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), winSize.y * 0.85f, 0.f });
         scene.Add(std::move(obj));
     }
 
@@ -633,7 +638,7 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
     Tron::ParticleManager::GetInstance().ClearAll();
 
     std::string winnerText = "DRAW!";
-
+   
     auto* p1 = manager.GetP1();
     auto* p2 = manager.GetP2();
 
@@ -643,25 +648,23 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
     if (p1Alive && !p2Alive) winnerText = "PLAYER 1 WINS!";
     else if (p2Alive && !p1Alive) winnerText = "PLAYER 2 WINS!";
 
+    auto winSize = gameManager.GetWindowSize();
     auto titleObj = std::make_unique<dae::GameObject>();
     auto textComp = titleObj->AddComponent<dae::TextComponent>();
-    textComp->SetFont("TRON.TTF", 40)
-        ->SetColor(0, 255, 255, 255)
-        ->SetText(winnerText);
+    textComp->SetFont("TRON.TTF", 40)->SetColor(0, 255, 255, 255)->SetText(winnerText);
 
     glm::vec2 texSize = textComp->GetTexture()->GetSize();
-    float windowWidth = gameManager.GetWindowSize().x;
-    float windowHeight = gameManager.GetWindowSize().y;
-    titleObj->GetTransform()->SetLocalPosition({ (windowWidth / 2.0f) - (texSize.x / 2.0f), (windowHeight / 2.0f) - 50.f, 1 });
+    titleObj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), (winSize.y / 2.0f) - (winSize.y * 0.85f), 1 });
     scene.Add(std::move(titleObj));
 
-    // --- Display Continue Prompt ---
+
     auto promptObj = std::make_unique<dae::GameObject>();
-    promptObj->GetTransform()->SetLocalPosition({ (windowWidth / 2.0f) - 180.f, (windowHeight / 2.0f) + 50.f, 1 });
-    promptObj->AddComponent<dae::TextComponent>()
+    auto promptText = promptObj->AddComponent<dae::TextComponent>()
         ->SetFont("TRON.TTF", 16)
         ->SetText("PRESS ENTER OR A TO RETURN TO MENU")
         ->SetColor(180, 180, 180, 255);
+    glm::vec2 promptSize = promptText->GetTexture()->GetSize();
+    promptObj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (promptSize.x / 2.0f), (winSize.y / 2.0f) + (winSize.y * 0.1f), 1 });
     scene.Add(std::move(promptObj));
 
     bool* shouldLeave = &m_ShouldLeave;

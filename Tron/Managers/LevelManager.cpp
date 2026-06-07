@@ -239,12 +239,13 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 	if (playerIndex == 0) m_Pplayer1 = pTankBase;
 	else m_Pplayer2 = pTankBase;
 
-
-	float uiXOffset = (playerIndex == 0) ? 60.f : 780.f;
-	float scoreXOffset = (playerIndex == 0) ? 130.f : 850.f;
+	auto winSize = GameManager::GetInstance().GetWindowSize();
+	float uiXOffset = (playerIndex == 0) ? winSize.x * 0.05f : winSize.x * 0.75f;
+	float scoreXOffset = (playerIndex == 0) ? winSize.x * 0.15f : winSize.x * 0.85f;
+	float uiYPos = winSize.y * 0.02f;
 
 	auto livesDisplay = std::make_unique<dae::GameObject>();
-	livesDisplay->GetTransform()->SetLocalPosition({ uiXOffset, 10, 1 });
+	livesDisplay->GetTransform()->SetLocalPosition({ uiXOffset, uiYPos, 1 });
 	auto livesComp = livesDisplay->AddComponent<Tron::LivesDisplay>(pTankBase->GetComponent<Tron::LivesComponent>()->GetLives());
 	livesComp->SetTexture("Player_Lives.png");
 	pTankBase->GetComponent<Tron::LivesComponent>()->GetLivesEvent().AddObserver(livesComp);
