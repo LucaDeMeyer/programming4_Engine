@@ -18,8 +18,8 @@
  * TODO: 
  * clean up project -> move files to seperate folders X
  * particle manager X
- * clean up Cmake
- * maybe profile cache misses and hits => tracy profiler?
+ * clean up Cmake X
+ * maybe profile cache misses and hits => tracy profiler? 
  * add player aiming with arrow keys x
  * winner screen during PVP battles after each round / current score X
  * FIX BULLET-WALL Collisions X

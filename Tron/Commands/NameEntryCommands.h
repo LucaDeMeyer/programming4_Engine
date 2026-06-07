@@ -79,10 +79,10 @@ namespace Tron
         NameEntryComponent* m_Entry;
     };
 
-    class ConfirmCommand final : public dae::ActorCommand
+    class ConfirmCommand final : public dae::Command
     {
     public:
-        ConfirmCommand(dae::GameObject* obj, std::function<void()> callback) : ActorCommand(obj), m_Callback(std::move(callback)) {}
+        ConfirmCommand(std::function<void()> callback) : m_Callback(std::move(callback)) {}
 
         void Execute() override
         {

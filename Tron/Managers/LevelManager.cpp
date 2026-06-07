@@ -290,6 +290,8 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 		input.BindKeyCommand(SDLK_LEFT, dae::InputState::Pressed, std::make_unique<Tron::PlayerAimCommand>(pTankBase,player.Turret.get(), glm::vec2{ -1,0 }));
 		input.BindKeyCommand(SDLK_RIGHT, dae::InputState::Pressed, std::make_unique<Tron::PlayerAimCommand>(pTankBase,player.Turret.get(), glm::vec2{ 1,0 }));
 
+		input.BindKeyCommand(SDLK_F1, dae::InputState::Down, std::make_unique<Tron::SkipLevelCommand>());
+		input.BindKeyCommand(SDLK_F2, dae::InputState::Down, std::make_unique<Tron::ToggleMuteCommand>());
 		//input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1)); // -1 for Keyboard
 	}
 

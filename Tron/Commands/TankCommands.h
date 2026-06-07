@@ -1,6 +1,8 @@
 #ifndef TANK_COMMANDS_H
 #define TANK_COMMANDS_H
 #include "Command.h"
+#include "GameManager.h"
+#include "LevelManager.h"
 #include "glm/vec2.hpp"
 
 namespace Tron
@@ -79,6 +81,36 @@ namespace Tron
     private:
         dae::GameObject* m_Turret;
         glm::vec2 m_Direction;
+    };
+
+    class SkipLevelCommand final : public dae::Command
+    {
+    public:
+        SkipLevelCommand() = default;
+    	~SkipLevelCommand() override = default;
+
+        void Execute() override
+        {
+            auto& gameManager = Tron::GameManager::GetInstance();
+
+            gameManager.m_LVLNR++;
+
+            Tron::LevelManager::GetInstance().NextLevel();
+        }
+    };
+
+    class ToggleMuteCommand final : public dae::Command
+    {
+    public:
+        ToggleMuteCommand() = default;
+         ~ToggleMuteCommand() override = default;
+
+        void Execute() override
+        {
+            auto& audioService = dae::ServiceLocator::GetAudioService();
+			
+            audioService.ToggleMute();
+        }
     };
 }
 #endif

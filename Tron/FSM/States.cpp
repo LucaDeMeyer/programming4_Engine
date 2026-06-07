@@ -221,17 +221,19 @@ void Tron::MainMenuState::OnEnter(LevelManager& manager)
         };
 
     inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::DPadUp, dae::InputState::Down,
-        std::make_unique<ConfirmCommand>(nullptr, navUp));
+        std::make_unique<ConfirmCommand>(navUp));
 
     inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::DPadDown, dae::InputState::Down,
-        std::make_unique<ConfirmCommand>(nullptr, navDown));
+        std::make_unique<ConfirmCommand>( navDown));
 
     inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down,
-        std::make_unique<ConfirmCommand>(nullptr, executeSelected));
+        std::make_unique<ConfirmCommand>(executeSelected));
 
-    inputManager.BindKeyCommand(SDLK_UP, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, navUp));
-    inputManager.BindKeyCommand(SDLK_DOWN, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, navDown));
-    inputManager.BindKeyCommand(SDLK_RETURN, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, executeSelected));
+    inputManager.BindKeyCommand(SDLK_UP, dae::InputState::Down, std::make_unique<ConfirmCommand>(navUp));
+    inputManager.BindKeyCommand(SDLK_DOWN, dae::InputState::Down, std::make_unique<ConfirmCommand>(navDown));
+    inputManager.BindKeyCommand(SDLK_RETURN, dae::InputState::Down, std::make_unique<ConfirmCommand>(executeSelected));
+
+    inputManager.BindKeyCommand(SDLK_F2, dae::InputState::Down, std::make_unique<Tron::ToggleMuteCommand>());
 }
 dae::GameObject* Tron::MainMenuState::CreateMenuButton(dae::Scene& scene, const std::string& text, float yPos, std::function<void()> callback)
 {
@@ -528,24 +530,24 @@ void Tron::HighScoreScreenState::OnEnter(LevelManager&)
     // not sure if we should allow both controllers to handle this, is just a matter of adding extra command with diffrent index
     inputManager.BindKeyCommand(SDLK_RETURN,
         dae::InputState::Down,
-        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+        std::make_unique<ConfirmCommand>(confirmCallback));
 
     inputManager.BindKeyCommand(SDLK_SPACE,
         dae::InputState::Down,
-        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+        std::make_unique<ConfirmCommand>(confirmCallback));
 
 
     inputManager.BindControllerCommand(
         0,
         dae::Controller::ControllerButton::ButtonA,
         dae::InputState::Down,
-        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+        std::make_unique<ConfirmCommand>(confirmCallback));
 
     inputManager.BindControllerCommand(
         0,
         dae::Controller::ControllerButton::RightShoulder,
         dae::InputState::Down,
-        std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
+        std::make_unique<ConfirmCommand>(confirmCallback));
    
     auto winSize = gm.GetWindowSize();
 
@@ -670,10 +672,10 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
     bool* shouldLeave = &m_ShouldLeave;
     auto confirmCallback = [shouldLeave]() { *shouldLeave = true; };
 
-    inputManager.BindKeyCommand(SDLK_RETURN, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
-    inputManager.BindKeyCommand(SDLK_SPACE, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
-    inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback));
-    inputManager.BindControllerCommand(1, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down, std::make_unique<ConfirmCommand>(nullptr, confirmCallback)); // Let P2 click it too
+    inputManager.BindKeyCommand(SDLK_RETURN, dae::InputState::Down, std::make_unique<ConfirmCommand>(confirmCallback));
+    inputManager.BindKeyCommand(SDLK_SPACE, dae::InputState::Down, std::make_unique<ConfirmCommand>(confirmCallback));
+    inputManager.BindControllerCommand(0, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down, std::make_unique<ConfirmCommand>(confirmCallback));
+    inputManager.BindControllerCommand(1, dae::Controller::ControllerButton::ButtonA, dae::InputState::Down, std::make_unique<ConfirmCommand>(confirmCallback)); 
 }
 
 void Tron::PvpWinnerScreenState::OnExit(LevelManager&)

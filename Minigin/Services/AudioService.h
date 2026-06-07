@@ -19,6 +19,8 @@ namespace dae
 		void Pause(unsigned int soundHash, AudioType type) override;
 		void Stop(unsigned int soundHash, AudioType type) override;
 		void StopAll() override;
+		void ToggleMute() override;
+
 		void LoadSound(unsigned int soundHash, const std::string& filepath) override;
 		void OnNotify(GameObject* obj, const Event& event) override;
 
@@ -38,6 +40,8 @@ namespace dae
 		void Pause(unsigned int soundHash, AudioType type) override;
 		void Stop(unsigned int soundHash, AudioType type) override;
 		void StopAll() override;
+		void ToggleMute() override;
+
 		void LoadSound(unsigned int soundHash, const std::string& filepath) override;
 
 		void OnNotify(GameObject* obj, const Event& event) override;

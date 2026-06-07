@@ -21,7 +21,7 @@ class dae::AudioService::AudioServiceImpl
     int m_CurrentTrackIndex = 0;
     std::unordered_map<MIX_Track*, unsigned int> m_TrackHistory;
 
-    enum class AudioCommandType { Play, Pause, Stop, StopAll };
+    enum class AudioCommandType { Play, Pause, Stop, StopAll, ToggleMute};
 
     struct AudioCommand
     {
@@ -35,6 +35,7 @@ class dae::AudioService::AudioServiceImpl
     std::mutex m_Mutex;
     std::condition_variable m_Condition;
     std::atomic<bool> m_IsRunning{ false };
+    bool m_IsMuted{ false };
     std::queue<AudioCommand> m_CommandQueue;
 
 public:
@@ -87,6 +88,11 @@ public:
     void EnqueueStopAll()
     {
         Enqueue({ 0, 0.f, AudioType::FX, AudioCommandType::StopAll });
+    }
+
+    void EnqueueToggleMute()
+    {
+        Enqueue({ 0, 0.f, AudioType::FX, AudioCommandType::ToggleMute });
     }
 
     void LoadSound(unsigned int soundHash, const std::string& filepath)
@@ -157,12 +163,15 @@ private:
             case AudioCommandType::Pause:   Pause(command.soundHash); break;
             case AudioCommandType::Stop:    Stop(command.soundHash); break;
             case AudioCommandType::StopAll: StopAll(); break;
+            case AudioCommandType::ToggleMute:  ToggleMuteInternal(); break;
             }
         }
     }
 
     void Play(unsigned int soundHash, float volume, AudioType type)
     {
+        if (m_IsMuted) return;
+
         auto it = m_LoadedSounds.find(soundHash);
         if (it == m_LoadedSounds.end())
         {
@@ -211,6 +220,23 @@ private:
     {
         MIX_StopAllTracks(m_Mixer, 0);
         m_TrackHistory.clear();
+    }
+
+    void ToggleMuteInternal()
+    {
+        m_IsMuted = !m_IsMuted;
+        if (m_IsMuted)
+        {
+            MIX_PauseTrack(m_AmbientTrack); 
+            for (auto* track : m_SFXTracks)
+            {
+                MIX_StopTrack(track, 0); 
+            }
+        }
+        else
+        {
+            MIX_ResumeTrack(m_AmbientTrack); 
+        }
     }
 };
 
@@ -280,6 +306,14 @@ void dae::LoggingAudioService::StopAll()
 {
     std::cout << "Stopping all audio tracks.\n";
     m_AudioService->StopAll();
+}
+
+void dae::AudioService::ToggleMute() { m_pImpl->EnqueueToggleMute(); }
+
+void dae::LoggingAudioService::ToggleMute()
+{
+    std::cout << "Toggling Mute State\n";
+    m_AudioService->ToggleMute();
 }
 
 void dae::LoggingAudioService::OnNotify(GameObject*, const Event& event)

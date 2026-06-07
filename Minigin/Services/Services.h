@@ -48,6 +48,7 @@ namespace dae
         virtual void Pause(unsigned int soundHash, AudioType type) = 0;
         virtual void Stop(unsigned int soundHash, AudioType type) = 0;
         virtual void StopAll() = 0;
+        virtual void ToggleMute() = 0;
         virtual void LoadSound(unsigned int soundHash, const std::string& filepath) = 0;
 
     };
@@ -60,6 +61,7 @@ namespace dae
         void Pause(unsigned int,AudioType ) override {}
         void Stop(unsigned int, AudioType) override {}
         void StopAll() override{}
+    	void ToggleMute()override{};
         void LoadSound(unsigned int , const std::string& ) override{}
     };
 
