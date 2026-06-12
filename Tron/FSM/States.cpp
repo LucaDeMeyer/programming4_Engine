@@ -453,22 +453,31 @@ void Tron::HighScoreEntryState::OnEnter(LevelManager&)
           
             unsigned int ci = static_cast<unsigned int>(playerIndex);
 
-            inputManager.BindControllerCommand(ci,
+            int numControllers = inputManager.GetConnectedControllerCount();
+            unsigned int actualControllerIndex = ci;
+
+            if (mode == GameMode::COOP && numControllers == 1)
+            {
+                actualControllerIndex = 0;
+            }
+
+
+            inputManager.BindControllerCommand(actualControllerIndex,
                 dae::Controller::ControllerButton::DPadUp, dae::InputState::Down,
                 std::make_unique<ScrollUpCommand>(raw, nameEntry));
-            inputManager.BindControllerCommand(ci,
+            inputManager.BindControllerCommand(actualControllerIndex,
                 dae::Controller::ControllerButton::DPadDown, dae::InputState::Down,
                 std::make_unique<ScrollDownCommand>(raw, nameEntry));
-            inputManager.BindControllerCommand(ci,
+            inputManager.BindControllerCommand(actualControllerIndex,
                 dae::Controller::ControllerButton::DPadLeft, dae::InputState::Down,
                 std::make_unique<SlotLeftCommand>(raw, nameEntry));
-            inputManager.BindControllerCommand(ci,
+            inputManager.BindControllerCommand(actualControllerIndex,
                 dae::Controller::ControllerButton::DPadRight, dae::InputState::Down,
                 std::make_unique<SlotRightCommand>(raw, nameEntry));
-            inputManager.BindControllerCommand(ci,
+            inputManager.BindControllerCommand(actualControllerIndex,
                 dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down,
                 std::make_unique<ConfirmNameCommand>(raw, nameEntry));
-            inputManager.BindControllerCommand(ci,
+            inputManager.BindControllerCommand(actualControllerIndex,
                 dae::Controller::ControllerButton::ButtonA, dae::InputState::Down,
                 std::make_unique<ConfirmNameCommand>(raw, nameEntry));
         };
