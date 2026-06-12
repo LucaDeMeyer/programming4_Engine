@@ -148,22 +148,20 @@ void Tron::LevelManager::ParseGrid(std::string& path, dae::Scene& scene)
 	m_RecogniserSpawnPoints.clear();
 	m_EmptyLocations.clear();
 
-	std::ifstream file(path);
-	if (!file.is_open()) return;
-
-	std::string line;
-	while (std::getline(file, line)) {
-		std::stringstream ss(line);
-		std::string cell;
-		int currentLineCols = 0;
-
-		while (std::getline(ss, cell, ',')) {
-			m_Grid.push_back(static_cast<TileType>(std::stoi(cell)));
-			currentLineCols++;
-		}
-		if (m_Cols == 0) m_Cols = currentLineCols;
-		m_Rows++;
+	std::ifstream file(path, std::ios::binary);
+	if (!file.is_open())
+	{
+		std::cerr << "Failed to open binary level file: " << path << "\n";
+		return;
 	}
+	file.read(reinterpret_cast<char*>(&m_Cols), sizeof(m_Cols));
+	file.read(reinterpret_cast<char*>(&m_Rows), sizeof(m_Rows));
+
+	size_t totalTiles = m_Cols * m_Rows;
+	m_Grid.resize(totalTiles);
+	file.read(reinterpret_cast<char*>(m_Grid.data()), totalTiles * sizeof(TileType));
+
+
 	//use flyweight pattern to make the map instead of individual GOs per tile
 	auto mapObject = std::make_unique<dae::GameObject>();
 	auto tileMap = mapObject->AddComponent<TileMapComponent>(m_TileSize);
@@ -302,7 +300,9 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 
 		input.BindKeyCommand(SDLK_F1, dae::InputState::Down, std::make_unique<Tron::SkipLevelCommand>());
 		input.BindKeyCommand(SDLK_F2, dae::InputState::Down, std::make_unique<Tron::ToggleMuteCommand>());
-		//input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1)); // -1 for Keyboard
+
+		//input.BindContinuousCommand(std::make_unique<Tron::AimCommand>(player.Turret.get(), -1));
+	
 	}
 
 	if (controllerIndex != -1) {
@@ -312,14 +312,12 @@ void Tron::LevelManager::SpawnSinglePlayer( dae::Scene& scene, int playerIndex, 
 		input.RegisterControllerMovementCommand(controllerIndex, dae::Controller::ControllerButton::DPadLeft, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ -100,0 }));
 		input.RegisterControllerMovementCommand(controllerIndex, dae::Controller::ControllerButton::DPadRight, std::make_unique<Tron::PlayerMoveCommand>(pTankBase, glm::vec2{ 100,0 }));
 		input.BindControllerCommand(controllerIndex, dae::Controller::ControllerButton::RightShoulder, dae::InputState::Down, std::make_unique<Tron::PlayerFireCommand>(pTankBase, player.Turret.get()));
-		input.BindControllerCommand(controllerIndex, dae::Controller::ControllerButton::ButtonB, dae::InputState::Down, std::make_unique<Tron::DamageCommand>(pTankBase, 2)); // Debug damage
 	}
 
 	scene.Add(std::move(player.Base));
 	scene.Add(std::move(player.Turret));
 	scene.Add(std::move(livesDisplay));
 	scene.Add(std::move(scoreDisplay));
-	//scene.Add(std::move(Explosion));
 }
 
 void Tron::LevelManager::SpawnEnemies(dae::Scene& scene)

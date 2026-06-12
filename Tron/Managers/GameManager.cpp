@@ -16,6 +16,9 @@
 void Tron::GameManager::Init()
 {
     dae::EventQueue::GetInstance().GetNotifier()->AddObserver(&Tron::GameManager::GetInstance());
+
+
+
     LoadFile();
 }
 
@@ -97,6 +100,8 @@ void Tron::GameManager::RemoveEntity(dae::GameObject* entity)
     dae::InputManager::GetInstance().RemoveCommandsForObject(entity);
 
     entity->MarkForDestruction();
+
+    LevelManager::GetInstance().RemovePlayerFromCache(entity);
 }
 
 void Tron::GameManager::RegisterEntiy(dae::GameObject* entity)
@@ -144,6 +149,8 @@ void Tron::GameManager::CheckWinCondition()
             else
             {
                 m_PendingTransition = TransitionType::NextLevel;
+                m_P1Lives = 3;
+                m_P2Lives = 3;
             }
         }
         break;
@@ -202,10 +209,28 @@ void Tron::GameManager::AddScore(const std::string& name, int score)
 
 void Tron::GameManager::SaveToFile()
 {
+#ifdef NDEBUG
+    std::ofstream file(m_FileName, std::ios::binary);
+    if (!file.is_open()) return;
+
+    size_t count = m_HighScores.size();
+    file.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+    for (const auto& entry : m_HighScores)
+    {
+        size_t nameLen = entry.name.size();
+        file.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+        file.write(entry.name.data(), nameLen);
+        file.write(reinterpret_cast<const char*>(&entry.score), sizeof(entry.score));
+    }
+#else
     std::ofstream file(m_FileName);
+    if (!file.is_open()) return;
+
     for (const auto& entry : m_HighScores) {
         file << entry.name << "," << entry.score << "\n";
     }
+#endif
 }
 
 void Tron::GameManager::LoadFile()
@@ -216,12 +241,33 @@ void Tron::GameManager::LoadFile()
         return;
     }
 
-    std::ifstream file(m_FileName);
-    std::string line;
     m_HighScores.clear();
 
+#ifdef NDEBUG
+    std::ifstream file(m_FileName, std::ios::binary);
+    if (!file.is_open()) return;
+
+    size_t count = 0;
+    if (file.read(reinterpret_cast<char*>(&count), sizeof(count)))
+    {
+        for (size_t i = 0; i < count; ++i)
+        {
+            size_t nameLen = 0;
+            if (!file.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen))) break;
+            std::string name(nameLen, '\0');
+            if (!file.read(&name[0], nameLen)) break;
+            int score = 0;
+            if (!file.read(reinterpret_cast<char*>(&score), sizeof(score))) break;
+
+            m_HighScores.push_back({ name, score });
+        }
+    }
+#else
+    std::ifstream file(m_FileName);
+    std::string line;
+
     while (std::getline(file, line)) {
-        if (line.empty()) continue; 
+        if (line.empty()) continue;
 
         size_t commaPos = line.find(',');
         if (commaPos != std::string::npos) {
@@ -231,11 +277,10 @@ void Tron::GameManager::LoadFile()
                 m_HighScores.push_back({ name, score });
             }
             catch (...) {
-                // skip corrupted lines
                 continue;
             }
         }
     }
+#endif
 }
-
 

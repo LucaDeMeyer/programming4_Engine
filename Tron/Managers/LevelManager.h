@@ -69,6 +69,14 @@ namespace Tron
 
 		dae::GameObject* GetP1() const { return m_Pplayer1; }
 		dae::GameObject* GetP2() const { return m_Pplayer2; }
+
+
+		void RemovePlayerFromCache(dae::GameObject* deadPlayer)
+		{
+			if (m_Pplayer1 == deadPlayer) m_Pplayer1 = nullptr;
+			if (m_Pplayer2 == deadPlayer) m_Pplayer2 = nullptr;
+		}
+
 	private:
 		friend class dae::Singleton<LevelManager>;
 		LevelManager() = default;
@@ -85,11 +93,12 @@ namespace Tron
 		void CreateFPSCounter(dae::Scene& scene, const glm::vec3& pos);
 		void SetupLevelAudio();
 
+
 		std::vector<glm::vec3> m_TankSpawnPoints;
 		std::vector<glm::vec3> m_RecogniserSpawnPoints;
 		std::vector<glm::vec3> m_EmptyLocations;
 
-		std::vector<std::string> m_LevelFiles{ "Data/Level1.csv", "Data/Level2.csv", "Data/Level3.csv" };
+		std::vector<std::string> m_LevelFiles{ "Data/Level1.bin", "Data/Level2.bin", "Data/Level3.bin" };
 
 		std::vector<TileType> m_Grid;
 

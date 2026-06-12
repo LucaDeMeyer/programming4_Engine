@@ -41,6 +41,15 @@
             }
         },
         {
+            "name": "x64-profile",
+            "displayName": "x64 Profile",
+            "description": "Target Windows (64-bit) optimized for profiling with debug symbols.",
+            "inherits": "x64-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
             "name": "clang-debug",
             "displayName": "clang Debug",
             "description": "Using compilers: C = /usr/bin/clang, CXX = /usr/bin/clang++",

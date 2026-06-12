@@ -52,35 +52,25 @@ void TileMapComponent::Render() const
         }
     }
 }
-void TileMapComponent::LoadLevel(const std::string& csvFilePath)
+void TileMapComponent::LoadLevel(const std::string& filepath)
 {
     m_Grid.clear();
     m_Cols = 0;
     m_Rows = 0;
 
-    std::ifstream file(csvFilePath);
+    std::ifstream file(filepath, std::ios::binary);
     if (!file.is_open())
     {
-        std::cerr << "TileMapComponent: Failed to open CSV file: " << csvFilePath << "\n";
+        std::cerr << "TileMapComponent: Failed to open binary file: " << filepath << "\n";
         return;
     }
 
-    std::string line;
-    while (std::getline(file, line))
-    {
-        std::stringstream ss(line);
-        std::string cell;
-        int currentCols = 0;
+    // 2. Read the dimensions first
+    file.read(reinterpret_cast<char*>(&m_Cols), sizeof(m_Cols));
+    file.read(reinterpret_cast<char*>(&m_Rows), sizeof(m_Rows));
 
-        while (std::getline(ss, cell, ','))
-        {
-            int tileID = std::stoi(cell);
-            m_Grid.push_back(static_cast<TileType>(tileID));
-
-            currentCols++;
-        }
-        if (m_Cols == 0) m_Cols = currentCols;
-
-        m_Rows++;
-    }
+    // 3. Read the entire grid in one solid memory block
+    size_t totalTiles = m_Cols * m_Rows;
+    m_Grid.resize(totalTiles);
+    file.read(reinterpret_cast<char*>(m_Grid.data()), totalTiles * sizeof(TileType));
 }

@@ -641,14 +641,13 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
 
     std::string winnerText = "DRAW!";
    
-    auto* p1 = manager.GetP1();
-    auto* p2 = manager.GetP2();
+ 
 
-    bool p1Alive = p1 && !p1->IsMarkedForDestruction();
-    bool p2Alive = p2 && !p2->IsMarkedForDestruction();
+    int p1FinalScore = gameManager.m_P1Score;
+    int p2FinalScore = gameManager.m_p2Score;
 
-    if (p1Alive && !p2Alive) winnerText = "PLAYER 1 WINS!";
-    else if (p2Alive && !p1Alive) winnerText = "PLAYER 2 WINS!";
+    if (p1FinalScore > p2FinalScore) winnerText = "PLAYER 1 WINS!";
+    else if (p2FinalScore > p1FinalScore) winnerText = "PLAYER 2 WINS!";
 
     auto winSize = gameManager.GetWindowSize();
     auto titleObj = std::make_unique<dae::GameObject>();
@@ -656,7 +655,7 @@ void Tron::PvpWinnerScreenState::OnEnter(LevelManager& manager)
     textComp->SetFont("TRON.TTF", 40)->SetColor(0, 255, 255, 255)->SetText(winnerText);
 
     glm::vec2 texSize = textComp->GetTexture()->GetSize();
-    titleObj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), (winSize.y / 2.0f) - (winSize.y * 0.85f), 1 });
+    titleObj->GetTransform()->SetLocalPosition({ (winSize.x / 2.0f) - (texSize.x / 2.0f), (winSize.y / 2.0f) - (winSize.y * 0.15f), 1 });
     scene.Add(std::move(titleObj));
 
 

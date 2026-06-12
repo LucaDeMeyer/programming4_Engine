@@ -26,7 +26,7 @@ public:
     TileMapComponent& operator=(TileMapComponent&& other) = delete;
     TileMapComponent& operator=(const TileMapComponent& other) = delete;
 
-    void LoadLevel(const std::string& csvFilePath);
+    void LoadLevel(const std::string& filepath);
     void Render() const override;
     void Update() override{}
     void RenderUI() override{};

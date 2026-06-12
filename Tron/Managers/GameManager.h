@@ -104,8 +104,13 @@ namespace Tron
 		std::vector<dae::GameObject*> m_Entities{}; 
 
 		std::vector<HighScoreEntry> m_HighScores;
-		const std::string m_FileName = "highscores.txt";
 
+		#ifdef NDEBUG
+				const std::string m_FileName = "highscores.bin";
+		#else
+				const std::string m_FileName = "highscores.txt";
+		#endif
+		
 		int m_enemies{};
 		int m_Players{};
 	

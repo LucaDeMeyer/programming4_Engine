@@ -328,8 +328,27 @@ set(TRON_SOURCES
     Tron/Components/ScoreDisplay.cpp
 )
 
+set(LEVELS "Level1" "Level2" "Level3")
+set(BAKED_LEVELS "")
+
+foreach(LEVEL IN LISTS LEVELS)
+    set(CSV_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Tron/Data/${LEVEL}.csv")
+    set(BIN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Tron/Data/${LEVEL}.bin")
+    
+    add_custom_command(
+        OUTPUT "${BIN_PATH}"
+        COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/Tron/Tools/BakeLevel.py" "${CSV_PATH}" "${BIN_PATH}"
+        DEPENDS "${CSV_PATH}"
+        COMMENT "Cooking ${LEVEL}.csv into binary format..."
+    )
+    list(APPEND BAKED_LEVELS "${BIN_PATH}")
+endforeach()
+
+add_custom_target(BakeTronLevels ALL DEPENDS ${BAKED_LEVELS})
 
 add_minigin_app(Tron "${TRON_SOURCES}")
+add_dependencies(Tron BakeTronLevels)
+
 
 if(WIN32)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ACTIVE_PROJECT})
