@@ -2,7 +2,10 @@
 #define GAME_TIME_H
 #include <chrono>
 #include "Singleton.h"
-
+/**
+ * @brief Singleton service that tracks frame-to-frame timing.
+ * Provides access to delta time for frame-independent movement and logic.
+ */
 class Time  final : public dae::Singleton<Time>
 {
 public:

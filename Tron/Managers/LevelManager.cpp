@@ -90,6 +90,8 @@ void Tron::LevelManager::LoadLevel(LevelCategory category)
 	auto& gameManager = GameManager::GetInstance();
 	auto& audioService = dae::ServiceLocator::GetAudioService();
 
+	dae::CollisionManager::GetInstance().Clear();
+
 	audioService.StopAll();
 
 	gameManager.ClearEntities();
@@ -102,6 +104,8 @@ void Tron::LevelManager::LoadLevel(LevelCategory category)
 
 	m_Pplayer1 = nullptr;
 	m_Pplayer2 = nullptr;
+
+	m_Grid.clear();
 
 	if (category == LevelCategory::Game)
 	{
